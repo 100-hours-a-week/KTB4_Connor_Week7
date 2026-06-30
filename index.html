@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아무 말 대잔치 - 로그인</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script type="module" src="src/pages/login.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>아무 말 대잔치</h1>
+    </header>
+
+    <main class="login-page">
+      <section class="login-section" aria-labelledby="login-title">
+        <h2 id="login-title">로그인</h2>
+
+        <form class="login-form" novalidate>
+          <div class="field">
+            <label for="email">이메일</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="이메일을 입력하세요"
+              aria-describedby="email-helper form-helper"
+            >
+            <p id="email-helper" class="helper-text" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="password">비밀번호</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="비밀번호를 입력하세요"
+              aria-describedby="password-helper form-helper"
+            >
+            <p id="password-helper" class="helper-text" aria-live="polite"></p>
+          </div>
+
+          <p id="form-helper" class="helper-text form-helper" aria-live="polite"></p>
+
+          <button class="login-button" type="submit" disabled>로그인</button>
+        </form>
+
+        <a class="signup-link" href="pages/signup.html">회원가입</a>
+      </section>
+    </main>
+  </body>
+</html>
