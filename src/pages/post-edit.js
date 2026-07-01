@@ -11,9 +11,11 @@ import { setButtonLoading, setHelperText, validateRequired } from "../utils/form
 import { formatLimitText } from "../utils/format.js";
 import { extractFileName } from "../utils/image.js";
 import { routes } from "../utils/routes.js";
-import { accessToken } from "../utils/session.js";
+import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
+import { accessToken, isCurrentUser } from "../utils/session.js";
 
 const TITLE_MAX_LENGTH = 26;
+const POST_EDIT_FORBIDDEN = "*작성자만 수정할 수 있습니다.";
 
 const postId = new URLSearchParams(window.location.search).get("postId");
 const backLink = document.querySelector(".back-link");
@@ -84,8 +86,9 @@ function updateSubmitState() {
         setHelperText(formHelper);
     }
 
-    submitButton.disabled = false;
-    submitButton.setAttribute("aria-disabled", String(!canSubmit()));
+    const isSubmittable = canSubmit();
+    submitButton.disabled = !isSubmittable;
+    submitButton.setAttribute("aria-disabled", String(!isSubmittable));
 }
 
 function setLoading(isLoading) {
@@ -95,12 +98,20 @@ function setLoading(isLoading) {
 }
 
 async function loadProfile() {
-    if (!accessToken()) {
-        await headerProfile.loadCurrentUser();
-        return;
+    if (!requireAccessToken()) {
+        return null;
     }
 
-    await headerProfile.loadCurrentUser();
+    return headerProfile.loadCurrentUser({
+        fallbackMessage: POST_LOAD_FAILURE,
+        onError(error) {
+            if (handleUnauthorized(error)) {
+                return;
+            }
+
+            setHelperText(formHelper, error.message || POST_LOAD_FAILURE);
+        },
+    });
 }
 
 function renderPost(post) {
@@ -131,9 +142,19 @@ async function loadPost() {
     try {
         setHelperText(formHelper, "게시글을 불러오는 중입니다.");
         const post = await fetchPost(postId, POST_LOAD_FAILURE);
+
+        if (!isCurrentUser(post.userId)) {
+            setHelperText(formHelper, POST_EDIT_FORBIDDEN);
+            return;
+        }
+
         renderPost(post);
         setHelperText(formHelper);
     } catch (error) {
+        if (handleUnauthorized(error)) {
+            return;
+        }
+
         setHelperText(formHelper, error.message || POST_LOAD_FAILURE);
     } finally {
         state.isLoadingPost = false;
@@ -214,10 +235,25 @@ form.addEventListener("submit", async (event) => {
 
         window.location.href = routes.postDetail(postId);
     } catch (error) {
+        if (handleUnauthorized(error)) {
+            return;
+        }
+
         setHelperText(formHelper, error.message || POST_EDIT_FAILURE);
     } finally {
         setLoading(false);
     }
 });
 
-Promise.allSettled([loadProfile(), loadPost()]);
+async function init() {
+    const user = await loadProfile();
+
+    if (!user) {
+        return;
+    }
+
+    await loadPost();
+}
+
+updateSubmitState();
+init();

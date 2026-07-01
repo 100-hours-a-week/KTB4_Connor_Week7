@@ -75,6 +75,10 @@ function createHeaderProfile() {
         avatarButton.setAttribute("aria-label", isAuthenticated ? "프로필 메뉴 열기" : "로그인 메뉴 열기");
     }
 
+    function isAuthenticated() {
+        return Boolean(accessToken());
+    }
+
     function toggleMenu(forceOpen) {
         if (!profileMenu || !avatarButton) {
             closeMenu();
@@ -142,6 +146,7 @@ function createHeaderProfile() {
 
     return {
         loadCurrentUser,
+        isAuthenticated,
         setAvatar,
         setVisible,
         toggleMenu,

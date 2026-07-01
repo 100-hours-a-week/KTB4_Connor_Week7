@@ -11,6 +11,7 @@ import {
 import { setButtonLoading, setHelperText, validateRequired } from "../utils/form.js";
 import { formatLimitText } from "../utils/format.js";
 import { routes } from "../utils/routes.js";
+import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
 import { accessToken } from "../utils/session.js";
 
 const TITLE_MAX_LENGTH = 26;
@@ -62,8 +63,9 @@ function getSubmitErrorMessage() {
 
 function updateSubmitState() {
     setHelper();
-    submitButton.disabled = false;
-    submitButton.setAttribute("aria-disabled", String(!canSubmit()));
+    const isSubmittable = canSubmit();
+    submitButton.disabled = !isSubmittable;
+    submitButton.setAttribute("aria-disabled", String(!isSubmittable));
 }
 
 function setLoading(isLoading) {
@@ -84,19 +86,21 @@ function setSelectedImageFile(file) {
 }
 
 async function loadProfile() {
-    if (!isLoggedIn()) {
-        await headerProfile.loadCurrentUser();
-        setHelper(AUTH_LOGIN_REQUIRED);
-        submitButton.setAttribute("aria-disabled", "true");
+    if (!requireAccessToken()) {
         return;
     }
 
     await headerProfile.loadCurrentUser({
         fallbackMessage: POST_CREATE_FAILURE,
         onError(error) {
+            if (handleUnauthorized(error)) {
+                return;
+            }
+
             setHelper(error.message || POST_CREATE_FAILURE);
         },
     });
+    updateSubmitState();
 }
 
 async function handleSubmit(event) {
@@ -120,6 +124,10 @@ async function handleSubmit(event) {
 
         globalThis.location.href = post.postId ? routes.postDetail(post.postId) : routes.posts;
     } catch (error) {
+        if (handleUnauthorized(error)) {
+            return;
+        }
+
         setHelper(error.message || POST_CREATE_FAILURE);
     } finally {
         setLoading(false);
@@ -147,4 +155,5 @@ function bindEvents() {
 }
 
 bindEvents();
+updateSubmitState();
 loadProfile();

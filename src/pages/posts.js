@@ -12,6 +12,7 @@ const TITLE_MAX_LENGTH = 26;
 const postsList = document.querySelector(".posts-list");
 const postsState = document.querySelector(".posts-state");
 const sentinel = document.querySelector(".posts-sentinel");
+const writeLink = document.querySelector(".write-link");
 
 const headerProfile = createHeaderProfile();
 const pageState = {
@@ -129,6 +130,15 @@ async function loadPosts() {
 
 headerProfile.loadCurrentUser();
 loadPosts();
+
+writeLink.addEventListener("click", (event) => {
+    if (headerProfile.isAuthenticated()) {
+        return;
+    }
+
+    event.preventDefault();
+    globalThis.location.href = routes.login;
+});
 
 postsObserver = new IntersectionObserver((entries) => {
     if (entries.some((entry) => entry.isIntersecting)) {

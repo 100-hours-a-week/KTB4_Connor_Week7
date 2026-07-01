@@ -3,12 +3,12 @@ import { createHeaderProfile } from "../components/header-profile.js";
 import { createToast } from "../components/toast.js";
 import {
     PASSWORD_CURRENT_REQUIRED,
-    AUTH_LOGIN_REQUIRED,
     PASSWORD_NEW_REQUIRED,
     PASSWORD_POLICY,
     PASSWORD_UPDATE_FAILURE,
 } from "../constants/messages.js";
 import { setButtonLoading, setHelperText } from "../utils/form.js";
+import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
 import { accessToken } from "../utils/session.js";
 import { isValidPassword, showMessage } from "../utils/validation.js";
 
@@ -65,16 +65,15 @@ function setLoading(isLoading) {
 }
 
 async function loadProfile() {
-    if (!accessToken()) {
-        headerProfile.setVisible(false);
-        setHelperText(formHelper, AUTH_LOGIN_REQUIRED);
-        submitButton.disabled = true;
+    if (!requireAccessToken()) {
         return;
     }
 
     await headerProfile.loadCurrentUser({
         fallbackMessage: PASSWORD_UPDATE_FAILURE,
         onError(error) {
+            if (handleUnauthorized(error)) return;
+
             setHelperText(formHelper, error.message || PASSWORD_UPDATE_FAILURE);
         },
     });
@@ -118,6 +117,8 @@ form.addEventListener("submit", async (event) => {
         updateSubmitState();
         updateToast.show();
     } catch (error) {
+        if (handleUnauthorized(error)) return;
+
         setHelperText(formHelper, error.message || PASSWORD_UPDATE_FAILURE);
     } finally {
         setLoading(false);

@@ -5,7 +5,6 @@ import { createHeaderProfile } from "../components/header-profile.js";
 import { createToast } from "../components/toast.js";
 import {
     USER_NICKNAME_DUPLICATE,
-    AUTH_LOGIN_REQUIRED,
     USER_NICKNAME_REQUIRED,
     USER_NICKNAME_SPACE,
     PROFILE_LOAD_FAILURE,
@@ -16,7 +15,8 @@ import {
 import { setButtonLoading, setHelperText } from "../utils/form.js";
 import { createImagePreviewController } from "../utils/image-preview.js";
 import { routes } from "../utils/routes.js";
-import { accessToken, clearSession, updateStoredUser } from "../utils/session.js";
+import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
+import { clearSession, updateStoredUser } from "../utils/session.js";
 
 const form = document.querySelector(".profile-edit-form");
 const profileInput = document.querySelector("#edit-profile-image");
@@ -36,7 +36,6 @@ const toast = document.querySelector(".toast");
 const headerProfile = createHeaderProfile();
 let selectedProfileFile = null;
 let currentProfileImage = "";
-let isProfileImageMarkedForDeletion = false;
 const profilePreviewController = createImagePreviewController({
     image: profilePreview,
     fallback: profileFallback,
@@ -83,26 +82,13 @@ function showUpdateError(message) {
     setHelperText(formHelper, message || PROFILE_UPDATE_FAILURE);
 }
 
-function markProfileImageForDeletion() {
-    profilePreviewController.clear();
-    selectedProfileFile = null;
-    currentProfileImage = "";
-    isProfileImageMarkedForDeletion = true;
-    profileInput.value = "";
-    headerProfile.setAvatar("");
-}
-
 function setSelectedProfileFile(file) {
     profilePreviewController.showFile(file);
     selectedProfileFile = file;
-    isProfileImageMarkedForDeletion = false;
 }
 
 async function loadProfile() {
-    if (!accessToken()) {
-        headerProfile.setVisible(false);
-        setHelperText(formHelper, AUTH_LOGIN_REQUIRED);
-        submitButton.disabled = true;
+    if (!requireAccessToken()) {
         return;
     }
 
@@ -115,15 +101,13 @@ async function loadProfile() {
         nicknameInput.value = user.nickname || "";
         currentProfileImage = user.profileImage || "";
         selectedProfileFile = null;
-        isProfileImageMarkedForDeletion = false;
         profilePreviewController.revoke();
         headerProfile.setAvatar(currentProfileImage);
         setProfilePreview(currentProfileImage);
         updateStoredUser(user);
     } catch (error) {
-        if (error.status === 401) {
-            clearSession();
-            headerProfile.setVisible(false);
+        if (handleUnauthorized(error)) {
+            return;
         }
 
         setHelperText(formHelper, error.message || PROFILE_LOAD_FAILURE);
@@ -142,6 +126,10 @@ async function withdraw() {
         clearSession();
         window.location.href = routes.login;
     } catch (error) {
+        if (handleUnauthorized(error)) {
+            return;
+        }
+
         withdrawDialog.close();
         setHelperText(formHelper, error.message || PROFILE_WITHDRAW_FAILURE);
     } finally {
@@ -157,12 +145,6 @@ profileInput.addEventListener("change", () => {
     }
 
     setSelectedProfileFile(file);
-});
-
-profileInput.addEventListener("click", () => {
-    if (currentProfileImage || selectedProfileFile) {
-        markProfileImageForDeletion();
-    }
 });
 
 nicknameInput.addEventListener("input", () => {
@@ -183,7 +165,7 @@ form.addEventListener("submit", async (event) => {
     setLoading(true);
 
     try {
-        let profileImage = isProfileImageMarkedForDeletion ? "" : currentProfileImage;
+        let profileImage = currentProfileImage || null;
 
         if (selectedProfileFile) {
             profileImage = await uploadImage(selectedProfileFile, PROFILE_UPDATE_FAILURE);
@@ -196,13 +178,16 @@ form.addEventListener("submit", async (event) => {
 
         currentProfileImage = user.profileImage || profileImage;
         selectedProfileFile = null;
-        isProfileImageMarkedForDeletion = false;
         profilePreviewController.revoke();
         headerProfile.setAvatar(currentProfileImage);
         setProfilePreview(currentProfileImage);
         updateStoredUser({ ...user, profileImage: currentProfileImage });
         updateToast.show();
     } catch (error) {
+        if (handleUnauthorized(error)) {
+            return;
+        }
+
         showUpdateError(error.message || PROFILE_UPDATE_FAILURE);
     } finally {
         setLoading(false);
