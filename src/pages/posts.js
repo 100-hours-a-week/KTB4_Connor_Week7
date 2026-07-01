@@ -3,6 +3,7 @@ import { createHeaderProfile } from "../components/header-profile.js";
 import { routes } from "../utils/routes.js";
 import { formatCount, formatDate, formatLimitText } from "../utils/format.js";
 import { resolveImageUrl } from "../utils/image.js";
+import { currentProfileImage, isCurrentUser } from "../utils/session.js";
 import { POSTS_LOAD_FAILURE } from "../constants/messages.js";
 
 
@@ -32,8 +33,14 @@ function stopObservingPosts() {
     postsObserver?.disconnect?.();
 }
 
+function resolveAuthorProfileImage(post) {
+    return post.profileImage
+        || post.authorProfileImage
+        || (isCurrentUser(post.userId) ? currentProfileImage() : "");
+}
+
 function createAuthorAvatar(post) {
-    const imageUrl = resolveImageUrl(post.profileImage || post.authorProfileImage);
+    const imageUrl = resolveImageUrl(resolveAuthorProfileImage(post));
     const avatar = document.createElement("span");
     avatar.className = "post-author-avatar";
 
@@ -128,9 +135,6 @@ async function loadPosts() {
     }
 }
 
-headerProfile.loadCurrentUser();
-loadPosts();
-
 writeLink.addEventListener("click", (event) => {
     if (headerProfile.isAuthenticated()) {
         return;
@@ -140,10 +144,23 @@ writeLink.addEventListener("click", (event) => {
     globalThis.location.href = routes.login;
 });
 
-postsObserver = new IntersectionObserver((entries) => {
-    if (entries.some((entry) => entry.isIntersecting)) {
-        loadPosts();
-    }
-});
+function observeMorePosts() {
+    postsObserver = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+            loadPosts();
+        }
+    });
 
-postsObserver.observe(sentinel);
+    postsObserver.observe(sentinel);
+}
+
+async function initPostsPage() {
+    await headerProfile.loadCurrentUser();
+    await loadPosts();
+
+    if (pageState.hasNext) {
+        observeMorePosts();
+    }
+}
+
+initPostsPage();

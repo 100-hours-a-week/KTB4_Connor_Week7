@@ -14,7 +14,7 @@ import {
 import { formatCount, formatDate } from "../utils/format.js";
 import { renderBackgroundImage, resolveImageUrl } from "../utils/image.js";
 import { routes } from "../utils/routes.js";
-import { accessToken, clearSession, isCurrentUser } from "../utils/session.js";
+import { accessToken, clearSession, currentProfileImage, isCurrentUser } from "../utils/session.js";
 
 const postId = new URLSearchParams(globalThis.location.search).get("postId");
 const detailState = document.querySelector(".detail-state");
@@ -105,6 +105,9 @@ async function withAuthHandling(promise) {
 function renderPost(post) {
     const imageUrl = resolveImageUrl(post.imageUrl);
     const canEditPost = isCurrentUser(post.userId);
+    const authorProfileImage = post.profileImage
+        || post.authorProfileImage
+        || (canEditPost ? currentProfileImage() : "");
 
     detailTitle.textContent = post.title || "";
     authorName.textContent = post.nickname || "알 수 없음";
@@ -114,7 +117,7 @@ function renderPost(post) {
     ownerActions.hidden = !canEditPost;
     editLink.href = routes.postEdit(post.postId);
 
-    renderBackgroundImage(authorAvatar, post.profileImage || post.authorProfileImage);
+    renderBackgroundImage(authorAvatar, authorProfileImage);
 
     if (imageUrl) {
         detailImage.src = imageUrl;

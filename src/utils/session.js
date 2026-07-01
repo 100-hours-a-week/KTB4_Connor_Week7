@@ -36,6 +36,10 @@ function currentUserId() {
   return sessionStorage.getItem("userId") || "";
 }
 
+function currentProfileImage() {
+  return sessionStorage.getItem("profileImage") || "";
+}
+
 function isCurrentUser(userId) {
   return Boolean(userId) && userId === currentUserId();
 }
@@ -52,6 +56,7 @@ export {
   accessToken,
   authHeaders,
   currentUserId,
+  currentProfileImage,
   isCurrentUser,
   clearSession,
 };
