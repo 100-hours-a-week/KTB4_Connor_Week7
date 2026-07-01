@@ -1,6 +1,6 @@
 import { request } from "./client.js";
 import { AUTH_LOGIN_FAILURE } from "../constants/messages.js";
-import { authHeaders } from "../utils/session.js";
+import { createAuthHeaders } from "../utils/session.js";
 
 function login({ email, password }) {
   return request(
@@ -21,7 +21,7 @@ function login({ email, password }) {
 function logout() {
   return request("/api/auth/logout", {
     method: "POST",
-    headers: authHeaders(),
+    headers: createAuthHeaders(),
   });
 }
 

@@ -7,10 +7,10 @@ function setButtonLoading(button, isLoading, loadingText, idleText) {
     button.textContent = isLoading ? loadingText : idleText;
 }
 
-function validateRequired(input, helper, message, showMessage = false) {
+function validateRequired(input, helper, message, shouldShowMessage = false) {
     const isValid = Boolean(input.value.trim());
 
-    if (showMessage && !isValid) {
+    if (shouldShowMessage && !isValid) {
         setHelperText(helper, message);
     }
 

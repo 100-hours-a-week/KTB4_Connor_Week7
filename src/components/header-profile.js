@@ -1,7 +1,7 @@
 import { logout as logoutRequest } from "../api/auth.js";
 import { fetchMe } from "../api/users.js";
 import { AUTH_LOGOUT_FAILURE_LOG } from "../constants/messages.js";
-import { accessToken, clearSession, updateStoredUser } from "../utils/session.js";
+import { getAccessToken, clearSession, updateStoredUser } from "../utils/session.js";
 import { resolveImageUrl } from "../utils/image.js";
 import { routes } from "../utils/routes.js";
 
@@ -76,7 +76,7 @@ function createHeaderProfile() {
     }
 
     function isAuthenticated() {
-        return Boolean(accessToken());
+        return Boolean(getAccessToken());
     }
 
     function toggleMenu(forceOpen) {
@@ -104,9 +104,9 @@ function createHeaderProfile() {
 
     async function loadCurrentUser({ fallbackMessage, onError } = {}) {
         setVisible(true);
-        setAuthenticated(Boolean(accessToken()));
+        setAuthenticated(Boolean(getAccessToken()));
 
-        if (!accessToken()) {
+        if (!getAccessToken()) {
             setAvatar("");
             return null;
         }

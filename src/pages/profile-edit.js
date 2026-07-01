@@ -35,7 +35,7 @@ const toast = document.querySelector(".toast");
 
 const headerProfile = createHeaderProfile();
 let selectedProfileFile = null;
-let currentProfileImage = "";
+let savedProfileImageUrl = "";
 const profilePreviewController = createImagePreviewController({
     image: profilePreview,
     fallback: profileFallback,
@@ -48,11 +48,11 @@ const withdrawDialog = createConfirmDialog({
     returnFocusElement: withdrawButton,
 });
 
-function setProfilePreview(imageUrl) {
+function showProfilePreview(imageUrl) {
     profilePreviewController.show(imageUrl);
 }
 
-function validateNickname(showMessage = false) {
+function validateProfileNickname(shouldShowMessage = false) {
     const value = nicknameInput.value;
     let message = "";
 
@@ -64,16 +64,16 @@ function validateNickname(showMessage = false) {
         message = PROFILE_NICKNAME_LENGTH;
     }
 
-    nicknameHelper.textContent = showMessage ? message : "";
+    nicknameHelper.textContent = shouldShowMessage ? message : "";
     return message === "";
 }
 
-function setLoading(isLoading) {
-    submitButton.disabled = isLoading;
-    setButtonLoading(submitButton, isLoading, "수정 중...", "수정하기");
+function setProfileSubmitting(isSubmitting) {
+    submitButton.disabled = isSubmitting;
+    setButtonLoading(submitButton, isSubmitting, "수정 중...", "수정하기");
 }
 
-function showUpdateError(message) {
+function showProfileUpdateFailure(message) {
     if (message.includes("닉네임")) {
         setHelperText(nicknameHelper, USER_NICKNAME_DUPLICATE);
         return;
@@ -82,12 +82,12 @@ function showUpdateError(message) {
     setHelperText(formHelper, message || PROFILE_UPDATE_FAILURE);
 }
 
-function setSelectedProfileFile(file) {
+function setSelectedProfileImageFile(file) {
     profilePreviewController.showFile(file);
     selectedProfileFile = file;
 }
 
-async function loadProfile() {
+async function loadProfileEditForm() {
     if (!requireAccessToken()) {
         return;
     }
@@ -99,11 +99,11 @@ async function loadProfile() {
 
         emailText.textContent = user.email || "";
         nicknameInput.value = user.nickname || "";
-        currentProfileImage = user.profileImage || "";
+        savedProfileImageUrl = user.profileImage || "";
         selectedProfileFile = null;
         profilePreviewController.revoke();
-        headerProfile.setAvatar(currentProfileImage);
-        setProfilePreview(currentProfileImage);
+        headerProfile.setAvatar(savedProfileImageUrl);
+        showProfilePreview(savedProfileImageUrl);
         updateStoredUser(user);
     } catch (error) {
         if (handleUnauthorized(error)) {
@@ -114,12 +114,12 @@ async function loadProfile() {
     }
 }
 
-function openWithdrawDialog() {
+function openWithdrawConfirmDialog() {
     withdrawDialog.open();
 }
 
-async function withdraw() {
-    withdrawDialog.setConfirmLoading(true);
+async function withdrawCurrentUser() {
+    withdrawDialog.setConfirmButtonLoading(true);
 
     try {
         await withdrawMe();
@@ -133,7 +133,7 @@ async function withdraw() {
         withdrawDialog.close();
         setHelperText(formHelper, error.message || PROFILE_WITHDRAW_FAILURE);
     } finally {
-        withdrawDialog.setConfirmLoading(false);
+        withdrawDialog.setConfirmButtonLoading(false);
     }
 }
 
@@ -144,7 +144,7 @@ profileInput.addEventListener("change", () => {
         return;
     }
 
-    setSelectedProfileFile(file);
+    setSelectedProfileImageFile(file);
 });
 
 nicknameInput.addEventListener("input", () => {
@@ -152,20 +152,20 @@ nicknameInput.addEventListener("input", () => {
     setHelperText(formHelper);
 });
 
-nicknameInput.addEventListener("blur", () => validateNickname(true));
+nicknameInput.addEventListener("blur", () => validateProfileNickname(true));
 
-form.addEventListener("submit", async (event) => {
+async function submitProfileEditForm(event) {
     event.preventDefault();
     setHelperText(formHelper);
 
-    if (!validateNickname(true)) {
+    if (!validateProfileNickname(true)) {
         return;
     }
 
-    setLoading(true);
+    setProfileSubmitting(true);
 
     try {
-        let profileImage = currentProfileImage || null;
+        let profileImage = savedProfileImageUrl || null;
 
         if (selectedProfileFile) {
             profileImage = await uploadImage(selectedProfileFile, PROFILE_UPDATE_FAILURE);
@@ -176,25 +176,26 @@ form.addEventListener("submit", async (event) => {
             profileImage,
         });
 
-        currentProfileImage = user.profileImage || profileImage;
+        savedProfileImageUrl = user.profileImage || profileImage;
         selectedProfileFile = null;
         profilePreviewController.revoke();
-        headerProfile.setAvatar(currentProfileImage);
-        setProfilePreview(currentProfileImage);
-        updateStoredUser({ ...user, profileImage: currentProfileImage });
+        headerProfile.setAvatar(savedProfileImageUrl);
+        showProfilePreview(savedProfileImageUrl);
+        updateStoredUser({ ...user, profileImage: savedProfileImageUrl });
         updateToast.show();
     } catch (error) {
         if (handleUnauthorized(error)) {
             return;
         }
 
-        showUpdateError(error.message || PROFILE_UPDATE_FAILURE);
+        showProfileUpdateFailure(error.message || PROFILE_UPDATE_FAILURE);
     } finally {
-        setLoading(false);
+        setProfileSubmitting(false);
     }
-});
+}
 
-withdrawButton.addEventListener("click", openWithdrawDialog);
-dialogConfirm.addEventListener("click", withdraw);
+form.addEventListener("submit", submitProfileEditForm);
+withdrawButton.addEventListener("click", openWithdrawConfirmDialog);
+dialogConfirm.addEventListener("click", withdrawCurrentUser);
 
-loadProfile();
+loadProfileEditForm();

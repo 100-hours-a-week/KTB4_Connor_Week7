@@ -12,7 +12,7 @@ import { setButtonLoading, setHelperText, validateRequired } from "../utils/form
 import { formatLimitText } from "../utils/format.js";
 import { routes } from "../utils/routes.js";
 import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
-import { accessToken } from "../utils/session.js";
+import { getAccessToken } from "../utils/session.js";
 
 const TITLE_MAX_LENGTH = 26;
 const FILE_EMPTY_TEXT = "파일을 선택해주세요.";
@@ -32,60 +32,62 @@ const submitButton = document.querySelector(".post-create-submit");
 const headerProfile = createHeaderProfile();
 let selectedImageFile = null;
 
-function titleValue() {
+function getPostTitleInputValue() {
     return titleInput.value.trim();
 }
 
-function contentValue() {
+function getPostContentInputValue() {
     return contentInput.value.trim();
 }
 
-function isLoggedIn() {
-    return Boolean(accessToken());
+function hasLoginSession() {
+    return Boolean(getAccessToken());
 }
 
-function canSubmit() {
-    return isLoggedIn() && Boolean(titleValue()) && Boolean(contentValue());
+function canSubmitPostCreateForm() {
+    return hasLoginSession() && Boolean(getPostTitleInputValue()) && Boolean(getPostContentInputValue());
 }
 
-function setHelper(message = "") {
+function setPostCreateHelperText(message = "") {
     setHelperText(formHelper, message);
 }
 
-function getSubmitErrorMessage() {
-    const hasTitle = Boolean(titleValue());
-    const hasContent = Boolean(contentValue());
+function getPostCreateSubmitBlockerMessage() {
+    const hasTitle = Boolean(getPostTitleInputValue());
+    const hasContent = Boolean(getPostContentInputValue());
 
-    if (!isLoggedIn()) return AUTH_LOGIN_REQUIRED;
+    if (!hasLoginSession()) return AUTH_LOGIN_REQUIRED;
     if (!hasTitle && !hasContent) return POST_FORM_REQUIRED;
     return hasTitle ? POST_CONTENT_REQUIRED : POST_TITLE_REQUIRED;
 }
 
-function updateSubmitState() {
-    setHelper();
-    const isSubmittable = canSubmit();
+function syncPostCreateSubmitButton() {
+    setPostCreateHelperText();
+    const isSubmittable = canSubmitPostCreateForm();
     submitButton.disabled = !isSubmittable;
     submitButton.setAttribute("aria-disabled", String(!isSubmittable));
 }
 
-function setLoading(isLoading) {
-    submitButton.disabled = isLoading;
-    submitButton.setAttribute("aria-disabled", String(isLoading || !canSubmit()));
-    setButtonLoading(submitButton, isLoading, CREATE_LOADING_TEXT, CREATE_SUBMIT_TEXT);
+function setPostCreateSubmitting(isSubmitting) {
+    const isDisabled = isSubmitting || !canSubmitPostCreateForm();
+
+    submitButton.disabled = isSubmitting;
+    submitButton.setAttribute("aria-disabled", String(isDisabled));
+    setButtonLoading(submitButton, isSubmitting, CREATE_LOADING_TEXT, CREATE_SUBMIT_TEXT);
 }
 
-function trimTitleToLimit() {
+function trimPostCreateTitleToLimit() {
     titleInput.value = formatLimitText(titleInput.value, TITLE_MAX_LENGTH);
 }
 
-function setSelectedImageFile(file) {
+function setPostCreateImageFile(file) {
     selectedImageFile = file || null;
     imageInput.value = "";
     fileName.textContent = selectedImageFile ? selectedImageFile.name : FILE_EMPTY_TEXT;
     fileRemoveButton.hidden = !selectedImageFile;
 }
 
-async function loadProfile() {
+async function loadPostCreateHeaderProfile() {
     if (!requireAccessToken()) {
         return;
     }
@@ -97,28 +99,28 @@ async function loadProfile() {
                 return;
             }
 
-            setHelper(error.message || POST_CREATE_FAILURE);
+            setPostCreateHelperText(error.message || POST_CREATE_FAILURE);
         },
     });
-    updateSubmitState();
+    syncPostCreateSubmitButton();
 }
 
-async function handleSubmit(event) {
+async function submitPostCreateForm(event) {
     event.preventDefault();
 
-    if (!canSubmit()) {
-        setHelper(getSubmitErrorMessage());
+    if (!canSubmitPostCreateForm()) {
+        setPostCreateHelperText(getPostCreateSubmitBlockerMessage());
         submitButton.setAttribute("aria-disabled", "true");
         return;
     }
 
-    setLoading(true);
+    setPostCreateSubmitting(true);
 
     try {
         const imageUrl = selectedImageFile ? await uploadImage(selectedImageFile, POST_CREATE_FAILURE) : null;
         const post = await createPost({
-            title: titleValue(),
-            content: contentValue(),
+            title: getPostTitleInputValue(),
+            content: getPostContentInputValue(),
             imageUrl,
         });
 
@@ -128,32 +130,32 @@ async function handleSubmit(event) {
             return;
         }
 
-        setHelper(error.message || POST_CREATE_FAILURE);
+        setPostCreateHelperText(error.message || POST_CREATE_FAILURE);
     } finally {
-        setLoading(false);
+        setPostCreateSubmitting(false);
     }
 }
 
-function bindEvents() {
+function bindPostCreateEvents() {
     titleInput.addEventListener("input", () => {
-        trimTitleToLimit();
-        updateSubmitState();
+        trimPostCreateTitleToLimit();
+        syncPostCreateSubmitButton();
     });
 
-    contentInput.addEventListener("input", updateSubmitState);
+    contentInput.addEventListener("input", syncPostCreateSubmitButton);
     titleInput.addEventListener("blur", () => validateRequired(titleInput, formHelper, POST_TITLE_REQUIRED, true));
     contentInput.addEventListener("blur", () => validateRequired(contentInput, formHelper, POST_CONTENT_REQUIRED, true));
 
     fileButton.addEventListener("click", () => imageInput.click());
-    imageInput.addEventListener("change", () => setSelectedImageFile(imageInput.files[0]));
+    imageInput.addEventListener("change", () => setPostCreateImageFile(imageInput.files[0]));
     fileRemoveButton.addEventListener("click", () => {
-        setSelectedImageFile(null);
-        setHelper();
+        setPostCreateImageFile(null);
+        setPostCreateHelperText();
     });
 
-    form.addEventListener("submit", handleSubmit);
+    form.addEventListener("submit", submitPostCreateForm);
 }
 
-bindEvents();
-updateSubmitState();
-loadProfile();
+bindPostCreateEvents();
+syncPostCreateSubmitButton();
+loadPostCreateHeaderProfile();

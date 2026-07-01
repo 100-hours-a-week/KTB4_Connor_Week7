@@ -3,7 +3,7 @@ import { createHeaderProfile } from "../components/header-profile.js";
 import { routes } from "../utils/routes.js";
 import { formatCount, formatDate, formatLimitText } from "../utils/format.js";
 import { resolveImageUrl } from "../utils/image.js";
-import { currentProfileImage, isCurrentUser } from "../utils/session.js";
+import { getCurrentProfileImage, isCurrentUser } from "../utils/session.js";
 import { POSTS_LOAD_FAILURE } from "../constants/messages.js";
 
 
@@ -24,23 +24,23 @@ const pageState = {
 };
 let postsObserver = null;
 
-function showState(message) {
+function setPostsStatusMessage(message) {
     postsState.textContent = message;
     postsState.hidden = !message;
 }
 
-function stopObservingPosts() {
+function disconnectPostsObserver() {
     postsObserver?.disconnect?.();
 }
 
-function resolveAuthorProfileImage(post) {
+function getPostAuthorProfileImage(post) {
     return post.profileImage
         || post.authorProfileImage
-        || (isCurrentUser(post.userId) ? currentProfileImage() : "");
+        || (isCurrentUser(post.userId) ? getCurrentProfileImage() : "");
 }
 
-function createAuthorAvatar(post) {
-    const imageUrl = resolveImageUrl(resolveAuthorProfileImage(post));
+function createPostAuthorAvatar(post) {
+    const imageUrl = resolveImageUrl(getPostAuthorProfileImage(post));
     const avatar = document.createElement("span");
     avatar.className = "post-author-avatar";
 
@@ -86,13 +86,13 @@ function createPostCard(post) {
     const nickname = document.createElement("strong");
     nickname.textContent = post.nickname || "알 수 없음";
 
-    footer.append(createAuthorAvatar(post), nickname);
+    footer.append(createPostAuthorAvatar(post), nickname);
     card.append(body, footer);
 
     return card;
 }
 
-function renderPosts(posts) {
+function appendPostCards(posts) {
     const fragment = document.createDocumentFragment();
 
     posts.forEach((post) => {
@@ -102,13 +102,13 @@ function renderPosts(posts) {
     postsList.append(fragment);
 }
 
-async function loadPosts() {
+async function loadNextPostsPage() {
     if (pageState.isLoading || !pageState.hasNext) {
         return;
     }
 
     pageState.isLoading = true;
-    showState(pageState.loadedCount === 0 ? "게시글을 불러오는 중입니다." : "");
+    setPostsStatusMessage(pageState.loadedCount === 0 ? "게시글을 불러오는 중입니다." : "");
 
     try {
         const data = await fetchPosts({
@@ -117,20 +117,20 @@ async function loadPosts() {
         });
         const posts = Array.isArray(data.posts) ? data.posts : [];
 
-        renderPosts(posts);
+        appendPostCards(posts);
         pageState.loadedCount += posts.length;
         pageState.nextCursor = data.nextCursor || null;
         pageState.hasNext = Boolean(data.hasNext);
 
-        showState(pageState.loadedCount === 0 ? "게시글이 없습니다." : "");
+        setPostsStatusMessage(pageState.loadedCount === 0 ? "게시글이 없습니다." : "");
     } catch (error) {
         pageState.hasNext = false;
-        showState(error.message || POSTS_LOAD_FAILURE);
+        setPostsStatusMessage(error.message || POSTS_LOAD_FAILURE);
     } finally {
         pageState.isLoading = false;
 
         if (!pageState.hasNext) {
-            stopObservingPosts();
+            disconnectPostsObserver();
         }
     }
 }
@@ -144,10 +144,10 @@ writeLink.addEventListener("click", (event) => {
     globalThis.location.href = routes.login;
 });
 
-function observeMorePosts() {
+function observePostsSentinel() {
     postsObserver = new IntersectionObserver((entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-            loadPosts();
+            loadNextPostsPage();
         }
     });
 
@@ -156,10 +156,10 @@ function observeMorePosts() {
 
 async function initPostsPage() {
     await headerProfile.loadCurrentUser();
-    await loadPosts();
+    await loadNextPostsPage();
 
     if (pageState.hasNext) {
-        observeMorePosts();
+        observePostsSentinel();
     }
 }
 

@@ -19,7 +19,7 @@ import {
 import { setButtonLoading, setHelperText } from "../utils/form.js";
 import { createImagePreviewController } from "../utils/image-preview.js";
 import { routes } from "../utils/routes.js";
-import { isValidEmail, isValidNickname, isValidPassword, showMessage } from "../utils/validation.js";
+import { isValidEmail, isValidNickname, isValidPassword, setValidationMessage } from "../utils/validation.js";
 
 const form = document.querySelector(".signup-form");
 const profileInput = document.querySelector("#profile-image");
@@ -48,7 +48,7 @@ const profilePreviewController = createImagePreviewController({
     },
 });
 
-function canSubmit() {
+function canSubmitSignupForm() {
     return (
         Boolean(profileFile) &&
         isValidEmail(emailInput.value) &&
@@ -58,72 +58,72 @@ function canSubmit() {
     );
 }
 
-function validateProfile(showMessageValue = false) {
-    return showMessage(profileHelper, profileFile ? "" : SIGNUP_PROFILE_REQUIRED, showMessageValue);
+function validateSignupProfileImage(shouldShowMessage = false) {
+    return setValidationMessage(profileHelper, profileFile ? "" : SIGNUP_PROFILE_REQUIRED, shouldShowMessage);
 }
 
-function validateEmail(showMessageValue = false) {
+function validateSignupEmail(shouldShowMessage = false) {
     const value = emailInput.value;
     let message = "";
 
     if (!value.trim()) {message = SIGNUP_EMAIL_REQUIRED;}
     else if (/\s/.test(value)) {message = SIGNUP_EMAIL_SPACE;}
     else if (!isValidEmail(value)) {message = SIGNUP_EMAIL_FORMAT;}
-    return showMessage(emailHelper, message, showMessageValue);
+    return setValidationMessage(emailHelper, message, shouldShowMessage);
 }
 
-function validatePassword(showMessageValue = false) {
+function validateSignupPassword(shouldShowMessage = false) {
     const value = passwordInput.value;
     let message = "";
 
     if (!value) {message = SIGNUP_PASSWORD_REQUIRED;}
     else if (!isValidPassword(value)) {message = PASSWORD_POLICY;}
     else if (passwordConfirmInput.value && value !== passwordConfirmInput.value) {message = SIGNUP_PASSWORD_MISMATCH;}
-    return showMessage(passwordHelper, message, showMessageValue);
+    return setValidationMessage(passwordHelper, message, shouldShowMessage);
 }
 
-function validatePasswordConfirm(showMessageValue = false) {
+function validateSignupPasswordConfirm(shouldShowMessage = false) {
     const value = passwordConfirmInput.value;
     let message = "";
 
     if (!value) {message = SIGNUP_PASSWORD_CONFIRM_REQUIRED;}
     else if (value !== passwordInput.value) {message = SIGNUP_PASSWORD_MISMATCH;}
-    return showMessage(passwordConfirmHelper, message, showMessageValue);
+    return setValidationMessage(passwordConfirmHelper, message, shouldShowMessage);
 }
 
-function validateNickname(showMessageValue = false) {
+function validateSignupNickname(shouldShowMessage = false) {
     const value = nicknameInput.value;
     let message = "";
 
     if (!value.trim()) {message = USER_NICKNAME_REQUIRED;}
     else if (String(value).includes(" ")) {message = USER_NICKNAME_SPACE;}
     else if (value.length > 10) {message = SIGNUP_NICKNAME_LENGTH;}
-    return showMessage(nicknameHelper, message, showMessageValue);
+    return setValidationMessage(nicknameHelper, message, shouldShowMessage);
 }
 
-function updateSubmitState() {
+function syncSignupSubmitButton() {
     setHelperText(formHelper);
-    submitButton.disabled = !canSubmit();
+    submitButton.disabled = !canSubmitSignupForm();
 }
 
-function setLoading(isLoading) {
-    submitButton.disabled = isLoading || !canSubmit();
-    setButtonLoading(submitButton, isLoading, "회원가입 중...", "회원가입");
+function setSignupSubmitting(isSubmitting) {
+    submitButton.disabled = isSubmitting || !canSubmitSignupForm();
+    setButtonLoading(submitButton, isSubmitting, "회원가입 중...", "회원가입");
 }
 
-function setProfileFile(file) {
+function setSignupProfileFile(file) {
     profileFile = file;
     profilePreviewController.showFile(file);
     setHelperText(profileHelper);
 }
 
-function clearProfileFile() {
+function clearSignupProfileFile() {
     profileFile = null;
     profileInput.value = "";
     profilePreviewController.clear();
 }
 
-function showSignupError(message) {
+function showSignupFailure(message) {
     if (message.includes("이메일")) {
         setHelperText(emailHelper, USER_EMAIL_DUPLICATE);
         return;
@@ -139,56 +139,56 @@ function showSignupError(message) {
 
 profileInput.addEventListener("change", () => {
     const file = profileInput.files[0];
-    if (file) setProfileFile(file);
-    updateSubmitState();
+    if (file) setSignupProfileFile(file);
+    syncSignupSubmitButton();
 });
 
 profileInput.addEventListener("click", () => {
     if (profileFile) {
-        clearProfileFile();
-        updateSubmitState();
+        clearSignupProfileFile();
+        syncSignupSubmitButton();
     }
 });
 
 emailInput.addEventListener("input", () => {
-    validateEmail(/\s/.test(emailInput.value));
-    updateSubmitState();
+    validateSignupEmail(/\s/.test(emailInput.value));
+    syncSignupSubmitButton();
 });
 
 passwordInput.addEventListener("input", () => {
     passwordHelper.textContent = "";
     passwordConfirmHelper.textContent = "";
-    updateSubmitState();
+    syncSignupSubmitButton();
 });
 
 passwordConfirmInput.addEventListener("input", () => {
     passwordConfirmHelper.textContent = "";
-    updateSubmitState();
+    syncSignupSubmitButton();
 });
 
 nicknameInput.addEventListener("input", () => {
     nicknameHelper.textContent = "";
-    updateSubmitState();
+    syncSignupSubmitButton();
 });
 
-profileInput.addEventListener("blur", () => validateProfile(true));
-emailInput.addEventListener("blur", () => validateEmail(true));
+profileInput.addEventListener("blur", () => validateSignupProfileImage(true));
+emailInput.addEventListener("blur", () => validateSignupEmail(true));
 passwordInput.addEventListener("blur", () => {
-    validatePassword(true);
-    validatePasswordConfirm(Boolean(passwordConfirmInput.value));
+    validateSignupPassword(true);
+    validateSignupPasswordConfirm(Boolean(passwordConfirmInput.value));
 });
-passwordConfirmInput.addEventListener("blur", () => validatePasswordConfirm(true));
-nicknameInput.addEventListener("blur", () => validateNickname(true));
+passwordConfirmInput.addEventListener("blur", () => validateSignupPasswordConfirm(true));
+nicknameInput.addEventListener("blur", () => validateSignupNickname(true));
 
-form.addEventListener("submit", async (event) => {
+async function submitSignupForm(event) {
     event.preventDefault();
 
     const isValid = [
-        validateProfile(true),
-        validateEmail(true),
-        validatePassword(true),
-        validatePasswordConfirm(true),
-        validateNickname(true),
+        validateSignupProfileImage(true),
+        validateSignupEmail(true),
+        validateSignupPassword(true),
+        validateSignupPasswordConfirm(true),
+        validateSignupNickname(true),
     ].every(Boolean);
 
     if (!isValid) {
@@ -196,7 +196,7 @@ form.addEventListener("submit", async (event) => {
         return;
     }
 
-    setLoading(true);
+    setSignupSubmitting(true);
 
     try {
         const profileImage = await uploadImage(profileFile, SIGNUP_FAILURE);
@@ -208,10 +208,12 @@ form.addEventListener("submit", async (event) => {
         });
         globalThis.location.href = routes.login;
     } catch (error) {
-        showSignupError(error.message || SIGNUP_FAILURE);
+        showSignupFailure(error.message || SIGNUP_FAILURE);
     } finally {
-        setLoading(false);
+        setSignupSubmitting(false);
     }
-});
+}
 
-updateSubmitState();
+form.addEventListener("submit", submitSignupForm);
+
+syncSignupSubmitButton();

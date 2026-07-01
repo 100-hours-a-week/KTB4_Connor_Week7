@@ -23,25 +23,26 @@ function updateStoredUser(user) {
     }
   }
 }
-function accessToken() {
+
+function getAccessToken() {
   return sessionStorage.getItem("accessToken") || "";
 }
 
-function authHeaders(extraHeaders = {}) {
-  const token = accessToken();
+function createAuthHeaders(extraHeaders = {}) {
+  const token = getAccessToken();
   return token ? { ...extraHeaders, Authorization: `Bearer ${token}` } : extraHeaders;
 }
 
-function currentUserId() {
+function getCurrentUserId() {
   return sessionStorage.getItem("userId") || "";
 }
 
-function currentProfileImage() {
+function getCurrentProfileImage() {
   return sessionStorage.getItem("profileImage") || "";
 }
 
 function isCurrentUser(userId) {
-  return Boolean(userId) && userId === currentUserId();
+  return userId != null && String(userId) === getCurrentUserId();
 }
 
 function clearSession() {
@@ -53,10 +54,10 @@ function clearSession() {
 export {
   saveSession,
   updateStoredUser,
-  accessToken,
-  authHeaders,
-  currentUserId,
-  currentProfileImage,
+  getAccessToken,
+  createAuthHeaders,
+  getCurrentUserId,
+  getCurrentProfileImage,
   isCurrentUser,
   clearSession,
 };

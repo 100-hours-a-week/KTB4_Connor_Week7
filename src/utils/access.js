@@ -1,12 +1,12 @@
 import { routes } from "./routes.js";
-import { accessToken, clearSession } from "./session.js";
+import { getAccessToken, clearSession } from "./session.js";
 
 function redirectToLogin() {
     globalThis.location.href = routes.login;
 }
 
 function requireAccessToken() {
-    if (accessToken()) {
+    if (getAccessToken()) {
         return true;
     }
 

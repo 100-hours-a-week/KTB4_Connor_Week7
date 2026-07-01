@@ -1,6 +1,6 @@
 import { request } from "./client.js";
 import { POSTS_LOAD_FAILURE } from "../constants/messages.js";
-import { authHeaders } from "../utils/session.js";
+import { createAuthHeaders } from "../utils/session.js";
 
 function fetchPosts({ cursor = null, size = 10 } = {}) {
     const params = new URLSearchParams({ size: String(size) });
@@ -10,7 +10,7 @@ function fetchPosts({ cursor = null, size = 10 } = {}) {
     return request(
         `/api/posts?${params.toString()}`,
         {
-            headers: authHeaders(),
+            headers: createAuthHeaders(),
         },
         POSTS_LOAD_FAILURE
     );
@@ -20,7 +20,7 @@ function fetchPost(postId) {
     return request(
         `/api/posts/${encodeURIComponent(postId)}`,
         {
-            headers: authHeaders(),
+            headers: createAuthHeaders(),
         },
         POSTS_LOAD_FAILURE
     );
@@ -29,7 +29,7 @@ function fetchPost(postId) {
 function createPost({ title, content, imageUrl }) {
     return request(`/api/posts`, {
         method: "POST",
-        headers: authHeaders({
+        headers: createAuthHeaders({
             "Content-Type": "application/json",
         }),
         body: JSON.stringify({ title, content, imageUrl }),
@@ -39,7 +39,7 @@ function createPost({ title, content, imageUrl }) {
 function updatePost({ id, title, content, imageUrl }) {
     return request(`/api/posts/${encodeURIComponent(id)}`, {
         method: "PATCH",
-        headers: authHeaders({
+        headers: createAuthHeaders({
             "Content-Type": "application/json",
         }),
         body: JSON.stringify({ title, content, imageUrl }),
@@ -49,21 +49,21 @@ function updatePost({ id, title, content, imageUrl }) {
 function deletePost(postId) {
     return request(`/api/posts/${encodeURIComponent(postId)}`, {
         method: "DELETE",
-        headers: authHeaders(),
+        headers: createAuthHeaders(),
     });
 }
 
 function likePost(postId) {
     return request(`/api/posts/${encodeURIComponent(postId)}/likes`, {
         method: "POST",
-        headers: authHeaders(),
+        headers: createAuthHeaders(),
     });
 }
 
 function unlikePost(postId) {
     return request(`/api/posts/${encodeURIComponent(postId)}/likes`, {
         method: "DELETE",
-        headers: authHeaders(),
+        headers: createAuthHeaders(),
     });
 }
 

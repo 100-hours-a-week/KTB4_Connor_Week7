@@ -1,6 +1,6 @@
 import { formatDate } from "../utils/format.js";
 import { renderBackgroundImage } from "../utils/image.js";
-import { currentProfileImage, isCurrentUser } from "../utils/session.js";
+import { getCurrentProfileImage, isCurrentUser } from "../utils/session.js";
 import { COMMENT_FAILURE, COMMENT_REQUIRED } from "../constants/messages.js";
 
 const COMMENT_ACTION = {
@@ -9,21 +9,21 @@ const COMMENT_ACTION = {
     DELETE: "delete-comment",
 };
 
-function toCommentIdValue(commentId) {
+function normalizeCommentId(commentId) {
     return commentId == null ? "" : String(commentId);
 }
 
-function isSameCommentId(firstCommentId, secondCommentId) {
-    return toCommentIdValue(firstCommentId) === toCommentIdValue(secondCommentId);
+function isMatchingCommentId(firstCommentId, secondCommentId) {
+    return normalizeCommentId(firstCommentId) === normalizeCommentId(secondCommentId);
 }
 
 function resolveCommentProfileImage(comment) {
     return comment.profileImage
         || comment.authorProfileImage
-        || (isCurrentUser(comment.userId) ? currentProfileImage() : "");
+        || (isCurrentUser(comment.userId) ? getCurrentProfileImage() : "");
 }
 
-function createEditForm(comment) {
+function createCommentEditForm(comment) {
     const form = document.createElement("form");
     form.className = "comment-edit-form";
 
@@ -62,7 +62,7 @@ function createEditForm(comment) {
     return form;
 }
 
-function createCommentActions() {
+function createCommentActionButtons() {
     const actions = document.createElement("div");
     actions.className = "comment-actions";
 
@@ -86,9 +86,9 @@ function createCommentActions() {
 function createCommentItem(comment, editingCommentId) {
     const item = document.createElement("article");
     item.className = "comment-item";
-    item.dataset.commentId = toCommentIdValue(comment.commentId);
+    item.dataset.commentId = normalizeCommentId(comment.commentId);
 
-    const isEditing = isSameCommentId(editingCommentId, comment.commentId);
+    const isEditing = isMatchingCommentId(editingCommentId, comment.commentId);
     const avatar = document.createElement("span");
     avatar.className = "comment-avatar";
     avatar.setAttribute("aria-hidden", "true");
@@ -113,13 +113,13 @@ function createCommentItem(comment, editingCommentId) {
     content.textContent = comment.content || "";
 
     if (isEditing) {
-        body.append(header, createEditForm(comment));
+        body.append(header, createCommentEditForm(comment));
     } else {
         body.append(header, content);
     }
 
     if (isCurrentUser(comment.userId) && !isEditing) {
-        item.append(avatar, body, createCommentActions());
+        item.append(avatar, body, createCommentActionButtons());
         return item;
     }
 
@@ -129,12 +129,12 @@ function createCommentItem(comment, editingCommentId) {
 
 function focusEditingTextarea(listElement, editingCommentId) {
     const editedItem = [...listElement.querySelectorAll(".comment-item")]
-        .find((item) => isSameCommentId(item.dataset.commentId, editingCommentId));
+        .find((item) => isMatchingCommentId(item.dataset.commentId, editingCommentId));
 
     editedItem?.querySelector(".comment-edit-textarea")?.focus();
 }
 
-function getEditFormControls(form) {
+function getCommentEditFormControls(form) {
     return {
         helper: form.querySelector(".comment-edit-helper"),
         submitButton: form.querySelector(".comment-edit-submit"),
@@ -142,39 +142,39 @@ function getEditFormControls(form) {
     };
 }
 
-function updateEditSubmitState(form) {
-    const { submitButton, textarea } = getEditFormControls(form);
+function syncCommentEditSubmitButton(form) {
+    const { submitButton, textarea } = getCommentEditFormControls(form);
 
     if (submitButton && textarea) {
         submitButton.disabled = !textarea.value.trim();
     }
 }
 
-function setEditHelperText(form, message) {
-    const { helper } = getEditFormControls(form);
+function setCommentEditHelperText(form, message) {
+    const { helper } = getCommentEditFormControls(form);
 
     if (helper) {
         helper.textContent = message;
     }
 }
 
-function setEditSubmitLoading(form, isLoading) {
-    const { submitButton } = getEditFormControls(form);
+function setCommentEditSubmitting(form, isSubmitting) {
+    const { submitButton } = getCommentEditFormControls(form);
 
     if (!submitButton) {
         return;
     }
 
-    submitButton.disabled = isLoading;
+    submitButton.disabled = isSubmitting;
 
-    if (isLoading) {
+    if (isSubmitting) {
         submitButton.setAttribute("aria-busy", "true");
     } else {
         submitButton.removeAttribute("aria-busy");
     }
 }
 
-function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEdit }) {
+function createCommentList({ listElement, onEditRequest, onDeleteRequest, onEditSubmit, onEditCancel }) {
     function render(comments, { editingCommentId = "" } = {}) {
         const fragment = document.createDocumentFragment();
 
@@ -189,7 +189,7 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         }
     }
 
-    function handleActionClick(event) {
+    function handleCommentActionClick(event) {
         const actionButton = event.target.closest("[data-action]");
 
         if (!actionButton) {
@@ -204,21 +204,21 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         }
 
         if (actionButton.dataset.action === COMMENT_ACTION.CANCEL_EDIT) {
-            onCancelEdit();
+            onEditCancel();
             return;
         }
 
         if (actionButton.dataset.action === COMMENT_ACTION.DELETE) {
-            onDelete(commentId);
+            onDeleteRequest(commentId);
             return;
         }
 
         if (actionButton.dataset.action === COMMENT_ACTION.EDIT) {
-            onEdit(commentId);
+            onEditRequest(commentId);
         }
     }
 
-    function handleEditInput(event) {
+    function handleCommentEditInput(event) {
         const textarea = event.target.closest(".comment-edit-textarea");
 
         if (!textarea) {
@@ -226,11 +226,11 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         }
 
         const form = textarea.closest(".comment-edit-form");
-        setEditHelperText(form, "");
-        updateEditSubmitState(form);
+        setCommentEditHelperText(form, "");
+        syncCommentEditSubmitButton(form);
     }
 
-    async function handleEditSubmit(event) {
+    async function handleCommentEditSubmit(event) {
         const form = event.target.closest(".comment-edit-form");
 
         if (!form) {
@@ -240,7 +240,7 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         event.preventDefault();
 
         const item = form.closest(".comment-item");
-        const { textarea } = getEditFormControls(form);
+        const { textarea } = getCommentEditFormControls(form);
         const commentId = item?.dataset.commentId;
 
         if (!textarea) {
@@ -250,29 +250,29 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         const content = textarea.value.trim();
 
         if (!content) {
-            setEditHelperText(form, COMMENT_REQUIRED);
-            updateEditSubmitState(form);
+            setCommentEditHelperText(form, COMMENT_REQUIRED);
+            syncCommentEditSubmitButton(form);
             return;
         }
 
-        setEditSubmitLoading(form, true);
+        setCommentEditSubmitting(form, true);
 
         try {
-            await onUpdate(commentId, content);
+            await onEditSubmit(commentId, content);
         } catch (error) {
-            setEditHelperText(form, error.message || COMMENT_FAILURE);
+            setCommentEditHelperText(form, error.message || COMMENT_FAILURE);
         } finally {
-            setEditSubmitLoading(form, false);
+            setCommentEditSubmitting(form, false);
 
             if (form.isConnected) {
-                updateEditSubmitState(form);
+                syncCommentEditSubmitButton(form);
             }
         }
     }
 
-    listElement.addEventListener("click", handleActionClick);
-    listElement.addEventListener("input", handleEditInput);
-    listElement.addEventListener("submit", handleEditSubmit);
+    listElement.addEventListener("click", handleCommentActionClick);
+    listElement.addEventListener("input", handleCommentEditInput);
+    listElement.addEventListener("submit", handleCommentEditSubmit);
 
     return {
         render,

@@ -1,11 +1,11 @@
 import { request } from "./client.js";
-import { authHeaders } from "../utils/session.js";
+import { createAuthHeaders } from "../utils/session.js";
 
 function signup({ email, password, nickname, profileImage }) {
     return request(
         "/api/users/signup", {
             method: "POST",
-            headers: authHeaders({
+            headers: createAuthHeaders({
                 "Content-Type": "application/json",
             }),
             body: JSON.stringify({ email, password, nickname, profileImage }),
@@ -18,7 +18,7 @@ function fetchMe(fallbackMessage) {
         "/api/users/me",
         {
             method: "GET",
-            headers: authHeaders(),
+            headers: createAuthHeaders(),
         },
         fallbackMessage
     );
@@ -29,7 +29,7 @@ function updateMe({ nickname, profileImage }) {
         "/api/users/me",
         {
             method: "PATCH",
-            headers: authHeaders({
+            headers: createAuthHeaders({
                 "Content-Type": "application/json",
             }),
             body: JSON.stringify({ nickname, profileImage }),
@@ -40,7 +40,7 @@ function updateMe({ nickname, profileImage }) {
 function withdrawMe() {
     return request("/api/users/me", {
         method: "DELETE",
-        headers: authHeaders(),
+        headers: createAuthHeaders(),
     });
 }
 
@@ -49,7 +49,7 @@ function updatePassword({ currentPassword, newPassword }) {
         "/api/users/me/password",
         {
             method: "PATCH",
-            headers: authHeaders({
+            headers: createAuthHeaders({
                 "Content-Type": "application/json",
             }),
             body: JSON.stringify({ currentPassword, newPassword }),

@@ -1,5 +1,5 @@
 import { request } from "./client.js";
-import { authHeaders } from "../utils/session.js";
+import { createAuthHeaders } from "../utils/session.js";
 
 async function fetchComments(postId) {
     const data = await request(`/api/posts/${encodeURIComponent(postId)}/comments`);
@@ -9,7 +9,7 @@ async function fetchComments(postId) {
 function createComment(postId, content) {
     return request(`/api/posts/${encodeURIComponent(postId)}/comments`, {
         method: "POST",
-        headers: authHeaders({
+        headers: createAuthHeaders({
             "Content-Type": "application/json",
         }),
         body: JSON.stringify({ content }),
@@ -21,7 +21,7 @@ function updateComment(postId, commentId, content) {
         `/api/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`,
         {
             method: "PATCH",
-            headers: authHeaders({
+            headers: createAuthHeaders({
                 "Content-Type": "application/json",
             }),
             body: JSON.stringify({ content }),
@@ -34,7 +34,7 @@ function deleteComment(postId, commentId) {
         `/api/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`,
         {
             method: "DELETE",
-            headers: authHeaders(),
+            headers: createAuthHeaders(),
         }
     );
 }

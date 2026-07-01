@@ -38,7 +38,7 @@ function createConfirmDialog({
         return payload;
     }
 
-    function setConfirmLoading(isLoading) {
+    function setConfirmButtonLoading(isLoading) {
         if (confirmButton) {
             confirmButton.disabled = isLoading;
         }
@@ -50,7 +50,7 @@ function createConfirmDialog({
         close,
         getPayload,
         open,
-        setConfirmLoading,
+        setConfirmButtonLoading,
     };
 }
 

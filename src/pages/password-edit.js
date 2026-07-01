@@ -9,8 +9,8 @@ import {
 } from "../constants/messages.js";
 import { setButtonLoading, setHelperText } from "../utils/form.js";
 import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
-import { accessToken } from "../utils/session.js";
-import { isValidPassword, showMessage } from "../utils/validation.js";
+import { getAccessToken } from "../utils/session.js";
+import { isValidPassword, setValidationMessage } from "../utils/validation.js";
 
 const form = document.querySelector(".password-edit-form");
 const currentPasswordInput = document.querySelector("#current-password");
@@ -24,11 +24,11 @@ const toast = document.querySelector(".toast");
 const headerProfile = createHeaderProfile();
 const updateToast = createToast(toast);
 
-function canSubmit() {
-    return Boolean(accessToken()) && isValidPassword(currentPasswordInput.value) && isValidPassword(newPasswordInput.value);
+function canSubmitPasswordEditForm() {
+    return Boolean(getAccessToken()) && isValidPassword(currentPasswordInput.value) && isValidPassword(newPasswordInput.value);
 }
 
-function validateCurrentPassword(showMessageValue = false) {
+function validateCurrentPasswordInput(shouldShowMessage = false) {
     const value = currentPasswordInput.value;
     let message = "";
 
@@ -38,10 +38,10 @@ function validateCurrentPassword(showMessageValue = false) {
         message = PASSWORD_POLICY;
     }
 
-    return showMessage(currentPasswordHelper, message, showMessageValue);
+    return setValidationMessage(currentPasswordHelper, message, shouldShowMessage);
 }
 
-function validateNewPassword(showMessageValue = false) {
+function validateNewPasswordInput(shouldShowMessage = false) {
     const value = newPasswordInput.value;
     let message = "";
 
@@ -51,20 +51,20 @@ function validateNewPassword(showMessageValue = false) {
         message = PASSWORD_POLICY;
     }
 
-    return showMessage(newPasswordHelper, message, showMessageValue);
+    return setValidationMessage(newPasswordHelper, message, shouldShowMessage);
 }
 
-function updateSubmitState() {
+function syncPasswordEditSubmitButton() {
     setHelperText(formHelper);
-    submitButton.disabled = !canSubmit();
+    submitButton.disabled = !canSubmitPasswordEditForm();
 }
 
-function setLoading(isLoading) {
-    submitButton.disabled = isLoading || !canSubmit();
-    setButtonLoading(submitButton, isLoading, "수정 중...", "수정하기");
+function setPasswordEditSubmitting(isSubmitting) {
+    submitButton.disabled = isSubmitting || !canSubmitPasswordEditForm();
+    setButtonLoading(submitButton, isSubmitting, "수정 중...", "수정하기");
 }
 
-async function loadProfile() {
+async function loadPasswordEditHeaderProfile() {
     if (!requireAccessToken()) {
         return;
     }
@@ -82,30 +82,30 @@ async function loadProfile() {
 currentPasswordInput.addEventListener("input", () => {
     setHelperText(currentPasswordHelper);
     setHelperText(formHelper);
-    updateSubmitState();
+    syncPasswordEditSubmitButton();
 });
 
 newPasswordInput.addEventListener("input", () => {
     setHelperText(newPasswordHelper);
     setHelperText(formHelper);
-    updateSubmitState();
+    syncPasswordEditSubmitButton();
 });
 
-currentPasswordInput.addEventListener("blur", () => validateCurrentPassword(true));
-newPasswordInput.addEventListener("blur", () => validateNewPassword(true));
+currentPasswordInput.addEventListener("blur", () => validateCurrentPasswordInput(true));
+newPasswordInput.addEventListener("blur", () => validateNewPasswordInput(true));
 
-form.addEventListener("submit", async (event) => {
+async function submitPasswordEditForm(event) {
     event.preventDefault();
     setHelperText(formHelper);
 
-    const isValid = validateCurrentPassword(true) && validateNewPassword(true);
+    const isValid = validateCurrentPasswordInput(true) && validateNewPasswordInput(true);
 
     if (!isValid) {
-        updateSubmitState();
+        syncPasswordEditSubmitButton();
         return;
     }
 
-    setLoading(true);
+    setPasswordEditSubmitting(true);
 
     try {
         await updatePassword({
@@ -114,15 +114,17 @@ form.addEventListener("submit", async (event) => {
         });
 
         form.reset();
-        updateSubmitState();
+        syncPasswordEditSubmitButton();
         updateToast.show();
     } catch (error) {
         if (handleUnauthorized(error)) return;
 
         setHelperText(formHelper, error.message || PASSWORD_UPDATE_FAILURE);
     } finally {
-        setLoading(false);
+        setPasswordEditSubmitting(false);
     }
-});
+}
 
-loadProfile();
+form.addEventListener("submit", submitPasswordEditForm);
+
+loadPasswordEditHeaderProfile();

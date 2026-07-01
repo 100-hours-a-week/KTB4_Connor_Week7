@@ -12,7 +12,7 @@ import { formatLimitText } from "../utils/format.js";
 import { extractFileName } from "../utils/image.js";
 import { routes } from "../utils/routes.js";
 import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
-import { accessToken, isCurrentUser } from "../utils/session.js";
+import { getAccessToken, isCurrentUser } from "../utils/session.js";
 
 const TITLE_MAX_LENGTH = 26;
 const POST_EDIT_FORBIDDEN = "*작성자만 수정할 수 있습니다.";
@@ -36,13 +36,13 @@ const state = {
     isLoadingPost: true,
 };
 
-function existingFileName() {
+function getExistingPostImageFileName() {
     return extractFileName(state.post?.imageUrl) || "기존 파일 없음";
 }
 
-function canSubmit() {
+function canSubmitPostEditForm() {
     return (
-        Boolean(accessToken()) &&
+        Boolean(getAccessToken()) &&
         Boolean(postId) &&
         !state.isLoadingPost &&
         Boolean(titleInput.value.trim()) &&
@@ -50,11 +50,11 @@ function canSubmit() {
     );
 }
 
-function getSubmitErrorMessage() {
+function getPostEditSubmitBlockerMessage() {
     const hasTitle = Boolean(titleInput.value.trim());
     const hasContent = Boolean(contentInput.value.trim());
 
-    if (!accessToken()) {
+    if (!getAccessToken()) {
         return AUTH_LOGIN_REQUIRED;
     }
 
@@ -73,11 +73,11 @@ function getSubmitErrorMessage() {
     return hasTitle ? POST_CONTENT_REQUIRED : POST_TITLE_REQUIRED;
 }
 
-function trimTitleToLimit() {
+function trimPostEditTitleToLimit() {
     titleInput.value = formatLimitText(titleInput.value, TITLE_MAX_LENGTH);
 }
 
-function updateSubmitState() {
+function syncPostEditSubmitButton() {
     if (
         formHelper.textContent === POST_FORM_REQUIRED ||
         formHelper.textContent === POST_TITLE_REQUIRED ||
@@ -86,18 +86,18 @@ function updateSubmitState() {
         setHelperText(formHelper);
     }
 
-    const isSubmittable = canSubmit();
+    const isSubmittable = canSubmitPostEditForm();
     submitButton.disabled = !isSubmittable;
     submitButton.setAttribute("aria-disabled", String(!isSubmittable));
 }
 
-function setLoading(isLoading) {
-    submitButton.disabled = isLoading;
-    submitButton.setAttribute("aria-disabled", String(isLoading || !canSubmit()));
-    setButtonLoading(submitButton, isLoading, "수정 중...", "수정하기");
+function setPostEditSubmitting(isSubmitting) {
+    submitButton.disabled = isSubmitting;
+    submitButton.setAttribute("aria-disabled", String(isSubmitting || !canSubmitPostEditForm()));
+    setButtonLoading(submitButton, isSubmitting, "수정 중...", "수정하기");
 }
 
-async function loadProfile() {
+async function loadPostEditHeaderProfile() {
     if (!requireAccessToken()) {
         return null;
     }
@@ -114,28 +114,28 @@ async function loadProfile() {
     });
 }
 
-function renderPost(post) {
+function renderPostEditForm(post) {
     state.post = post;
     titleInput.value = post.title || "";
     contentInput.value = post.content || "";
     state.selectedImageFile = null;
-    fileName.textContent = existingFileName();
+    fileName.textContent = getExistingPostImageFileName();
     fileRemoveButton.hidden = true;
     backLink.href = post.postId ? routes.postDetail(post.postId) : routes.posts;
 }
 
-async function loadPost() {
+async function loadEditablePost() {
     if (!postId) {
         state.isLoadingPost = false;
         setHelperText(formHelper, POST_NOT_FOUND);
-        updateSubmitState();
+        syncPostEditSubmitButton();
         return;
     }
 
-    if (!accessToken()) {
+    if (!getAccessToken()) {
         state.isLoadingPost = false;
         setHelperText(formHelper, AUTH_LOGIN_REQUIRED);
-        updateSubmitState();
+        syncPostEditSubmitButton();
         return;
     }
 
@@ -148,7 +148,7 @@ async function loadPost() {
             return;
         }
 
-        renderPost(post);
+        renderPostEditForm(post);
         setHelperText(formHelper);
     } catch (error) {
         if (handleUnauthorized(error)) {
@@ -158,38 +158,38 @@ async function loadPost() {
         setHelperText(formHelper, error.message || POST_LOAD_FAILURE);
     } finally {
         state.isLoadingPost = false;
-        updateSubmitState();
+        syncPostEditSubmitButton();
     }
 }
 
-function showRequiredMessage() {
-    setHelperText(formHelper, getSubmitErrorMessage());
+function showPostEditBlockerMessage() {
+    setHelperText(formHelper, getPostEditSubmitBlockerMessage());
 }
 
-function validateTitle(showMessage = false) {
-    return validateRequired(titleInput, formHelper, POST_TITLE_REQUIRED, showMessage);
+function validatePostEditTitle(shouldShowMessage = false) {
+    return validateRequired(titleInput, formHelper, POST_TITLE_REQUIRED, shouldShowMessage);
 }
 
-function validateContent(showMessage = false) {
-    return validateRequired(contentInput, formHelper, POST_CONTENT_REQUIRED, showMessage);
+function validatePostEditContent(shouldShowMessage = false) {
+    return validateRequired(contentInput, formHelper, POST_CONTENT_REQUIRED, shouldShowMessage);
 }
 
-function setSelectedImageFile(file) {
+function setPostEditImageFile(file) {
     state.selectedImageFile = file || null;
     imageInput.value = "";
-    fileName.textContent = file ? file.name : existingFileName();
+    fileName.textContent = file ? file.name : getExistingPostImageFileName();
     fileRemoveButton.hidden = !file;
 }
 
 titleInput.addEventListener("input", () => {
-    trimTitleToLimit();
-    updateSubmitState();
+    trimPostEditTitleToLimit();
+    syncPostEditSubmitButton();
 });
 
-contentInput.addEventListener("input", updateSubmitState);
+contentInput.addEventListener("input", syncPostEditSubmitButton);
 
-titleInput.addEventListener("blur", () => validateTitle(true));
-contentInput.addEventListener("blur", () => validateContent(true));
+titleInput.addEventListener("blur", () => validatePostEditTitle(true));
+contentInput.addEventListener("blur", () => validatePostEditContent(true));
 
 fileButton.addEventListener("click", () => {
     imageInput.click();
@@ -202,24 +202,24 @@ imageInput.addEventListener("change", () => {
         return;
     }
 
-    setSelectedImageFile(file);
+    setPostEditImageFile(file);
 });
 
 fileRemoveButton.addEventListener("click", () => {
-    setSelectedImageFile(null);
+    setPostEditImageFile(null);
     setHelperText(formHelper);
 });
 
-form.addEventListener("submit", async (event) => {
+async function submitPostEditForm(event) {
     event.preventDefault();
 
-    if (!canSubmit()) {
-        showRequiredMessage();
+    if (!canSubmitPostEditForm()) {
+        showPostEditBlockerMessage();
         submitButton.setAttribute("aria-disabled", "true");
         return;
     }
 
-    setLoading(true);
+    setPostEditSubmitting(true);
 
     try {
         const imageUrl = state.selectedImageFile
@@ -241,19 +241,21 @@ form.addEventListener("submit", async (event) => {
 
         setHelperText(formHelper, error.message || POST_EDIT_FAILURE);
     } finally {
-        setLoading(false);
+        setPostEditSubmitting(false);
     }
-});
+}
 
-async function init() {
-    const user = await loadProfile();
+form.addEventListener("submit", submitPostEditForm);
+
+async function initPostEditPage() {
+    const user = await loadPostEditHeaderProfile();
 
     if (!user) {
         return;
     }
 
-    await loadPost();
+    await loadEditablePost();
 }
 
-updateSubmitState();
-init();
+syncPostEditSubmitButton();
+initPostEditPage();

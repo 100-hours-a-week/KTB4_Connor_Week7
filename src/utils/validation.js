@@ -10,9 +10,9 @@ function isValidNickname(value) {
   return Boolean(value.trim()) && !/\s/.test(value) && value.length <= 10;
 }
 
-function showMessage(helper, message, showMessageValue) {
-  helper.textContent = showMessageValue ? message : "";
+function setValidationMessage(helper, message, shouldShowMessage) {
+  helper.textContent = shouldShowMessage ? message : "";
   return message === "";
 }
 
-export { isValidEmail, isValidNickname, isValidPassword, showMessage };
+export { isValidEmail, isValidNickname, isValidPassword, setValidationMessage };

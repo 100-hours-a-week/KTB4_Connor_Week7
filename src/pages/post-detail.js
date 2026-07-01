@@ -14,7 +14,7 @@ import {
 import { formatCount, formatDate } from "../utils/format.js";
 import { renderBackgroundImage, resolveImageUrl } from "../utils/image.js";
 import { routes } from "../utils/routes.js";
-import { accessToken, clearSession, currentProfileImage, isCurrentUser } from "../utils/session.js";
+import { getAccessToken, clearSession, getCurrentProfileImage, isCurrentUser } from "../utils/session.js";
 
 const postId = new URLSearchParams(globalThis.location.search).get("postId");
 const detailState = document.querySelector(".detail-state");
@@ -49,9 +49,9 @@ const state = {
     post: null,
     comments: [],
     editingCommentId: "",
-    isLikeLoading: false,
+    isLikeRequestPending: false,
 };
-const DELETE_TARGET = {
+const DELETE_TARGET_TYPE = {
     POST: "post",
     COMMENT: "comment",
 };
@@ -64,45 +64,45 @@ const confirmDialog = createConfirmDialog({
 });
 const commentList = createCommentList({
     listElement: commentsList,
-    onDelete(commentId) {
-        openConfirm(DELETE_TARGET.COMMENT, commentId);
+    onDeleteRequest(commentId) {
+        openDeleteConfirmDialog(DELETE_TARGET_TYPE.COMMENT, commentId);
     },
-    onEdit(commentId) {
-        startCommentEdit(commentId);
+    onEditRequest(commentId) {
+        startEditingComment(commentId);
     },
-    onCancelEdit() {
-        cancelCommentEdit();
+    onEditCancel() {
+        cancelEditingComment();
     },
-    onUpdate(commentId, content) {
-        return submitCommentEdit(commentId, content);
+    onEditSubmit(commentId, content) {
+        return submitEditedComment(commentId, content);
     },
 });
 
-function showState(message) {
+function setDetailStatusMessage(message) {
     detailState.textContent = message;
     detailState.hidden = !message;
 }
 
-function handleAuthFailure() {
+function resetDetailPageAfterAuthExpired() {
     clearSession();
     state.editingCommentId = "";
     headerProfile.loadCurrentUser();
     headerProfile.toggleMenu(false);
 
     if (state.post) {
-        updatePostCounts(state.post);
+        syncPostStats(state.post);
     }
 
-    renderComments();
-    updateCommentSubmitState();
+    renderCommentList();
+    syncNewCommentSubmitButton();
 }
 
-async function withAuthHandling(promise) {
+async function withAuthExpiryHandling(promise) {
     try {
         return await promise;
     } catch (error) {
         if (error.status === 401) {
-            handleAuthFailure();
+            resetDetailPageAfterAuthExpired();
             throw new Error(AUTH_EXPIRED);
         }
 
@@ -110,12 +110,12 @@ async function withAuthHandling(promise) {
     }
 }
 
-function renderPost(post) {
+function renderPostDetail(post) {
     const imageUrl = resolveImageUrl(post.imageUrl);
     const canEditPost = isCurrentUser(post.userId);
     const authorProfileImage = post.profileImage
         || post.authorProfileImage
-        || (canEditPost ? currentProfileImage() : "");
+        || (canEditPost ? getCurrentProfileImage() : "");
 
     detailTitle.textContent = post.title || "";
     authorName.textContent = post.nickname || "알 수 없음";
@@ -135,74 +135,74 @@ function renderPost(post) {
         imageFrame.hidden = true;
     }
 
-    updatePostCounts(post);
+    syncPostStats(post);
     detailArticle.hidden = false;
-    showState("");
+    setDetailStatusMessage("");
 }
 
-function updatePostCounts(post) {
+function syncPostStats(post) {
     likeCountText.textContent = formatCount(post.likeCount);
     viewCountText.textContent = formatCount(post.viewCount);
     commentCountText.textContent = formatCount(post.commentCount);
     likeButton.classList.toggle("is-liked", Boolean(post.isLiked));
     likeButton.setAttribute("aria-pressed", String(Boolean(post.isLiked)));
-    likeButton.disabled = !accessToken() || state.isLikeLoading;
+    likeButton.disabled = !getAccessToken() || state.isLikeRequestPending;
 }
 
-async function loadDetail() {
+async function loadPostDetailPage() {
     if (!postId) {
-        showState(POST_NOT_FOUND_STATE);
+        setDetailStatusMessage(POST_NOT_FOUND_STATE);
         return;
     }
 
     try {
-        showState("게시글을 불러오는 중입니다.");
+        setDetailStatusMessage("게시글을 불러오는 중입니다.");
         const [post, comments] = await Promise.all([
-            withAuthHandling(fetchPost(postId, POST_LOAD_FAILURE)),
-            withAuthHandling(fetchComments(postId)),
+            withAuthExpiryHandling(fetchPost(postId, POST_LOAD_FAILURE)),
+            withAuthExpiryHandling(fetchComments(postId)),
         ]);
         state.post = post;
         state.comments = comments;
-        renderPost(post);
-        renderComments();
+        renderPostDetail(post);
+        renderCommentList();
     } catch (error) {
         detailArticle.hidden = true;
-        showState(error.message || POST_LOAD_FAILURE);
+        setDetailStatusMessage(error.message || POST_LOAD_FAILURE);
     }
 }
 
-function updateCommentSubmitState() {
-    commentSubmit.disabled = !accessToken() || !commentInput.value.trim();
+function syncNewCommentSubmitButton() {
+    commentSubmit.disabled = !getAccessToken() || !commentInput.value.trim();
 }
 
-function resetCommentForm() {
+function resetNewCommentForm() {
     commentInput.value = "";
     commentHelper.textContent = "";
     commentSubmit.textContent = "댓글 등록";
-    updateCommentSubmitState();
+    syncNewCommentSubmitButton();
 }
 
-function renderComments() {
+function renderCommentList() {
     commentList.render(state.comments, {
         editingCommentId: state.editingCommentId,
     });
 }
 
-async function refreshAfterCommentChange() {
+async function reloadPostDetailAfterCommentChange() {
     const [post, comments] = await Promise.all([
-        withAuthHandling(fetchPost(postId, POST_LOAD_FAILURE)),
-        withAuthHandling(fetchComments(postId)),
+        withAuthExpiryHandling(fetchPost(postId, POST_LOAD_FAILURE)),
+        withAuthExpiryHandling(fetchComments(postId)),
     ]);
     state.post = post;
     state.comments = comments;
-    renderPost(post);
-    renderComments();
+    renderPostDetail(post);
+    renderCommentList();
 }
 
-async function submitComment() {
+async function submitNewComment() {
     const content = commentInput.value.trim();
 
-    if (!accessToken()) {
+    if (!getAccessToken()) {
         commentHelper.textContent = AUTH_LOGIN_REQUIRED;
         return;
     }
@@ -217,40 +217,40 @@ async function submitComment() {
     commentSubmit.setAttribute("aria-busy", "true");
 
     try {
-        await withAuthHandling(createComment(postId, content));
-        resetCommentForm();
-        await refreshAfterCommentChange();
+        await withAuthExpiryHandling(createComment(postId, content));
+        resetNewCommentForm();
+        await reloadPostDetailAfterCommentChange();
     } catch (error) {
         commentHelper.textContent = error.message || COMMENT_FAILURE;
     } finally {
         commentSubmit.removeAttribute("aria-busy");
-        updateCommentSubmitState();
+        syncNewCommentSubmitButton();
     }
 }
 
-async function toggleLike() {
-    if (!accessToken()) {
+async function togglePostLike() {
+    if (!getAccessToken()) {
         commentHelper.textContent = AUTH_LOGIN_REQUIRED;
         return;
     }
 
-    if (!state.post || state.isLikeLoading) {
+    if (!state.post || state.isLikeRequestPending) {
         return;
     }
 
-    state.isLikeLoading = true;
-    updatePostCounts(state.post);
+    state.isLikeRequestPending = true;
+    syncPostStats(state.post);
 
     try {
         if (state.post.isLiked) {
-            await withAuthHandling(unlikePost(postId));
+            await withAuthExpiryHandling(unlikePost(postId));
             state.post = {
                 ...state.post,
                 isLiked: false,
                 likeCount: Math.max(0, Number(state.post.likeCount) - 1),
             };
         } else {
-            const like = await withAuthHandling(likePost(postId));
+            const like = await withAuthExpiryHandling(likePost(postId));
             state.post = {
                 ...state.post,
                 isLiked: Boolean(like.isLiked),
@@ -258,76 +258,76 @@ async function toggleLike() {
             };
         }
 
-        updatePostCounts(state.post);
+        syncPostStats(state.post);
     } catch (error) {
         commentHelper.textContent = error.message || POST_LOAD_FAILURE;
     } finally {
-        state.isLikeLoading = false;
-        updatePostCounts(state.post);
+        state.isLikeRequestPending = false;
+        syncPostStats(state.post);
     }
 }
 
-function openConfirm(type, id = "") {
+function openDeleteConfirmDialog(type, id = "") {
     confirmDialog.open({
-        title: type === DELETE_TARGET.POST ? "게시글을 삭제하시겠습니까?" : "댓글을 삭제하시겠습니까?",
+        title: type === DELETE_TARGET_TYPE.POST ? "게시글을 삭제하시겠습니까?" : "댓글을 삭제하시겠습니까?",
         description: "삭제한 내용은 복구 할 수 없습니다.",
         payload: { type, id },
     });
 }
 
-async function confirmDelete() {
+async function deleteConfirmedTarget() {
     const pendingDelete = confirmDialog.getPayload();
 
     if (!pendingDelete) {
         return;
     }
 
-    confirmDialog.setConfirmLoading(true);
+    confirmDialog.setConfirmButtonLoading(true);
 
     try {
-        if (pendingDelete.type === DELETE_TARGET.POST) {
-            await withAuthHandling(deletePost(postId));
+        if (pendingDelete.type === DELETE_TARGET_TYPE.POST) {
+            await withAuthExpiryHandling(deletePost(postId));
             globalThis.location.href = routes.posts;
             return;
         }
 
-        await withAuthHandling(deleteComment(postId, pendingDelete.id));
+        await withAuthExpiryHandling(deleteComment(postId, pendingDelete.id));
         confirmDialog.close();
-        await refreshAfterCommentChange();
+        await reloadPostDetailAfterCommentChange();
     } catch (error) {
         confirmDialog.close();
         commentHelper.textContent = error.message || COMMENT_FAILURE;
     } finally {
-        confirmDialog.setConfirmLoading(false);
+        confirmDialog.setConfirmButtonLoading(false);
     }
 }
 
-function findComment(commentId) {
-    return state.comments.find((comment) => comment.commentId === commentId);
+function findCommentById(commentId) {
+    return state.comments.find((comment) => String(comment.commentId) === String(commentId));
 }
 
-function startCommentEdit(commentId) {
-    const comment = findComment(commentId);
+function startEditingComment(commentId) {
+    const comment = findCommentById(commentId);
 
     if (!comment) {
         return;
     }
 
     state.editingCommentId = comment.commentId;
-    renderComments();
+    renderCommentList();
 }
 
-function cancelCommentEdit() {
+function cancelEditingComment() {
     state.editingCommentId = "";
-    renderComments();
+    renderCommentList();
 }
 
-async function submitCommentEdit(commentId, content) {
+async function submitEditedComment(commentId, content) {
     if (!commentId) {
         throw new Error(COMMENT_FAILURE);
     }
 
-    if (!accessToken()) {
+    if (!getAccessToken()) {
         throw new Error(AUTH_LOGIN_REQUIRED);
     }
 
@@ -335,24 +335,24 @@ async function submitCommentEdit(commentId, content) {
         throw new Error(COMMENT_REQUIRED);
     }
 
-    await withAuthHandling(updateComment(postId, commentId, content));
+    await withAuthExpiryHandling(updateComment(postId, commentId, content));
     state.editingCommentId = "";
-    await refreshAfterCommentChange();
+    await reloadPostDetailAfterCommentChange();
 }
 
-deletePostButton.addEventListener("click", () => openConfirm(DELETE_TARGET.POST));
-likeButton.addEventListener("click", toggleLike);
+deletePostButton.addEventListener("click", () => openDeleteConfirmDialog(DELETE_TARGET_TYPE.POST));
+likeButton.addEventListener("click", togglePostLike);
 
 commentInput.addEventListener("input", () => {
     commentHelper.textContent = "";
-    updateCommentSubmitState();
+    syncNewCommentSubmitButton();
 });
 
 commentForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    submitComment();
+    submitNewComment();
 });
 
-confirmOk.addEventListener("click", confirmDelete);
+confirmOk.addEventListener("click", deleteConfirmedTarget);
 
-headerProfile.loadCurrentUser().then(loadDetail);
+headerProfile.loadCurrentUser().then(loadPostDetailPage);

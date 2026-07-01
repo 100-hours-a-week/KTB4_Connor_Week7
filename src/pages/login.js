@@ -12,7 +12,7 @@ const passwordHelper = document.querySelector("#password-helper");
 const formHelper = document.querySelector("#form-helper");
 const submitButton = document.querySelector(".login-button");
 
-function validateEmail(showMessage = false) {
+function validateLoginEmail(shouldShowMessage = false) {
   const value = emailInput.value.trim();
   let message = "";
 
@@ -21,35 +21,35 @@ function validateEmail(showMessage = false) {
   } else if (!isValidEmail(value)) {
     message = LOGIN_EMAIL_FORMAT;
   }
-  emailHelper.textContent = showMessage ? message : "";
+  emailHelper.textContent = shouldShowMessage ? message : "";
   return message === "";
 }
 
-function validatePassword(showMessage = false) {
+function validateLoginPassword(shouldShowMessage = false) {
   const value = passwordInput.value;
   let message = "";
 
   if (!value) message = LOGIN_PASSWORD_REQUIRED;
 
-  passwordHelper.textContent = showMessage ? message : "";
+  passwordHelper.textContent = shouldShowMessage ? message : "";
   return message === "";
 }
 
-function updateSubmitState() {
+function syncLoginSubmitButton() {
   formHelper.textContent = "";
-  submitButton.disabled = !(validateEmail(false) && validatePassword(false));
+  submitButton.disabled = !(validateLoginEmail(false) && validateLoginPassword(false));
 }
 
-emailInput.addEventListener("input", updateSubmitState);
-passwordInput.addEventListener("input", updateSubmitState);
-emailInput.addEventListener("blur", () => validateEmail(true));
-passwordInput.addEventListener("blur", () => validatePassword(true));
+emailInput.addEventListener("input", syncLoginSubmitButton);
+passwordInput.addEventListener("input", syncLoginSubmitButton);
+emailInput.addEventListener("blur", () => validateLoginEmail(true));
+passwordInput.addEventListener("blur", () => validateLoginPassword(true));
 
-form.addEventListener("submit", async (event) => {
+async function submitLoginForm(event) {
   event.preventDefault();
 
-  const isEmailValid = validateEmail(true);
-  const isPasswordValid = validatePassword(true);
+  const isEmailValid = validateLoginEmail(true);
+  const isPasswordValid = validateLoginPassword(true);
 
   if (!isEmailValid || !isPasswordValid) return;
 
@@ -63,6 +63,8 @@ form.addEventListener("submit", async (event) => {
   } catch (error) {
     formHelper.textContent = error.message;
   }
-});
+}
 
-updateSubmitState();
+form.addEventListener("submit", submitLoginForm);
+
+syncLoginSubmitButton();
