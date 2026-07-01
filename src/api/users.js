@@ -44,7 +44,7 @@ function withdrawMe() {
     });
 }
 
-function updatePassword({ currentPassword, newPassword }) {
+function updatePassword({ newPassword }) {
     return request(
         "/api/users/me/password",
         {
@@ -52,7 +52,7 @@ function updatePassword({ currentPassword, newPassword }) {
             headers: createAuthHeaders({
                 "Content-Type": "application/json",
             }),
-            body: JSON.stringify({ currentPassword, newPassword }),
+            body: JSON.stringify({ newPassword }),
         }
     );
 }

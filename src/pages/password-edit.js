@@ -2,9 +2,10 @@ import { updatePassword } from "../api/users.js";
 import { createHeaderProfile } from "../components/header-profile.js";
 import { createToast } from "../components/toast.js";
 import {
-    PASSWORD_CURRENT_REQUIRED,
-    PASSWORD_NEW_REQUIRED,
+    PASSWORD_CONFIRM_REQUIRED,
+    PASSWORD_MISMATCH,
     PASSWORD_POLICY,
+    PASSWORD_REQUIRED,
     PASSWORD_UPDATE_FAILURE,
 } from "../constants/messages.js";
 import { setButtonLoading, setHelperText } from "../utils/form.js";
@@ -13,10 +14,10 @@ import { getAccessToken } from "../utils/session.js";
 import { isValidPassword, setValidationMessage } from "../utils/validation.js";
 
 const form = document.querySelector(".password-edit-form");
-const currentPasswordInput = document.querySelector("#current-password");
 const newPasswordInput = document.querySelector("#new-password");
-const currentPasswordHelper = document.querySelector("#current-password-helper");
+const passwordConfirmInput = document.querySelector("#password-confirm");
 const newPasswordHelper = document.querySelector("#new-password-helper");
+const passwordConfirmHelper = document.querySelector("#password-confirm-helper");
 const formHelper = document.querySelector("#form-helper");
 const submitButton = document.querySelector(".password-submit");
 const toast = document.querySelector(".toast");
@@ -25,20 +26,11 @@ const headerProfile = createHeaderProfile();
 const updateToast = createToast(toast);
 
 function canSubmitPasswordEditForm() {
-    return Boolean(getAccessToken()) && isValidPassword(currentPasswordInput.value) && isValidPassword(newPasswordInput.value);
-}
-
-function validateCurrentPasswordInput(shouldShowMessage = false) {
-    const value = currentPasswordInput.value;
-    let message = "";
-
-    if (!value) {
-        message = PASSWORD_CURRENT_REQUIRED;
-    } else if (!isValidPassword(value)) {
-        message = PASSWORD_POLICY;
-    }
-
-    return setValidationMessage(currentPasswordHelper, message, shouldShowMessage);
+    return (
+        Boolean(getAccessToken()) &&
+        isValidPassword(newPasswordInput.value) &&
+        passwordConfirmInput.value === newPasswordInput.value
+    );
 }
 
 function validateNewPasswordInput(shouldShowMessage = false) {
@@ -46,12 +38,27 @@ function validateNewPasswordInput(shouldShowMessage = false) {
     let message = "";
 
     if (!value) {
-        message = PASSWORD_NEW_REQUIRED;
+        message = PASSWORD_REQUIRED;
     } else if (!isValidPassword(value)) {
         message = PASSWORD_POLICY;
+    } else if (passwordConfirmInput.value && value !== passwordConfirmInput.value) {
+        message = PASSWORD_MISMATCH;
     }
 
     return setValidationMessage(newPasswordHelper, message, shouldShowMessage);
+}
+
+function validatePasswordConfirmInput(shouldShowMessage = false) {
+    const value = passwordConfirmInput.value;
+    let message = "";
+
+    if (!value) {
+        message = PASSWORD_CONFIRM_REQUIRED;
+    } else if (value !== newPasswordInput.value) {
+        message = PASSWORD_MISMATCH;
+    }
+
+    return setValidationMessage(passwordConfirmHelper, message, shouldShowMessage);
 }
 
 function syncPasswordEditSubmitButton() {
@@ -79,26 +86,30 @@ async function loadPasswordEditHeaderProfile() {
     });
 }
 
-currentPasswordInput.addEventListener("input", () => {
-    setHelperText(currentPasswordHelper);
-    setHelperText(formHelper);
-    syncPasswordEditSubmitButton();
-});
-
 newPasswordInput.addEventListener("input", () => {
     setHelperText(newPasswordHelper);
+    setHelperText(passwordConfirmHelper);
     setHelperText(formHelper);
     syncPasswordEditSubmitButton();
 });
 
-currentPasswordInput.addEventListener("blur", () => validateCurrentPasswordInput(true));
-newPasswordInput.addEventListener("blur", () => validateNewPasswordInput(true));
+passwordConfirmInput.addEventListener("input", () => {
+    setHelperText(passwordConfirmHelper);
+    setHelperText(formHelper);
+    syncPasswordEditSubmitButton();
+});
+
+newPasswordInput.addEventListener("blur", () => {
+    validateNewPasswordInput(true);
+    validatePasswordConfirmInput(Boolean(passwordConfirmInput.value));
+});
+passwordConfirmInput.addEventListener("blur", () => validatePasswordConfirmInput(true));
 
 async function submitPasswordEditForm(event) {
     event.preventDefault();
     setHelperText(formHelper);
 
-    const isValid = validateCurrentPasswordInput(true) && validateNewPasswordInput(true);
+    const isValid = validateNewPasswordInput(true) && validatePasswordConfirmInput(true);
 
     if (!isValid) {
         syncPasswordEditSubmitButton();
@@ -109,7 +120,6 @@ async function submitPasswordEditForm(event) {
 
     try {
         await updatePassword({
-            currentPassword: currentPasswordInput.value,
             newPassword: newPasswordInput.value,
         });
 

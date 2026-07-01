@@ -15,8 +15,9 @@ const USER_EMAIL_DUPLICATE = "*중복된 이메일 입니다.";
 const USER_NICKNAME_DUPLICATE = "*중복된 닉네임 입니다.";
 
 const PASSWORD_POLICY = "*비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.";
-const PASSWORD_CURRENT_REQUIRED = "*현재 비밀번호를 입력해주세요";
-const PASSWORD_NEW_REQUIRED = "*새 비밀번호를 입력해주세요";
+const PASSWORD_REQUIRED = "*비밀번호를 입력해주세요";
+const PASSWORD_CONFIRM_REQUIRED = "*비밀번호를 한번더 입력해주세요";
+const PASSWORD_MISMATCH = "*비밀번호가 다릅니다.";
 const PASSWORD_UPDATE_FAILURE = "*비밀번호 수정에 실패했습니다.";
 
 const SIGNUP_EMAIL_REQUIRED = "*이메일을 입력해주세요.";
@@ -62,9 +63,10 @@ export {
     LOGIN_EMAIL_FORMAT,
     LOGIN_EMAIL_REQUIRED,
     LOGIN_PASSWORD_REQUIRED,
-    PASSWORD_CURRENT_REQUIRED,
-    PASSWORD_NEW_REQUIRED,
+    PASSWORD_CONFIRM_REQUIRED,
+    PASSWORD_MISMATCH,
     PASSWORD_POLICY,
+    PASSWORD_REQUIRED,
     PASSWORD_UPDATE_FAILURE,
     POST_CONTENT_REQUIRED,
     POST_CREATE_FAILURE,
