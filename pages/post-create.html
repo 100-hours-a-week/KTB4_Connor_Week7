@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아무 말 대잔치 - 게시글 작성</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script type="module" src="../src/pages/post-create.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="back-link" href="posts.html" aria-label="이전 페이지로 이동">‹</a>
+      <h1>아무 말 대잔치</h1>
+      <div class="header-profile">
+        <button class="header-avatar" type="button" aria-label="프로필 메뉴 열기" aria-expanded="false">
+          <img class="header-avatar-image" alt="내 프로필 사진" hidden>
+          <span class="header-avatar-fallback" aria-hidden="true"></span>
+        </button>
+        <nav class="profile-menu" aria-label="프로필 메뉴" hidden>
+          <a href="profile-edit.html">회원정보수정</a>
+          <a href="password-edit.html">비밀번호수정</a>
+          <button class="logout-button" type="button">로그아웃</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="post-create-page">
+      <section class="post-create-section" aria-labelledby="post-create-title">
+        <h2 id="post-create-title">게시글 작성</h2>
+
+        <form class="post-create-form" novalidate>
+          <div class="post-editor-field">
+            <label for="post-title">제목*</label>
+            <input
+              id="post-title"
+              name="title"
+              type="text"
+              maxlength="26"
+              placeholder="제목을 입력해주세요. (최대 26글자)"
+              aria-describedby="form-helper"
+            >
+          </div>
+
+          <div class="post-editor-field post-content-field">
+            <label for="post-content">내용*</label>
+            <textarea
+              id="post-content"
+              name="content"
+              placeholder="내용을 입력해주세요."
+              aria-describedby="form-helper"
+            ></textarea>
+          </div>
+
+          <p id="form-helper" class="helper-text post-create-helper" aria-live="polite"></p>
+
+          <div class="post-image-field">
+            <span class="field-label">이미지</span>
+            <div class="post-file-row">
+              <button class="file-select-button" type="button">파일 선택</button>
+              <span class="post-file-name">파일을 선택해주세요.</span>
+              <button class="file-remove-button" type="button" hidden>삭제</button>
+              <input
+                id="post-image"
+                class="visually-hidden"
+                name="image"
+                type="file"
+                accept="image/*"
+              >
+            </div>
+          </div>
+
+          <button class="post-create-submit" type="submit" aria-disabled="true">완료</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
