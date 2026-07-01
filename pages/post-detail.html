@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아무 말 대잔치 - 게시글 상세</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script type="module" src="../src/pages/post-detail.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="back-link" href="posts.html" aria-label="이전 페이지로 이동">‹</a>
+      <h1>아무 말 대잔치</h1>
+      <div class="header-profile">
+        <button class="header-avatar" type="button" aria-label="프로필 메뉴 열기" aria-expanded="false">
+          <img class="header-avatar-image" alt="내 프로필 사진" hidden>
+          <span class="header-avatar-fallback" aria-hidden="true"></span>
+        </button>
+        <nav class="profile-menu" aria-label="프로필 메뉴" hidden>
+          <a href="profile-edit.html">회원정보수정</a>
+          <a href="password-edit.html">비밀번호수정</a>
+          <button class="logout-button" type="button">로그아웃</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="post-detail-page">
+      <section class="post-detail-section" aria-labelledby="detail-title">
+        <p class="detail-state" aria-live="polite">게시글을 불러오는 중입니다.</p>
+
+        <article class="post-detail" hidden>
+          <h2 id="detail-title" class="detail-title"></h2>
+
+          <div class="detail-header-row">
+            <div class="detail-author">
+              <span class="detail-author-avatar" aria-hidden="true"></span>
+              <strong class="detail-author-name"></strong>
+              <time class="detail-created-at"></time>
+            </div>
+            <div class="detail-owner-actions" hidden>
+              <a class="outline-action detail-edit-link" href="#">수정</a>
+              <button class="outline-action detail-delete-button" type="button">삭제</button>
+            </div>
+          </div>
+
+          <div class="detail-divider" aria-hidden="true"></div>
+
+          <figure class="detail-image-frame" hidden>
+            <img class="detail-image" alt="게시글 이미지">
+          </figure>
+
+          <p class="detail-content"></p>
+
+          <div class="detail-stats" aria-label="게시글 통계">
+            <button class="detail-stat like-stat" type="button" aria-pressed="false">
+              <strong class="like-count">0</strong>
+              <span>좋아요수</span>
+            </button>
+            <div class="detail-stat">
+              <strong class="view-count">0</strong>
+              <span>조회수</span>
+            </div>
+            <div class="detail-stat">
+              <strong class="comment-count">0</strong>
+              <span>댓글</span>
+            </div>
+          </div>
+
+          <form class="comment-form" novalidate>
+            <label class="visually-hidden" for="comment-content">댓글</label>
+            <textarea id="comment-content" name="content" placeholder="댓글을 남겨주세요!"></textarea>
+            <div class="comment-form-footer">
+              <p id="comment-helper" class="helper-text comment-helper" aria-live="polite"></p>
+              <button class="comment-submit" type="submit" disabled>댓글 등록</button>
+            </div>
+          </form>
+
+          <div class="comments-list" aria-live="polite"></div>
+        </article>
+      </section>
+    </main>
+
+    <div class="confirm-backdrop" hidden>
+      <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description">
+        <h2 id="confirm-title">게시글을 삭제하시겠습니까?</h2>
+        <p id="confirm-description">삭제한 내용은 복구 할 수 없습니다.</p>
+        <div class="dialog-actions">
+          <button class="confirm-cancel" type="button">취소</button>
+          <button class="confirm-ok" type="button">확인</button>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
