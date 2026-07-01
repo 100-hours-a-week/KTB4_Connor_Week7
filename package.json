@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "scripts": {
+    "build:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css",
+    "watch:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css --watch",
+    "check:js": "find src -name '*.js' -print0 | xargs -0 -n1 node --check"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.2",
+    "tailwindcss": "^4.3.2"
+  }
+}
