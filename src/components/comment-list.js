@@ -9,112 +9,172 @@ const COMMENT_ACTION = {
     DELETE: "delete-comment",
 };
 
-function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEdit }) {
-    function resolveCommentProfileImage(comment) {
-        return comment.profileImage
-            || comment.authorProfileImage
-            || (isCurrentUser(comment.userId) ? currentProfileImage() : "");
+function toCommentIdValue(commentId) {
+    return commentId == null ? "" : String(commentId);
+}
+
+function isSameCommentId(firstCommentId, secondCommentId) {
+    return toCommentIdValue(firstCommentId) === toCommentIdValue(secondCommentId);
+}
+
+function resolveCommentProfileImage(comment) {
+    return comment.profileImage
+        || comment.authorProfileImage
+        || (isCurrentUser(comment.userId) ? currentProfileImage() : "");
+}
+
+function createEditForm(comment) {
+    const form = document.createElement("form");
+    form.className = "comment-edit-form";
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "comment-edit-textarea";
+    textarea.name = "content";
+    textarea.value = comment.content || "";
+    textarea.setAttribute("aria-label", "댓글 수정 내용");
+
+    const footer = document.createElement("div");
+    footer.className = "comment-edit-footer";
+
+    const helper = document.createElement("p");
+    helper.className = "helper-text comment-edit-helper";
+    helper.setAttribute("aria-live", "polite");
+
+    const actions = document.createElement("div");
+    actions.className = "comment-edit-actions";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "outline-action";
+    cancelButton.type = "button";
+    cancelButton.dataset.action = COMMENT_ACTION.CANCEL_EDIT;
+    cancelButton.textContent = "취소";
+
+    const submitButton = document.createElement("button");
+    submitButton.className = "comment-submit comment-edit-submit";
+    submitButton.type = "submit";
+    submitButton.disabled = !textarea.value.trim();
+    submitButton.textContent = "댓글 수정";
+
+    actions.append(cancelButton, submitButton);
+    footer.append(helper, actions);
+    form.append(textarea, footer);
+
+    return form;
+}
+
+function createCommentActions() {
+    const actions = document.createElement("div");
+    actions.className = "comment-actions";
+
+    const editButton = document.createElement("button");
+    editButton.className = "outline-action";
+    editButton.type = "button";
+    editButton.dataset.action = COMMENT_ACTION.EDIT;
+    editButton.textContent = "수정";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "outline-action";
+    deleteButton.type = "button";
+    deleteButton.dataset.action = COMMENT_ACTION.DELETE;
+    deleteButton.textContent = "삭제";
+
+    actions.append(editButton, deleteButton);
+
+    return actions;
+}
+
+function createCommentItem(comment, editingCommentId) {
+    const item = document.createElement("article");
+    item.className = "comment-item";
+    item.dataset.commentId = toCommentIdValue(comment.commentId);
+
+    const isEditing = isSameCommentId(editingCommentId, comment.commentId);
+    const avatar = document.createElement("span");
+    avatar.className = "comment-avatar";
+    avatar.setAttribute("aria-hidden", "true");
+    renderBackgroundImage(avatar, resolveCommentProfileImage(comment));
+
+    const body = document.createElement("div");
+    body.className = "comment-body";
+
+    const header = document.createElement("div");
+    header.className = "comment-header";
+
+    const nickname = document.createElement("strong");
+    nickname.textContent = comment.nickname;
+
+    const time = document.createElement("time");
+    time.dateTime = comment.createdAt;
+    time.textContent = formatDate(comment.createdAt);
+
+    header.append(nickname, time);
+
+    const content = document.createElement("p");
+    content.textContent = comment.content || "";
+
+    if (isEditing) {
+        body.append(header, createEditForm(comment));
+    } else {
+        body.append(header, content);
     }
 
-    function createEditForm(comment) {
-        const form = document.createElement("form");
-        form.className = "comment-edit-form";
-
-        const textarea = document.createElement("textarea");
-        textarea.className = "comment-edit-textarea";
-        textarea.name = "content";
-        textarea.value = comment.content || "";
-        textarea.setAttribute("aria-label", "댓글 수정 내용");
-
-        const footer = document.createElement("div");
-        footer.className = "comment-edit-footer";
-
-        const helper = document.createElement("p");
-        helper.className = "helper-text comment-edit-helper";
-        helper.setAttribute("aria-live", "polite");
-
-        const actions = document.createElement("div");
-        actions.className = "comment-edit-actions";
-
-        const cancelButton = document.createElement("button");
-        cancelButton.className = "outline-action";
-        cancelButton.type = "button";
-        cancelButton.dataset.action = COMMENT_ACTION.CANCEL_EDIT;
-        cancelButton.textContent = "취소";
-
-        const submitButton = document.createElement("button");
-        submitButton.className = "comment-submit comment-edit-submit";
-        submitButton.type = "submit";
-        submitButton.disabled = !textarea.value.trim();
-        submitButton.textContent = "댓글 수정";
-
-        actions.append(cancelButton, submitButton);
-        footer.append(helper, actions);
-        form.append(textarea, footer);
-
-        return form;
-    }
-
-    function createCommentItem(comment, editingCommentId) {
-        const item = document.createElement("article");
-        item.className = "comment-item";
-        item.dataset.commentId = comment.commentId;
-        const isEditing = editingCommentId === comment.commentId;
-
-        const avatar = document.createElement("span");
-        avatar.className = "comment-avatar";
-        avatar.setAttribute("aria-hidden", "true");
-        renderBackgroundImage(avatar, resolveCommentProfileImage(comment));
-
-        const body = document.createElement("div");
-        body.className = "comment-body";
-
-        const header = document.createElement("div");
-        header.className = "comment-header";
-
-        const nickname = document.createElement("strong");
-        nickname.textContent = comment.nickname;
-
-        const time = document.createElement("time");
-        time.dateTime = comment.createdAt;
-        time.textContent = formatDate(comment.createdAt);
-
-        header.append(nickname, time);
-
-        const content = document.createElement("p");
-        content.textContent = comment.content || "";
-
-        if (isEditing) {
-            body.append(header, createEditForm(comment));
-        } else {
-            body.append(header, content);
-        }
-
-        if (isCurrentUser(comment.userId) && !isEditing) {
-            const actions = document.createElement("div");
-            actions.className = "comment-actions";
-
-            const editButton = document.createElement("button");
-            editButton.className = "outline-action";
-            editButton.type = "button";
-            editButton.dataset.action = COMMENT_ACTION.EDIT;
-            editButton.textContent = "수정";
-
-            const deleteButton = document.createElement("button");
-            deleteButton.className = "outline-action";
-            deleteButton.type = "button";
-            deleteButton.dataset.action = COMMENT_ACTION.DELETE;
-            deleteButton.textContent = "삭제";
-
-            actions.append(editButton, deleteButton);
-            item.append(avatar, body, actions);
-        } else {
-            item.append(avatar, body);
-        }
-
+    if (isCurrentUser(comment.userId) && !isEditing) {
+        item.append(avatar, body, createCommentActions());
         return item;
     }
 
+    item.append(avatar, body);
+    return item;
+}
+
+function focusEditingTextarea(listElement, editingCommentId) {
+    const editedItem = [...listElement.querySelectorAll(".comment-item")]
+        .find((item) => isSameCommentId(item.dataset.commentId, editingCommentId));
+
+    editedItem?.querySelector(".comment-edit-textarea")?.focus();
+}
+
+function getEditFormControls(form) {
+    return {
+        helper: form.querySelector(".comment-edit-helper"),
+        submitButton: form.querySelector(".comment-edit-submit"),
+        textarea: form.querySelector(".comment-edit-textarea"),
+    };
+}
+
+function updateEditSubmitState(form) {
+    const { submitButton, textarea } = getEditFormControls(form);
+
+    if (submitButton && textarea) {
+        submitButton.disabled = !textarea.value.trim();
+    }
+}
+
+function setEditHelperText(form, message) {
+    const { helper } = getEditFormControls(form);
+
+    if (helper) {
+        helper.textContent = message;
+    }
+}
+
+function setEditSubmitLoading(form, isLoading) {
+    const { submitButton } = getEditFormControls(form);
+
+    if (!submitButton) {
+        return;
+    }
+
+    submitButton.disabled = isLoading;
+
+    if (isLoading) {
+        submitButton.setAttribute("aria-busy", "true");
+    } else {
+        submitButton.removeAttribute("aria-busy");
+    }
+}
+
+function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEdit }) {
     function render(comments, { editingCommentId = "" } = {}) {
         const fragment = document.createDocumentFragment();
 
@@ -125,11 +185,11 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         listElement.replaceChildren(fragment);
 
         if (editingCommentId) {
-            listElement.querySelector(`[data-comment-id="${editingCommentId}"] .comment-edit-textarea`)?.focus();
+            focusEditingTextarea(listElement, editingCommentId);
         }
     }
 
-    listElement.addEventListener("click", (event) => {
+    function handleActionClick(event) {
         const actionButton = event.target.closest("[data-action]");
 
         if (!actionButton) {
@@ -156,9 +216,9 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         if (actionButton.dataset.action === COMMENT_ACTION.EDIT) {
             onEdit(commentId);
         }
-    });
+    }
 
-    listElement.addEventListener("input", (event) => {
+    function handleEditInput(event) {
         const textarea = event.target.closest(".comment-edit-textarea");
 
         if (!textarea) {
@@ -166,11 +226,11 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         }
 
         const form = textarea.closest(".comment-edit-form");
-        form.querySelector(".comment-edit-helper").textContent = "";
-        form.querySelector(".comment-edit-submit").disabled = !textarea.value.trim();
-    });
+        setEditHelperText(form, "");
+        updateEditSubmitState(form);
+    }
 
-    listElement.addEventListener("submit", async (event) => {
+    async function handleEditSubmit(event) {
         const form = event.target.closest(".comment-edit-form");
 
         if (!form) {
@@ -180,33 +240,39 @@ function createCommentList({ listElement, onEdit, onDelete, onUpdate, onCancelEd
         event.preventDefault();
 
         const item = form.closest(".comment-item");
-        const textarea = form.querySelector(".comment-edit-textarea");
-        const helper = form.querySelector(".comment-edit-helper");
-        const submitButton = form.querySelector(".comment-edit-submit");
+        const { textarea } = getEditFormControls(form);
         const commentId = item?.dataset.commentId;
-        const content = textarea.value.trim();
 
-        if (!content) {
-            helper.textContent = COMMENT_REQUIRED;
-            submitButton.disabled = true;
+        if (!textarea) {
             return;
         }
 
-        submitButton.disabled = true;
-        submitButton.setAttribute("aria-busy", "true");
+        const content = textarea.value.trim();
+
+        if (!content) {
+            setEditHelperText(form, COMMENT_REQUIRED);
+            updateEditSubmitState(form);
+            return;
+        }
+
+        setEditSubmitLoading(form, true);
 
         try {
             await onUpdate(commentId, content);
         } catch (error) {
-            helper.textContent = error.message || COMMENT_FAILURE;
+            setEditHelperText(form, error.message || COMMENT_FAILURE);
         } finally {
-            submitButton.removeAttribute("aria-busy");
+            setEditSubmitLoading(form, false);
 
             if (form.isConnected) {
-                submitButton.disabled = !textarea.value.trim();
+                updateEditSubmitState(form);
             }
         }
-    });
+    }
+
+    listElement.addEventListener("click", handleActionClick);
+    listElement.addEventListener("input", handleEditInput);
+    listElement.addEventListener("submit", handleEditSubmit);
 
     return {
         render,
