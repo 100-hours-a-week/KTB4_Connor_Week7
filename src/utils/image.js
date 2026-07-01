@@ -29,11 +29,11 @@ function extractFileName(imageUrl) {
   }
 
   const path = imageUrl.split("?")[0].split("#")[0];
-  const rawName = path.split("/").filter(Boolean).pop() || "";
+  const rawName = path.split("/").findLast(Boolean) || "";
 
   try {
-    return decodeURIComponent(rawName);
-  } catch (error) {
+    return decodeURIComponent(String(rawName));
+  } catch {
     return rawName;
   }
 }
