@@ -21,6 +21,7 @@ const PASSWORD_UPDATE_FAILURE = "*비밀번호 수정에 실패했습니다.";
 
 const SIGNUP_EMAIL_REQUIRED = "*이메일을 입력해주세요.";
 const SIGNUP_EMAIL_FORMAT = "*올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)";
+const SIGNUP_EMAIL_SPACE = "*이메일에는 공백을 사용할 수 없습니다.";
 const SIGNUP_PASSWORD_REQUIRED = "*비밀번호를 입력해주세요";
 const SIGNUP_PASSWORD_CONFIRM_REQUIRED = "*비밀번호를 한번더 입력해주세요";
 const SIGNUP_PASSWORD_MISMATCH = "*비밀번호가 다릅니다.";
@@ -80,6 +81,7 @@ export {
     PROFILE_WITHDRAW_FAILURE,
     SIGNUP_EMAIL_FORMAT,
     SIGNUP_EMAIL_REQUIRED,
+    SIGNUP_EMAIL_SPACE,
     SIGNUP_FAILURE,
     SIGNUP_NICKNAME_LENGTH,
     SIGNUP_PASSWORD_CONFIRM_REQUIRED,

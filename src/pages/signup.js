@@ -4,6 +4,7 @@ import {
     PASSWORD_POLICY,
     SIGNUP_EMAIL_FORMAT,
     SIGNUP_EMAIL_REQUIRED,
+    SIGNUP_EMAIL_SPACE,
     SIGNUP_FAILURE,
     SIGNUP_NICKNAME_LENGTH,
     SIGNUP_PASSWORD_CONFIRM_REQUIRED,
@@ -50,7 +51,7 @@ const profilePreviewController = createImagePreviewController({
 function canSubmit() {
     return (
         Boolean(profileFile) &&
-        isValidEmail(emailInput.value.trim()) &&
+        isValidEmail(emailInput.value) &&
         isValidPassword(passwordInput.value) &&
         passwordConfirmInput.value === passwordInput.value &&
         isValidNickname(nicknameInput.value)
@@ -62,10 +63,11 @@ function validateProfile(showMessageValue = false) {
 }
 
 function validateEmail(showMessageValue = false) {
-    const value = emailInput.value.trim();
+    const value = emailInput.value;
     let message = "";
 
-    if (!value) {message = SIGNUP_EMAIL_REQUIRED;}
+    if (!value.trim()) {message = SIGNUP_EMAIL_REQUIRED;}
+    else if (/\s/.test(value)) {message = SIGNUP_EMAIL_SPACE;}
     else if (!isValidEmail(value)) {message = SIGNUP_EMAIL_FORMAT;}
     return showMessage(emailHelper, message, showMessageValue);
 }
@@ -149,7 +151,7 @@ profileInput.addEventListener("click", () => {
 });
 
 emailInput.addEventListener("input", () => {
-    emailHelper.textContent = "";
+    validateEmail(/\s/.test(emailInput.value));
     updateSubmitState();
 });
 
