@@ -23,8 +23,35 @@ function updateStoredUser(user) {
     }
   }
 }
+function accessToken() {
+  return sessionStorage.getItem("accessToken") || "";
+}
 
+function authHeaders(extraHeaders = {}) {
+  const token = accessToken();
+  return token ? { ...extraHeaders, Authorization: `Bearer ${token}` } : extraHeaders;
+}
+
+function currentUserId() {
+  return sessionStorage.getItem("userId") || "";
+}
+
+function isCurrentUser(userId) {
+  return Boolean(userId) && userId === currentUserId();
+}
+
+function clearSession() {
+  sessionStorage.removeItem("accessToken");
+  sessionStorage.removeItem("userId");
+  sessionStorage.removeItem("nickname");
+  sessionStorage.removeItem("profileImage");
+}
 export {
   saveSession,
   updateStoredUser,
+  accessToken,
+  authHeaders,
+  currentUserId,
+  isCurrentUser,
+  clearSession,
 };

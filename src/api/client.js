@@ -1,3 +1,5 @@
+import { COMMON_REQUEST_FAILURE } from "../constants/messages.js";
+
 const API_BASE_URL = "http://localhost:8080";
 
 async function parseJson(response) {
@@ -5,7 +7,7 @@ async function parseJson(response) {
   return contentType.includes("application/json") ? response.json() : {};
 }
 
-async function request(path, options = {}, fallbackMessage = "요청에 실패했습니다.") {
+async function request(path, options = {}, fallbackMessage = COMMON_REQUEST_FAILURE) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: "include",
     ...options,

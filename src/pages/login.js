@@ -1,11 +1,8 @@
 import { login } from "../api/auth.js";
+import { LOGIN_EMAIL_FORMAT, LOGIN_EMAIL_REQUIRED, LOGIN_PASSWORD_REQUIRED } from "../constants/messages.js";
 import { routes } from "../utils/routes.js";
 import { saveSession } from "../utils/session.js";
 import { isValidEmail } from "../utils/validation.js";
-
-const EMAIL_REQUIRED_MESSAGE = "* 이메일을 입력해주세요.";
-const EMAIL_FORMAT_MESSAGE = "* 올바른 이메일 주소 형식을 입력해주세요.";
-const PASSWORD_REQUIRED_MESSAGE = "* 비밀번호를 입력해주세요";
 
 const form = document.querySelector(".login-form");
 const emailInput = document.querySelector("#email");
@@ -20,11 +17,10 @@ function validateEmail(showMessage = false) {
   let message = "";
 
   if (!value) {
-    message = EMAIL_REQUIRED_MESSAGE;
+    message = LOGIN_EMAIL_REQUIRED;
   } else if (!isValidEmail(value)) {
-    message = EMAIL_FORMAT_MESSAGE;
+    message = LOGIN_EMAIL_FORMAT;
   }
-
   emailHelper.textContent = showMessage ? message : "";
   return message === "";
 }
@@ -33,9 +29,7 @@ function validatePassword(showMessage = false) {
   const value = passwordInput.value;
   let message = "";
 
-  if (!value) {
-    message = PASSWORD_REQUIRED_MESSAGE;
-  }
+  if (!value) message = LOGIN_PASSWORD_REQUIRED;
 
   passwordHelper.textContent = showMessage ? message : "";
   return message === "";
@@ -48,8 +42,8 @@ function updateSubmitState() {
 
 emailInput.addEventListener("input", updateSubmitState);
 passwordInput.addEventListener("input", updateSubmitState);
-emailInput.addEventListener("input", () => validateEmail(true));
-passwordInput.addEventListener("input", () => validatePassword(true));
+emailInput.addEventListener("blur", () => validateEmail(true));
+passwordInput.addEventListener("blur", () => validatePassword(true));
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -57,9 +51,7 @@ form.addEventListener("submit", async (event) => {
   const isEmailValid = validateEmail(true);
   const isPasswordValid = validatePassword(true);
 
-  if (!isEmailValid || !isPasswordValid) {
-    return;
-  }
+  if (!isEmailValid || !isPasswordValid) return;
 
   try {
     const user = await login({

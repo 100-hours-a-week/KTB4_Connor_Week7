@@ -1,7 +1,6 @@
 import { request } from "./client.js";
+import { AUTH_LOGIN_FAILURE } from "../constants/messages.js";
 import { authHeaders } from "../utils/session.js";
-
-const LOGIN_FAILURE_MESSAGE = "* 아이디 또는 비밀번호를 확인해주세요";
 
 function login({ email, password }) {
   return request(
@@ -13,9 +12,9 @@ function login({ email, password }) {
       },
       body: JSON.stringify({ email, password }),
     },
-    LOGIN_FAILURE_MESSAGE
+    AUTH_LOGIN_FAILURE
   ).catch(() => {
-    throw new Error(LOGIN_FAILURE_MESSAGE);
+    throw new Error(AUTH_LOGIN_FAILURE);
   });
 }
 
