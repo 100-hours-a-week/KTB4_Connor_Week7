@@ -45,11 +45,6 @@ function createConfirmDialog({
     }
 
     cancelButton?.addEventListener("click", () => close());
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !backdrop.hidden) {
-            close();
-        }
-    });
 
     return {
         close,
