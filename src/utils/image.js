@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../api/client.js";
+import { API_BASE_URL } from "../config.js";
 
 function resolveImageUrl(imageUrl) {
   if (!imageUrl) {
