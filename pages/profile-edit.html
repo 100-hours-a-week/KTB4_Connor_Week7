@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아무 말 대잔치 - 회원정보수정</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script type="module" src="../src/pages/profile-edit.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="back-link" href="posts.html" aria-label="이전 페이지로 이동">‹</a>
+      <h1>아무 말 대잔치</h1>
+      <div class="header-profile">
+        <button class="header-avatar" type="button" aria-label="프로필 메뉴 열기" aria-expanded="false">
+          <img class="header-avatar-image" alt="내 프로필 사진" hidden>
+          <span class="header-avatar-fallback" aria-hidden="true"></span>
+        </button>
+        <nav class="profile-menu" aria-label="프로필 메뉴" hidden>
+          <a href="profile-edit.html">회원정보수정</a>
+          <a href="password-edit.html">비밀번호수정</a>
+          <button class="logout-button" type="button">로그아웃</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="profile-edit-page">
+      <section class="profile-edit-section" aria-labelledby="profile-edit-title">
+        <h2 id="profile-edit-title">회원정보수정</h2>
+
+        <form class="profile-edit-form" novalidate>
+          <div class="profile-edit-photo-field">
+            <span class="field-label">프로필 사진*</span>
+            <label class="edit-profile-upload" for="edit-profile-image">
+              <img class="edit-profile-preview" alt="선택한 프로필 사진 미리보기" hidden>
+              <span class="edit-profile-fallback" aria-hidden="true"></span>
+              <span class="edit-profile-overlay">변경</span>
+              <input
+                id="edit-profile-image"
+                class="visually-hidden"
+                name="profileImage"
+                type="file"
+                accept="image/*"
+              >
+            </label>
+          </div>
+
+          <div class="field profile-email-field">
+            <span class="field-label">이메일</span>
+            <p class="profile-email"></p>
+          </div>
+
+          <div class="field">
+            <label for="edit-nickname">닉네임</label>
+            <input
+              id="edit-nickname"
+              name="nickname"
+              type="text"
+              autocomplete="nickname"
+              aria-describedby="nickname-helper form-helper"
+            >
+            <p id="nickname-helper" class="helper-text" aria-live="polite"></p>
+          </div>
+
+          <p id="form-helper" class="helper-text form-helper" aria-live="polite"></p>
+          <button class="profile-submit" type="submit">수정하기</button>
+        </form>
+
+        <button class="withdraw-button" type="button">회원 탈퇴</button>
+        <p class="toast" role="status" hidden>수정완료</p>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" hidden>
+      <section class="withdraw-dialog" role="dialog" aria-modal="true" aria-labelledby="withdraw-title" aria-describedby="withdraw-description">
+        <h2 id="withdraw-title">회원탈퇴 하시겠습니까?</h2>
+        <p id="withdraw-description">작성된 게시글과 댓글은 삭제됩니다.</p>
+        <div class="dialog-actions">
+          <button class="dialog-cancel" type="button">취소</button>
+          <button class="dialog-confirm" type="button">확인</button>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
