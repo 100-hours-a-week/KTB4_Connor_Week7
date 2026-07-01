@@ -812,6 +812,47 @@ body {
   line-height: 1.55;
   white-space: pre-wrap;
 }
+.comment-edit-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.comment-edit-textarea {
+  width: 100%;
+  min-height: 92px;
+  padding: 14px 16px;
+  border: 1px solid #d9d4ff;
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+}
+.comment-edit-textarea:focus {
+  outline: 2px solid rgba(126, 102, 241, 0.28);
+  outline-offset: -2px;
+}
+.comment-edit-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.comment-edit-helper {
+  min-height: 16px;
+  margin: 0;
+}
+.comment-edit-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+.comment-edit-submit {
+  width: 104px;
+  height: 36px;
+}
 .confirm-backdrop {
   position: fixed;
   inset: 0;

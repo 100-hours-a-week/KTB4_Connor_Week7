@@ -70,6 +70,12 @@ const commentList = createCommentList({
     onEdit(commentId) {
         startCommentEdit(commentId);
     },
+    onCancelEdit() {
+        cancelCommentEdit();
+    },
+    onUpdate(commentId, content) {
+        return submitCommentEdit(commentId, content);
+    },
 });
 
 function showState(message) {
@@ -79,6 +85,7 @@ function showState(message) {
 
 function handleAuthFailure() {
     clearSession();
+    state.editingCommentId = "";
     headerProfile.loadCurrentUser();
     headerProfile.toggleMenu(false);
 
@@ -86,6 +93,7 @@ function handleAuthFailure() {
         updatePostCounts(state.post);
     }
 
+    renderComments();
     updateCommentSubmitState();
 }
 
@@ -156,7 +164,7 @@ async function loadDetail() {
         state.post = post;
         state.comments = comments;
         renderPost(post);
-        commentList.render(comments);
+        renderComments();
     } catch (error) {
         detailArticle.hidden = true;
         showState(error.message || POST_LOAD_FAILURE);
@@ -167,12 +175,17 @@ function updateCommentSubmitState() {
     commentSubmit.disabled = !accessToken() || !commentInput.value.trim();
 }
 
-function resetCommentEdit() {
-    state.editingCommentId = "";
+function resetCommentForm() {
     commentInput.value = "";
     commentHelper.textContent = "";
     commentSubmit.textContent = "댓글 등록";
     updateCommentSubmitState();
+}
+
+function renderComments() {
+    commentList.render(state.comments, {
+        editingCommentId: state.editingCommentId,
+    });
 }
 
 async function refreshAfterCommentChange() {
@@ -183,7 +196,7 @@ async function refreshAfterCommentChange() {
     state.post = post;
     state.comments = comments;
     renderPost(post);
-    commentList.render(comments);
+    renderComments();
 }
 
 async function submitComment() {
@@ -204,13 +217,8 @@ async function submitComment() {
     commentSubmit.setAttribute("aria-busy", "true");
 
     try {
-        if (state.editingCommentId) {
-            await withAuthHandling(updateComment(postId, state.editingCommentId, content));
-        } else {
-            await withAuthHandling(createComment(postId, content));
-        }
-
-        resetCommentEdit();
+        await withAuthHandling(createComment(postId, content));
+        resetCommentForm();
         await refreshAfterCommentChange();
     } catch (error) {
         commentHelper.textContent = error.message || COMMENT_FAILURE;
@@ -306,10 +314,30 @@ function startCommentEdit(commentId) {
     }
 
     state.editingCommentId = comment.commentId;
-    commentInput.value = comment.content || "";
-    commentSubmit.textContent = "댓글 수정";
-    updateCommentSubmitState();
-    commentInput.focus();
+    renderComments();
+}
+
+function cancelCommentEdit() {
+    state.editingCommentId = "";
+    renderComments();
+}
+
+async function submitCommentEdit(commentId, content) {
+    if (!commentId) {
+        throw new Error(COMMENT_FAILURE);
+    }
+
+    if (!accessToken()) {
+        throw new Error(AUTH_LOGIN_REQUIRED);
+    }
+
+    if (!content) {
+        throw new Error(COMMENT_REQUIRED);
+    }
+
+    await withAuthHandling(updateComment(postId, commentId, content));
+    state.editingCommentId = "";
+    await refreshAfterCommentChange();
 }
 
 deletePostButton.addEventListener("click", () => openConfirm(DELETE_TARGET.POST));
