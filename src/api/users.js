@@ -1,50 +1,60 @@
-import {request} from "./client.js";
-import {authHeaders} from "../utils/session.js";
+import { request } from "./client.js";
+import { authHeaders } from "../utils/session.js";
 
-function signup({email, password, nickname, profileImage}) {
+function signup({ email, password, nickname, profileImage }) {
     return request(
-        "api/users/signup", {
+        "/api/users/signup", {
             method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({ email, password, nickname, profileImage })
+            headers: authHeaders({
+                "Content-Type": "application/json",
+            }),
+            body: JSON.stringify({ email, password, nickname, profileImage }),
         }
-    )
+    );
 }
 
-function fetchMe() {
+function fetchMe(fallbackMessage) {
     return request(
-        "/api/users/me",{
+        "/api/users/me",
+        {
             method: "GET",
-            headers: authHeaders()
-        }
-    )
-}
-
-function updateMe({nickname, profileImage}) {
-    return request(
-        "/api/users/me", {
-            method: "PATCH",
             headers: authHeaders(),
-            body: JSON.stringify({nickname, profileImage})
-        }
-    )
+        },
+        fallbackMessage
+    );
 }
 
-function deleteMe() {
-    return request("api/users/me", {
+function updateMe({ nickname, profileImage }) {
+    return request(
+        "/api/users/me",
+        {
+            method: "PATCH",
+            headers: authHeaders({
+                "Content-Type": "application/json",
+            }),
+            body: JSON.stringify({ nickname, profileImage }),
+        }
+    );
+}
+
+function withdrawMe() {
+    return request("/api/users/me", {
         method: "DELETE",
-        headers: authHeaders()
-    })
+        headers: authHeaders(),
+    });
 }
 
-function updatePassword({currentPassword, newPassword}) {
+function updatePassword({ currentPassword, newPassword }) {
     return request(
-        "/api/users/me/password", {
+        "/api/users/me/password",
+        {
             method: "PATCH",
-            headers: authHeaders(),
-            body: JSON.stringify({currentPassword, newPassword})
+            headers: authHeaders({
+                "Content-Type": "application/json",
+            }),
+            body: JSON.stringify({ currentPassword, newPassword }),
         }
-    )
+    );
 }
 
-export {signup, fetchMe, updateMe, deleteMe, updatePassword};
+export { signup, fetchMe, updateMe, withdrawMe, updatePassword };

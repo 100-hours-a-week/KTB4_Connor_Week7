@@ -1,6 +1,7 @@
-import {request} from './client.js';
+import { request } from "./client.js";
+import { IMAGE_UPLOAD_FAILURE } from "../constants/messages.js";
 
-function uploadImage(file, fallbackMessage = "*이미지 업로드에 실패했습니다.") {
+function uploadImage(file, fallbackMessage = IMAGE_UPLOAD_FAILURE) {
     const formData = new FormData();
     formData.append("image", file);
 
@@ -14,4 +15,4 @@ function uploadImage(file, fallbackMessage = "*이미지 업로드에 실패했�
     ).then((data) => data.imageUrl);
 }
 
-export {uploadImage};
+export { uploadImage };

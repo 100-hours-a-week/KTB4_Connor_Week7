@@ -1,17 +1,19 @@
-import {request} from "./client.js";
-import {authHeaders} from "../utils/session.js";
+import { request } from "./client.js";
+import { authHeaders } from "../utils/session.js";
 
 async function fetchComments(postId) {
-    const data = await request(`/api/posts/${postId}`, {})
-    return Array.isArray(data.comments)
+    const data = await request(`/api/posts/${encodeURIComponent(postId)}/comments`);
+    return Array.isArray(data.comments) ? data.comments : [];
 }
 
 function createComment(postId, content) {
     return request(`/api/posts/${encodeURIComponent(postId)}/comments`, {
         method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({ content })
-    })
+        headers: authHeaders({
+            "Content-Type": "application/json",
+        }),
+        body: JSON.stringify({ content }),
+    });
 }
 
 function updateComment(postId, commentId, content) {
@@ -19,10 +21,12 @@ function updateComment(postId, commentId, content) {
         `/api/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`,
         {
             method: "PATCH",
-            headers: authHeaders(),
-            body: JSON.stringify({ content })
+            headers: authHeaders({
+                "Content-Type": "application/json",
+            }),
+            body: JSON.stringify({ content }),
         }
-    )
+    );
 }
 
 function deleteComment(postId, commentId) {
@@ -30,9 +34,9 @@ function deleteComment(postId, commentId) {
         `/api/posts/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`,
         {
             method: "DELETE",
-            headers: authHeaders()
+            headers: authHeaders(),
         }
-    )
+    );
 }
 
 export { fetchComments, createComment, updateComment, deleteComment };
