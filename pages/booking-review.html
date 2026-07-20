@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>예약 내용 확인 - 회의실 예약</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script type="module" src="../src/pages/booking-review.js"></script>
+  </head>
+  <body class="booking-body">
+    <div class="booking-app-shell">
+      <header class="booking-app-bar">
+        <a href="booking-info.html" aria-label="예약 정보 입력으로 돌아가기">‹</a>
+        <h1>회의실 예약</h1>
+        <span></span>
+      </header>
+      <main class="booking-page">
+        <p class="booking-step">3/3</p>
+        <h2 tabindex="-1">예약 내용을 확인해 주세요</h2>
+        <div class="booking-content-state" data-review-state aria-live="polite">예약 내용을 불러오는 중이에요.</div>
+        <dl class="booking-review-list" data-review-list hidden></dl>
+        <p class="booking-inline-feedback is-error" data-review-feedback aria-live="assertive" hidden></p>
+      </main>
+      <footer class="booking-footer">
+        <button class="booking-primary-button" type="button" data-confirm-button disabled>예약 확정</button>
+        <nav class="booking-bottom-nav" aria-label="주요 메뉴">
+          <a class="is-current" href="rooms.html" aria-current="page">회의실</a>
+          <a href="reservations.html">내 예약</a>
+        </nav>
+      </footer>
+    </div>
+  </body>
+</html>
