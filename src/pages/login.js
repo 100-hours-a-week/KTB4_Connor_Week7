@@ -59,7 +59,7 @@ async function submitLoginForm(event) {
       password: passwordInput.value,
     });
     saveSession(user);
-    globalThis.location.href = routes.posts;
+    globalThis.location.href = routes.rooms;
   } catch (error) {
     formHelper.textContent = error.message;
   }
@@ -68,3 +68,8 @@ async function submitLoginForm(event) {
 form.addEventListener("submit", submitLoginForm);
 
 syncLoginSubmitButton();
+const loginFeedback = sessionStorage.getItem("loginFeedback");
+if (loginFeedback) {
+  formHelper.textContent = loginFeedback;
+  sessionStorage.removeItem("loginFeedback");
+}

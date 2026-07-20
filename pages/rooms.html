@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>회의실 목록 - 회의실 예약</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <script type="module" src="../src/pages/rooms.js"></script>
+  </head>
+  <body class="booking-body">
+    <div class="booking-app-shell">
+      <header class="booking-app-bar">
+        <h1>회의실 예약</h1>
+        <span></span>
+      </header>
+      <main class="booking-page rooms-page">
+        <h2 tabindex="-1">회의실</h2>
+        <p class="booking-page-description">정원과 설비를 확인하고 이용할 회의실을 선택해 주세요.</p>
+        <div class="booking-content-state" data-room-state aria-live="polite"></div>
+        <section class="rooms-card-list" data-room-list aria-label="예약 가능한 회의실"></section>
+      </main>
+      <footer class="booking-footer booking-footer-navigation-only">
+        <nav class="booking-bottom-nav" aria-label="주요 메뉴">
+          <a class="is-current" href="rooms.html" aria-current="page">회의실</a>
+          <a href="reservations.html">내 예약</a>
+        </nav>
+      </footer>
+    </div>
+  </body>
+</html>
