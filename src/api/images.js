@@ -6,7 +6,7 @@ function uploadImage(file, fallbackMessage = IMAGE_UPLOAD_FAILURE) {
     formData.append("image", file);
 
     return request(
-        "/images",
+        "/api/images",
         {
             method: "POST",
             body: formData,
