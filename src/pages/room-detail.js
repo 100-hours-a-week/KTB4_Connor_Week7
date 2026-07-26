@@ -15,6 +15,12 @@ const isEditingRoomChange =
 const roomsLink = document.querySelector("[data-rooms-link]");
 let room = null;
 
+const facilityIconNames = {
+  TV: "tv",
+  화이트보드: "whiteboard",
+  보드마카: "marker",
+};
+
 if (isEditingRoomChange) roomsLink.href = routes.roomsForEditing;
 
 function renderRoomImage() {
@@ -34,18 +40,27 @@ function renderRoomImage() {
 function renderRoom() {
   renderRoomImage();
   document.querySelector("[data-room-name]").textContent = room.name;
-  document.querySelector("[data-room-location]").textContent = room.location;
+  document.querySelector("[data-room-location]").textContent = room.location.replace(/\s*\u00b7\s*/g, ", ");
   document.querySelector("[data-room-description]").textContent = room.description;
   document.querySelector("[data-room-capacity]").textContent = `최대 ${room.capacity}명`;
   document.querySelector("[data-room-hours]").textContent = room.operatingHours;
-  document.querySelector("[data-room-policy]").textContent = `최소 ${formatDuration(room.minimumDurationMinutes)} · 최대 ${formatDuration(room.maximumDurationMinutes)}`;
+  document.querySelector("[data-room-policy]").textContent = `최소 ${formatDuration(room.minimumDurationMinutes)}, 최대 ${formatDuration(room.maximumDurationMinutes)}`;
   document.querySelector("[data-room-guide]").textContent = room.usageGuide;
   const facilities = document.querySelector("[data-room-facilities]");
   facilities.replaceChildren();
   const facilityNames = room.facilities.length > 0 ? room.facilities : ["별도 설비 없음"];
   facilityNames.forEach((facility) => {
     const item = document.createElement("li");
-    item.textContent = facility;
+    const iconName = facilityIconNames[facility];
+    if (iconName) {
+      const icon = document.createElement("span");
+      icon.className = `facility-icon facility-icon--${iconName}`;
+      icon.setAttribute("aria-hidden", "true");
+      item.append(icon);
+    }
+    const label = document.createElement("span");
+    label.textContent = facility;
+    item.append(label);
     facilities.append(item);
   });
   roomState.hidden = true;

@@ -80,7 +80,7 @@ test("회의실 fixture 목록은 실제 회의실 정보와 이미지를 제공
   );
 });
 
-test("내 예약 fixture는 예정·지난·취소 예약을 필터링하고 페이지로 나눈다", async () => {
+test("내 예약 fixture는 예정, 지난, 취소 예약을 필터링하고 페이지로 나눈다", async () => {
   const store = createFixtureReservationStore({
     storage: createMemoryStorage(),
     now: () => new Date("2026-07-20T09:00:00+09:00"),

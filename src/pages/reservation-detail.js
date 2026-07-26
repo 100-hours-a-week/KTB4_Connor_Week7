@@ -54,9 +54,9 @@ function renderReservation(value) {
   statusBadge.textContent = getReservationStatusLabel(value.status);
   topicHeading.textContent = value.topic;
   summary.replaceChildren();
-  addDetailItem("회의실", `${value.room.name} · ${value.room.location}`);
+  addDetailItem("회의실", `${value.room.name} (${value.room.location})`);
   addDetailItem("날짜와 시간", formatReservationSchedule(value));
-  addDetailItem("참석자", `${value.attendees.length}명 · ${value.attendees.join(", ")}`);
+  addDetailItem("참석자", `${value.attendees.length}명 (${value.attendees.join(", ")})`);
   addDetailItem("추가 정보", value.additionalInfo);
   addDetailItem("예약 번호", value.reservationId);
   addDetailItem("생성 시각", formatReservationTimestamp(value.createdAt));
@@ -120,7 +120,7 @@ changeButton.addEventListener("click", () => {
 
 cancelButton.addEventListener("click", () => {
   cancelDialog.open({
-    description: `${reservation.room.name} · ${formatReservationSchedule(reservation)}`,
+    description: `${reservation.room.name}, ${formatReservationSchedule(reservation)}`,
   });
 });
 

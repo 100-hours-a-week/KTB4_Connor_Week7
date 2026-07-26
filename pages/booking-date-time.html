@@ -4,15 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>날짜와 시간 선택 - 회의실 예약</title>
-    <link rel="stylesheet" href="../styles/main.css">
-    <script type="module" src="../src/pages/booking-date-time.js"></script>
+    <link rel="stylesheet" href="../styles/main.css?v=5">
+    <script type="module" src="../src/pages/booking-date-time.js?v=2"></script>
   </head>
   <body class="booking-body">
-    <div class="booking-app-shell">
-      <header class="booking-app-bar">
-        <a href="room-detail.html" data-room-detail-link aria-label="회의실 상세로 돌아가기">‹</a>
+    <div class="booking-app-shell booking-step-shell">
+      <header class="booking-app-bar booking-flow-app-bar">
+        <a href="room-detail.html" data-room-detail-link aria-label="회의실 상세로 돌아가기">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m14 5-7 7 7 7M7 12h11"/>
+          </svg>
+        </a>
         <h1>회의실 예약</h1>
-        <span></span>
+        <button type="button" data-change-room aria-label="회의실 목록으로">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m7 7 10 10M17 7 7 17"/>
+          </svg>
+        </button>
       </header>
 
       <main class="booking-page booking-date-time-page">
@@ -24,12 +32,15 @@
             <span>선택한 회의실</span>
             <strong data-selected-room-name></strong>
           </div>
-          <button type="button" data-change-room>회의실 변경</button>
         </section>
         <p class="booking-inline-feedback" data-booking-feedback aria-live="assertive" hidden></p>
 
         <section class="booking-selection-summary" aria-live="polite">
-          <span aria-hidden="true">▣</span>
+          <span class="booking-summary-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>
+            </svg>
+          </span>
           <div>
             <strong data-schedule-summary>날짜를 선택해 주세요</strong>
             <span data-duration-summary></span>
@@ -68,10 +79,6 @@
 
       <footer class="booking-footer">
         <button class="booking-primary-button" type="button" data-next-button disabled>다음</button>
-        <nav class="booking-bottom-nav" aria-label="주요 메뉴">
-          <a class="is-current" href="rooms.html" aria-current="page">회의실</a>
-          <a href="reservations.html">내 예약</a>
-        </nav>
       </footer>
     </div>
   </body>

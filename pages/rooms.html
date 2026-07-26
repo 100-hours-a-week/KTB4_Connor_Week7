@@ -4,27 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>회의실 목록 - 회의실 예약</title>
-    <link rel="stylesheet" href="../styles/main.css">
-    <script type="module" src="../src/pages/rooms.js"></script>
+    <link rel="stylesheet" href="../styles/main.css?v=24">
+    <script type="module" src="../src/pages/rooms.js?v=16"></script>
   </head>
   <body class="booking-body">
-    <div class="booking-app-shell">
-      <header class="booking-app-bar">
-        <h1>회의실 예약</h1>
-        <span></span>
+    <div class="booking-app-shell is-navigation-free">
+      <header class="booking-app-bar booking-list-app-bar">
+        <div class="booking-list-title-group">
+          <h1>회의실</h1>
+          <a class="booking-header-pill" href="reservations.html">내 예약</a>
+        </div>
+        <div class="booking-list-actions">
+          <div class="header-profile booking-header-profile">
+            <button class="header-avatar" type="button" aria-label="프로필 메뉴 열기" aria-expanded="false">
+              <img class="header-avatar-image" alt="내 프로필 사진" hidden>
+              <span class="header-avatar-fallback" aria-hidden="true"></span>
+            </button>
+            <nav class="profile-menu" aria-label="프로필 메뉴" hidden>
+              <a href="profile-edit.html">회원정보수정</a>
+              <a href="password-edit.html">비밀번호수정</a>
+              <button class="logout-button" type="button">로그아웃</button>
+            </nav>
+          </div>
+        </div>
       </header>
       <main class="booking-page rooms-page">
-        <h2 tabindex="-1">회의실</h2>
-        <p class="booking-page-description">정원과 설비를 확인하고 이용할 회의실을 선택해 주세요.</p>
+        <div class="rooms-introduction">
+          <h2 tabindex="-1">어떤 회의실을 이용할까요?</h2>
+          <p class="booking-page-description">공간을 선택하면 예약 가능한 시간을 확인할 수 있어요.</p>
+        </div>
         <div class="booking-content-state" data-room-state aria-live="polite"></div>
-        <section class="rooms-card-list" data-room-list aria-label="예약 가능한 회의실"></section>
+        <section class="rooms-card-list" data-room-list aria-label="회의실 목록"></section>
       </main>
-      <footer class="booking-footer booking-footer-navigation-only">
-        <nav class="booking-bottom-nav" aria-label="주요 메뉴">
-          <a class="is-current" href="rooms.html" aria-current="page">회의실</a>
-          <a href="reservations.html">내 예약</a>
-        </nav>
-      </footer>
     </div>
   </body>
 </html>

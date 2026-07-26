@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>회의실 상세 - 회의실 예약</title>
-    <link rel="stylesheet" href="../styles/main.css">
-    <script type="module" src="../src/pages/room-detail.js"></script>
+    <link rel="stylesheet" href="../styles/main.css?v=7">
+    <script type="module" src="../src/pages/room-detail.js?v=4"></script>
   </head>
   <body class="booking-body">
-    <div class="booking-app-shell">
-      <header class="booking-app-bar">
-        <a href="rooms.html" aria-label="회의실 목록으로 돌아가기" data-rooms-link>‹</a>
+    <div class="booking-app-shell room-detail-shell">
+      <header class="booking-app-bar room-detail-app-bar">
+        <a href="rooms.html" aria-label="회의실 목록으로 돌아가기" data-rooms-link>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m13 4-4 8 4 8"/>
+          </svg>
+        </a>
         <h1>회의실 상세</h1>
         <span></span>
       </header>
@@ -19,7 +23,6 @@
         <article class="room-detail" data-room-detail hidden>
           <div class="room-detail-image" data-room-image></div>
           <header>
-            <p class="room-status-badge">예약 가능</p>
             <h2 tabindex="-1" data-room-name></h2>
             <p data-room-location></p>
           </header>
@@ -45,10 +48,6 @@
       </main>
       <footer class="booking-footer">
         <button class="booking-primary-button" type="button" data-book-button disabled>예약하기</button>
-        <nav class="booking-bottom-nav" aria-label="주요 메뉴">
-          <a class="is-current" href="rooms.html" aria-current="page">회의실</a>
-          <a href="reservations.html">내 예약</a>
-        </nav>
       </footer>
     </div>
   </body>

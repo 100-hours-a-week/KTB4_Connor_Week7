@@ -47,7 +47,7 @@ const FIXTURE_ROOMS = [
   {
     roomId: "t1",
     name: "T1",
-    location: "G1 사무실 옆 · 타운홀 좌측",
+    location: "G1 사무실 옆, 타운홀 좌측",
     capacity: 6,
     facilities: [],
     description: "좌석 구성에 따라 4~6명이 이용할 수 있어요.",

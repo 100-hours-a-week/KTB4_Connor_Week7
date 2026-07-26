@@ -1,4 +1,5 @@
 import { fetchRooms } from "../api/booking.js";
+import { createHeaderProfile } from "../components/header-profile.js?v=3";
 import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
 import { bookingDraftStore } from "../utils/booking-draft.js";
 import { routes } from "../utils/routes.js";
@@ -9,6 +10,8 @@ const roomList = document.querySelector("[data-room-list]");
 const isEditingRoomChange =
   new URLSearchParams(globalThis.location.search).get("mode") === "change" &&
   Boolean(bookingDraftStore.getEditingReservationId());
+const facilityIconNames = { TV: "tv", 화이트보드: "whiteboard", 보드마카: "marker" };
+const headerProfile = createHeaderProfile();
 
 function createRoomImage(room) {
   if (room.imageUrl) {
@@ -26,28 +29,83 @@ function createRoomImage(room) {
 }
 
 function createRoomCard(room) {
+  const card = document.createElement("article");
+  card.className = "rooms-card";
+  card.dataset.roomId = room.roomId;
   const link = document.createElement("a");
-  link.className = "rooms-card";
+  link.className = "rooms-card-link";
   link.href = isEditingRoomChange
     ? routes.roomDetailForEditing(room.roomId)
     : routes.roomDetail(room.roomId);
-  link.dataset.roomId = room.roomId;
 
-  const content = document.createElement("span");
+  const content = document.createElement("div");
   content.className = "rooms-card-content";
   const name = document.createElement("strong");
   const location = document.createElement("span");
-  const metadata = document.createElement("span");
-  const status = document.createElement("span");
+  const capacity = document.createElement("span");
+  const facilities = document.createElement("ul");
+  facilities.className = "rooms-card-facilities";
   name.textContent = room.name;
-  location.textContent = room.location;
+  location.className = "rooms-card-location";
+  const locationIcon = document.createElement("img");
+  locationIcon.className = "rooms-card-location-icon";
+  locationIcon.src = "../assets/icons/location-pin.svg";
+  locationIcon.alt = "";
+  location.append(locationIcon, room.location.replace(/\s*\u00b7\s*/g, ", "));
   const facilityNames = room.facilities.length > 0 ? room.facilities.slice(0, 3) : ["장비 없음"];
-  metadata.textContent = [`최대 ${room.capacity}명`, ...facilityNames].join(" · ");
-  status.className = "rooms-card-status";
-  status.textContent = "예약 가능";
-  content.append(name, location, metadata, status);
-  link.append(createRoomImage(room), content);
-  return link;
+  capacity.textContent = `최대 인원 ${room.capacity}명`;
+  facilityNames.forEach((facility) => {
+    const item = document.createElement("li");
+    const iconName = facilityIconNames[facility];
+    if (iconName) {
+      const icon = document.createElement("span");
+      icon.className = `facility-icon facility-icon--${iconName}`;
+      icon.setAttribute("aria-hidden", "true");
+      item.append(icon);
+    }
+    item.append(facility);
+    facilities.append(item);
+  });
+  link.append(name);
+  const facilityCarousel = document.createElement("div");
+  facilityCarousel.className = "rooms-card-facility-carousel";
+  if (facilityNames.length > 1) {
+    facilityCarousel.classList.add("has-controls", "at-start");
+    const previousButton = document.createElement("button");
+    previousButton.type = "button";
+    previousButton.className = "rooms-card-facility-nav";
+    previousButton.setAttribute("aria-label", `${room.name} 이전 설비`);
+    previousButton.textContent = "‹";
+    previousButton.addEventListener("click", () => {
+      facilities.scrollBy({ left: -96, behavior: "smooth" });
+    });
+    const nextButton = document.createElement("button");
+    nextButton.type = "button";
+    nextButton.className = "rooms-card-facility-nav";
+    nextButton.setAttribute("aria-label", `${room.name} 다음 설비`);
+    nextButton.textContent = "›";
+    nextButton.addEventListener("click", () => {
+      facilities.scrollBy({ left: 96, behavior: "smooth" });
+    });
+    facilityCarousel.append(previousButton, facilities, nextButton);
+    const updateFacilityNavigation = () => {
+      const atStart = facilities.scrollLeft <= 1;
+      const atEnd = facilities.scrollLeft >= facilities.scrollWidth - facilities.clientWidth - 1;
+      previousButton.disabled = atStart;
+      nextButton.disabled = atEnd;
+      previousButton.classList.toggle("is-hidden", atStart);
+      nextButton.classList.toggle("is-hidden", atEnd);
+      facilityCarousel.classList.toggle("at-start", atStart);
+      facilityCarousel.classList.toggle("at-end", atEnd);
+    };
+    facilities.addEventListener("scroll", updateFacilityNavigation, { passive: true });
+    requestAnimationFrame(updateFacilityNavigation);
+  } else {
+    facilityCarousel.append(facilities);
+  }
+  content.append(link, location, capacity, facilityCarousel);
+  card.append(createRoomImage(room), content);
+  return card;
 }
 
 function renderSkeletons() {
@@ -102,5 +160,6 @@ async function loadRooms() {
 if (requireAccessToken()) {
   if (!isEditingRoomChange) bookingDraftStore.clear();
   heading.focus();
+  headerProfile.loadCurrentUser();
   loadRooms();
 }

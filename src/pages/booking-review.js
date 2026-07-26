@@ -6,6 +6,7 @@ import { handleUnauthorized, requireAccessToken } from "../utils/access.js";
 import { routes } from "../utils/routes.js";
 
 const heading = document.querySelector("h2");
+const exitBookingButton = document.querySelector("[data-exit-booking]");
 const reviewState = document.querySelector("[data-review-state]");
 const reviewList = document.querySelector("[data-review-list]");
 const feedback = document.querySelector("[data-review-feedback]");
@@ -22,24 +23,20 @@ const incompleteRoute = !draft.roomId
       ? routes.bookingInfo
       : "";
 
-function addReviewItem(label, value, editRoute, { changeRoom = false } = {}) {
+function addReviewItem(label, value, editRoute, { editable = true } = {}) {
   const wrapper = document.createElement("div");
   const term = document.createElement("dt");
   const description = document.createElement("dd");
-  const editLink = document.createElement("a");
   term.textContent = label;
   description.textContent = value || "없음";
-  editLink.href = editRoute;
-  editLink.textContent = "수정";
-  editLink.setAttribute("aria-label", `${label} 수정`);
-  if (changeRoom) {
-    editLink.addEventListener("click", (event) => {
-      event.preventDefault();
-      bookingDraftStore.changeRoom();
-      globalThis.location.href = editingReservationId ? routes.roomsForEditing : routes.rooms;
-    });
+  wrapper.append(term, description);
+  if (editable) {
+    const editLink = document.createElement("a");
+    editLink.href = editRoute;
+    editLink.textContent = "수정";
+    editLink.setAttribute("aria-label", `${label} 수정`);
+    wrapper.append(editLink);
   }
-  wrapper.append(term, description, editLink);
   reviewList.append(wrapper);
 }
 
@@ -53,10 +50,10 @@ async function renderReview() {
     }
     reviewList.replaceChildren();
     bookingDraftStore.update({ roomName: room.name, roomCapacity: room.capacity });
-    addReviewItem("회의실", `${room.name} · ${room.location}`, routes.rooms, { changeRoom: true });
+    addReviewItem("회의실", `${room.name} (${room.location})`, routes.rooms, { editable: false });
     addReviewItem("날짜와 시간", formatBookingSchedule(draft), routes.bookingDateTime(draft.roomId));
     addReviewItem("회의 주제", draft.topic.trim(), routes.bookingInfo);
-    addReviewItem("참석자", `${draft.attendeeChips.length}명 · ${draft.attendeeChips.join(", ")}`, routes.bookingInfo);
+    addReviewItem("참석자", `${draft.attendeeChips.length}명 (${draft.attendeeChips.join(", ")})`, routes.bookingInfo);
     addReviewItem("추가 정보", draft.additionalInfo.trim(), routes.bookingInfo);
     reviewState.hidden = true;
     reviewList.hidden = false;
@@ -78,6 +75,7 @@ async function confirmReservation() {
     const reservation = editingReservationId
       ? await updateReservation(editingReservationId, payload)
       : await createReservation(payload);
+    sessionStorage.setItem("lastConfirmedReservation", JSON.stringify(reservation));
     bookingDraftStore.clear();
     globalThis.location.href = editingReservationId
       ? routes.reservationDetail(reservation.reservationId)
@@ -104,6 +102,11 @@ async function confirmReservation() {
     confirmButton.textContent = confirmButtonLabel;
   }
 }
+
+exitBookingButton.addEventListener("click", () => {
+  bookingDraftStore.changeRoom();
+  globalThis.location.href = editingReservationId ? routes.roomsForEditing : routes.rooms;
+});
 
 if (requireAccessToken()) {
   if (incompleteRoute) {

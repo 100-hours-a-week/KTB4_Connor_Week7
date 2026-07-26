@@ -6,6 +6,7 @@ import { routes } from "../utils/routes.js";
 
 const heading = document.querySelector("h2");
 const backLink = document.querySelector("[data-back-link]");
+const exitBookingButton = document.querySelector("[data-exit-booking]");
 const reserverName = document.querySelector("[data-reserver-name]");
 const roomSummary = document.querySelector("[data-room-summary]");
 const roomError = document.querySelector("[data-room-error]");
@@ -105,7 +106,7 @@ async function loadRoom() {
     const roomName = document.createElement("strong");
     const roomMetadata = document.createElement("span");
     roomName.textContent = room.name;
-    roomMetadata.textContent = [room.location, `최대 ${room.capacity}명`, ...room.facilities].join(" · ");
+    roomMetadata.textContent = [room.location, `최대 ${room.capacity}명`, ...room.facilities].join(", ");
     roomSummary.replaceChildren(roomName, roomMetadata);
     renderAttendeeChips();
     syncValidation();
@@ -150,6 +151,10 @@ nextButton.addEventListener("click", () => {
     block: "center",
   });
   (capacityExceeded || topicInput.value.trim() ? attendeeInput : topicInput).focus({ preventScroll: true });
+});
+exitBookingButton.addEventListener("click", () => {
+  bookingDraftStore.changeRoom();
+  globalThis.location.href = editingReservationId ? routes.roomsForEditing : routes.rooms;
 });
 
 if (requireAccessToken()) {

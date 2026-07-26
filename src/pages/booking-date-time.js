@@ -58,12 +58,12 @@ function renderSummary() {
   }
 
   if (!currentDraft.startTime || !currentDraft.endTime) {
-    scheduleSummary.textContent = `${formatBookingDate(currentDraft.date)} · 시간을 선택해 주세요`;
+    scheduleSummary.textContent = `${formatBookingDate(currentDraft.date)} 시간을 선택해 주세요`;
     durationSummary.textContent = "";
     return;
   }
 
-  scheduleSummary.textContent = `${formatBookingDate(currentDraft.date)} · ${formatTime(currentDraft.startTime)}~${formatTime(currentDraft.endTime)}`;
+  scheduleSummary.textContent = `${formatBookingDate(currentDraft.date)} ${formatTime(currentDraft.startTime)}~${formatTime(currentDraft.endTime)}`;
   durationSummary.textContent = formatDuration(currentRange?.durationMinutes || 30);
 }
 
