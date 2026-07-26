@@ -2,12 +2,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run check:types && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "build:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css",
     "watch:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css --watch",
     "check:js": "find src -name '*.js' -print0 | xargs -0 -n1 node --check",
-    "check:types": "tsc --noEmit",
     "test": "node --test test/*.test.js",
     "test:react": "vitest run"
   },
@@ -17,12 +16,9 @@
     "@testing-library/jest-dom": "6.9",
     "@testing-library/react": "16.3",
     "@testing-library/user-event": "14.6",
-    "@types/react": "19.2",
-    "@types/react-dom": "19.2",
     "@vitejs/plugin-react": "6.0",
     "jsdom": "29.1",
     "tailwindcss": "^4.3.2",
-    "typescript": "6.0",
     "vite": "8.1",
     "vitest": "4.1"
   },
