@@ -1893,6 +1893,14 @@ body {
   transform: translateY(-50%);
 }
 
+.logout-button {
+  position: absolute;
+  right: max(72px, calc(50% - 278px));
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .header-avatar {
   display: block;
   width: 36px;
@@ -1913,9 +1921,12 @@ body {
 }
 
 .header-avatar-fallback {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
+  font-weight: 700;
 }
 
 .profile-menu {
@@ -2572,8 +2583,12 @@ body.modal-open {
 }
 
 .edit-profile-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
+  font-weight: 700;
   background: #c4c4c4;
 }
 

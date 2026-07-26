@@ -152,7 +152,7 @@ describe("AppRouter", () => {
   });
 
   it.each([
-    ["/profile", "회원정보 수정"],
+    ["/profile", "회원정보수정"],
     ["/profile/password", "비밀번호 수정"],
     ["/rooms", "회의실"],
     ["/rooms/ryan2", "회의실 상세"],
