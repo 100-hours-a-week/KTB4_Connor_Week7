@@ -1,13 +1,30 @@
 {
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "build:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css",
     "watch:css": "tailwindcss -i ./styles/input.css -o ./styles/main.css --watch",
     "check:js": "find src -name '*.js' -print0 | xargs -0 -n1 node --check",
-    "test": "node --test"
+    "test": "node --test test/*.test.js",
+    "test:react": "vitest run"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.2",
-    "tailwindcss": "^4.3.2"
+    "@testing-library/dom": "10.4",
+    "@testing-library/jest-dom": "6.9",
+    "@testing-library/react": "16.3",
+    "@testing-library/user-event": "14.6",
+    "@vitejs/plugin-react": "6.0",
+    "jsdom": "29.1",
+    "tailwindcss": "^4.3.2",
+    "vite": "8.1",
+    "vitest": "4.1"
+  },
+  "dependencies": {
+    "react": "19.2",
+    "react-dom": "19.2",
+    "react-router": "8.2"
   }
 }
