@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router";
 import { AppLayout } from "../layout/AppLayout.jsx";
 import { useAuth } from "../providers/AuthProvider.jsx";
 import { LoginPage } from "../../pages/login/LoginPage.jsx";
+import { SignupPage } from "../../pages/signup/SignupPage.jsx";
 import { ProtectedRoute } from "./ProtectedRoute.jsx";
 
 function RoutePlaceholder({ title }) {
@@ -22,7 +23,7 @@ function AppRouter() {
     <Routes>
       <Route path="/" element={<RootRedirect />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<RoutePlaceholder title="회원가입" />} />
+      <Route path="/signup" element={<SignupPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
