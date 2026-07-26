@@ -1,16 +1,24 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "../../app/providers/AuthProvider.jsx";
 import { uploadImage } from "../../api/images.js";
-import { fetchMe, updateMe } from "../../api/users.js";
+import { fetchMe, updateMe, withdrawMe } from "../../api/users.js";
 import { ProfileEditForm } from "../../features/manage-profile/ProfileEditForm.jsx";
+import { WithdrawAccountButton } from "../../features/manage-profile/WithdrawAccountButton.jsx";
 import { PROFILE_LOAD_FAILURE } from "../../constants/messages.js";
 
 function ProfileEditPage({
   loadProfile = fetchMe,
   upload = uploadImage,
   updateProfile = updateMe,
+  withdraw = withdrawMe,
 }) {
-  const { recoverUnauthorized, updateAuthenticatedUser } = useAuth();
+  const navigate = useNavigate();
+  const {
+    clearAuthentication,
+    recoverUnauthorized,
+    updateAuthenticatedUser,
+  } = useAuth();
   const [requestState, setRequestState] = useState({
     status: "loading",
     user: null,
@@ -65,16 +73,26 @@ function ProfileEditPage({
         ) : null}
 
         {requestState.status === "success" ? (
-          <ProfileEditForm
-            user={requestState.user}
-            upload={upload}
-            updateProfile={updateProfile}
-            onUnauthorized={recoverUnauthorized}
-            onUpdated={(user) => {
-              setRequestState({ status: "success", user, error: "" });
-              updateAuthenticatedUser(user);
-            }}
-          />
+          <>
+            <ProfileEditForm
+              user={requestState.user}
+              upload={upload}
+              updateProfile={updateProfile}
+              onUnauthorized={recoverUnauthorized}
+              onUpdated={(user) => {
+                setRequestState({ status: "success", user, error: "" });
+                updateAuthenticatedUser(user);
+              }}
+            />
+            <WithdrawAccountButton
+              withdraw={withdraw}
+              onUnauthorized={recoverUnauthorized}
+              onWithdrawn={() => {
+                clearAuthentication();
+                navigate("/login", { replace: true });
+              }}
+            />
+          </>
         ) : null}
       </section>
     </main>

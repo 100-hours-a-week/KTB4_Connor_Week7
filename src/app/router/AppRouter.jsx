@@ -4,6 +4,7 @@ import { useAuth } from "../providers/AuthProvider.jsx";
 import { LoginPage } from "../../pages/login/LoginPage.jsx";
 import { SignupPage } from "../../pages/signup/SignupPage.jsx";
 import { ProfileEditPage } from "../../pages/profile-edit/ProfileEditPage.jsx";
+import { PasswordEditPage } from "../../pages/password-edit/PasswordEditPage.jsx";
 import { ProtectedRoute } from "./ProtectedRoute.jsx";
 
 function RoutePlaceholder({ title }) {
@@ -31,7 +32,7 @@ function AppRouter() {
           <Route path="/profile" element={<ProfileEditPage />} />
           <Route
             path="/profile/password"
-            element={<RoutePlaceholder title="비밀번호 수정" />}
+            element={<PasswordEditPage />}
           />
           <Route path="/rooms" element={<RoutePlaceholder title="회의실" />} />
           <Route

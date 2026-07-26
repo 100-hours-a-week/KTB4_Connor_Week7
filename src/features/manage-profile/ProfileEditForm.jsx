@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { UserAvatar } from "../../entities/user/UserAvatar.jsx";
+import { Toast } from "../../shared/ui/Toast.jsx";
 import {
   PROFILE_NICKNAME_LENGTH,
   PROFILE_UPDATE_FAILURE,
@@ -158,9 +159,7 @@ function ProfileEditForm({
         </button>
       </form>
 
-      <p className="toast" role="status" hidden={!updated}>
-        수정완료
-      </p>
+      <Toast open={updated} message="수정완료" />
     </>
   );
 }

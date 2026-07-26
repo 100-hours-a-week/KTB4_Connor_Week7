@@ -2424,9 +2424,13 @@ body.modal-open {
 .withdraw-dialog {
   width: min(100%, 330px);
   padding: 36px 28px 32px;
+  border: 0;
   border-radius: 8px;
   text-align: center;
   background: #ffffff;
+}
+.withdraw-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.32);
 }
 .withdraw-dialog h2 {
   margin: 0;
