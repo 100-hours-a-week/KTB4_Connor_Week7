@@ -485,12 +485,15 @@ async function fetchFixtureMonthAvailability({ roomId, year, month }) {
   });
 }
 
-async function fetchFixtureDaySlots({ roomId, date }) {
+async function fetchFixtureDaySlots(
+  { roomId, date },
+  { storage = globalThis.sessionStorage, now = () => new Date() } = {},
+) {
   const room = findRoom(roomId);
   if (!room) throw fixtureError("회의실을 찾을 수 없어요.", 404, "ROOM_NOT_FOUND");
   if (!room.active) throw fixtureError("이 회의실은 더 이상 예약할 수 없어요.", 409, "ROOM_INACTIVE");
-  const store = createFixtureReservationStore();
-  const editingReservationId = globalThis.sessionStorage?.getItem("roomBookingEditingReservationId") || "";
+  const store = createFixtureReservationStore({ storage, now });
+  const editingReservationId = storage?.getItem("roomBookingEditingReservationId") || "";
   const roomReservations = await store.fetchConfirmedReservations({
     roomId,
     date,
