@@ -37,8 +37,8 @@ function createHeaderProfile() {
         }
 
         avatarImage.src = resolveImageUrl(imageUrl);
-        avatarImage.hidden = false;
-        avatarFallback.hidden = true;
+        avatarImage.hidden = !(avatarImage.complete && avatarImage.naturalWidth);
+        avatarFallback.hidden = !avatarImage.hidden;
     }
 
     function closeMenu() {
@@ -142,6 +142,11 @@ function createHeaderProfile() {
         }
     });
 
+    avatarImage?.addEventListener("load", () => {
+        avatarImage.hidden = false;
+        avatarFallback.hidden = true;
+    });
+    avatarImage?.addEventListener("error", () => setAvatar(""));
     logoutButton?.addEventListener("click", logout);
 
     return {
