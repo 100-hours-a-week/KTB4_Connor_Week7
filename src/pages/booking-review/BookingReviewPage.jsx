@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { fetchRoom } from "../../api/booking.js";
 import { useAuth } from "../../app/providers/AuthProvider.jsx";
 import { BookingReviewList } from "../../features/book-room/BookingReviewList.jsx";
 import { BookingStepLayout } from "../../features/book-room/BookingStepLayout.jsx";
+import { SubmitBookingButton } from "../../features/book-room/SubmitBookingButton.jsx";
 import { useBookingDraft } from "../../features/book-room/model/BookingDraftProvider.jsx";
 
 function getIncompleteBookingRoute(draft) {
@@ -17,19 +18,23 @@ function getIncompleteBookingRoute(draft) {
   return "";
 }
 
-function BookingReviewPage({ loadRoom = fetchRoom }) {
+function BookingReviewPage({ loadRoom = fetchRoom, create, update }) {
   const navigate = useNavigate();
   const { recoverUnauthorized } = useAuth();
   const { draft, editingReservationId, dispatch } = useBookingDraft();
-  const guardRoute = getIncompleteBookingRoute(draft);
+  const completedRef = useRef(false);
+  const guardRoute = completedRef.current
+    ? ""
+    : getIncompleteBookingRoute(draft);
   const [roomState, setRoomState] = useState({
     status: "loading",
     room: null,
     error: "",
   });
+  const [submissionError, setSubmissionError] = useState("");
 
   useEffect(() => {
-    if (guardRoute) return undefined;
+    if (completedRef.current || guardRoute) return undefined;
     const controller = new AbortController();
     loadRoom(draft.roomId, { signal: controller.signal })
       .then((room) => {
@@ -74,6 +79,38 @@ function BookingReviewPage({ loadRoom = fetchRoom }) {
       }}
       nextDisabled
       nextLabel={editingReservationId ? "예약 변경" : "예약 확정"}
+      nextControl={
+        roomState.room ? (
+          <SubmitBookingButton
+            draft={draft}
+            editingReservationId={editingReservationId}
+            create={create}
+            update={update}
+            clear={() => dispatch({ type: "clear" })}
+            onCompleted={(reservation) => {
+              completedRef.current = true;
+              sessionStorage.setItem(
+                "lastConfirmedReservation",
+                JSON.stringify(reservation),
+              );
+              navigate(
+                editingReservationId
+                  ? `/reservations/${encodeURIComponent(reservation.reservationId)}`
+                  : `/booking/confirmed/${encodeURIComponent(reservation.reservationId)}`,
+                editingReservationId
+                  ? undefined
+                  : { state: { reservation } },
+              );
+            }}
+            onRecover={(error) =>
+              setSubmissionError(
+                error?.message ||
+                  "예약을 확정하지 못했어요. 다시 시도해 주세요.",
+              )
+            }
+          />
+        ) : undefined
+      }
     >
       <main className="booking-page">
         <p className="booking-step">3/3</p>
@@ -97,6 +134,14 @@ function BookingReviewPage({ loadRoom = fetchRoom }) {
         ) : null}
         {roomState.room ? (
           <BookingReviewList room={roomState.room} draft={draft} />
+        ) : null}
+        {submissionError ? (
+          <p
+            className="booking-inline-feedback is-error"
+            aria-live="polite"
+          >
+            {submissionError}
+          </p>
         ) : null}
       </main>
     </BookingStepLayout>

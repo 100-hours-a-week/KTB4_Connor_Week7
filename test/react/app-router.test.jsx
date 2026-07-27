@@ -169,6 +169,15 @@ describe("AppRouter", () => {
     ).toBeInTheDocument();
   });
 
+  it("예약 완료 route 직접 진입에서 조회 결과를 표시한다", async () => {
+    saveAuthenticatedSnapshot();
+    renderRoute("/booking/confirmed/missing-reservation");
+
+    expect(
+      await screen.findByText("예약 정보를 찾을 수 없어요."),
+    ).toBeInTheDocument();
+  });
+
   it.each([
     ["/booking/information", "예약 정보를 입력해 주세요", false],
     ["/booking/review", "예약 내용을 확인해 주세요", true],

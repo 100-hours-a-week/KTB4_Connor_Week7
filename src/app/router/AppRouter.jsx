@@ -7,6 +7,7 @@ import { SignupPage } from "../../pages/signup/SignupPage.jsx";
 import { ProfileEditPage } from "../../pages/profile-edit/ProfileEditPage.jsx";
 import { PasswordEditPage } from "../../pages/password-edit/PasswordEditPage.jsx";
 import { BookingDateTimePage } from "../../pages/booking-date-time/BookingDateTimePage.jsx";
+import { BookingConfirmedPage } from "../../pages/booking-confirmed/BookingConfirmedPage.jsx";
 import { BookingInformationPage } from "../../pages/booking-information/BookingInformationPage.jsx";
 import { BookingReviewPage } from "../../pages/booking-review/BookingReviewPage.jsx";
 import { RoomDetailPage } from "../../pages/room-detail/RoomDetailPage.jsx";
@@ -66,7 +67,7 @@ function AppRouter() {
             />
             <Route
               path="/booking/confirmed/:reservationId"
-              element={<RoutePlaceholder title="예약 완료" />}
+              element={<BookingConfirmedPage />}
             />
           </Route>
           <Route

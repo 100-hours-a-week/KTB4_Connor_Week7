@@ -9,6 +9,7 @@ function BookingStepLayout({
   nextForm,
   nextLabel = "다음",
   nextType = "button",
+  nextControl,
   onNext,
   children,
 }) {
@@ -29,16 +30,18 @@ function BookingStepLayout({
       </header>
       {children}
       <footer className="booking-footer">
-        <button
-          className="booking-primary-button"
-          type={nextType}
-          form={nextForm}
-          disabled={nextDisabled}
-          aria-disabled={nextAriaDisabled}
-          onClick={onNext}
-        >
-          {nextLabel}
-        </button>
+        {nextControl || (
+          <button
+            className="booking-primary-button"
+            type={nextType}
+            form={nextForm}
+            disabled={nextDisabled}
+            aria-disabled={nextAriaDisabled}
+            onClick={onNext}
+          >
+            {nextLabel}
+          </button>
+        )}
       </footer>
     </div>
   );
