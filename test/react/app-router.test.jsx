@@ -157,7 +157,6 @@ describe("AppRouter", () => {
     ["/profile/password", "비밀번호 수정"],
     ["/rooms", "회의실"],
     ["/rooms/ryan2", "회의실 상세"],
-    ["/booking/ryan2/date-time", "날짜와 시간"],
     ["/booking/information", "예약 정보"],
     ["/booking/review", "예약 확인"],
     ["/booking/confirmed/reservation-1", "예약 완료"],
@@ -169,6 +168,25 @@ describe("AppRouter", () => {
 
     expect(
       await screen.findByRole("heading", { name: heading }),
+    ).toBeInTheDocument();
+  });
+
+  it("예약 초안과 일치하는 날짜·시간 화면을 표시한다", async () => {
+    saveAuthenticatedSnapshot();
+    sessionStorage.setItem(
+      BOOKING_DRAFT_KEY,
+      JSON.stringify({
+        roomId: "ryan2",
+        roomName: "RYAN2",
+        roomCapacity: 6,
+      }),
+    );
+    renderRoute("/booking/ryan2/date-time");
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "날짜와 시간을 선택해 주세요",
+      }),
     ).toBeInTheDocument();
   });
 

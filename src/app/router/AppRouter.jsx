@@ -6,6 +6,7 @@ import { LoginPage } from "../../pages/login/LoginPage.jsx";
 import { SignupPage } from "../../pages/signup/SignupPage.jsx";
 import { ProfileEditPage } from "../../pages/profile-edit/ProfileEditPage.jsx";
 import { PasswordEditPage } from "../../pages/password-edit/PasswordEditPage.jsx";
+import { BookingDateTimePage } from "../../pages/booking-date-time/BookingDateTimePage.jsx";
 import { RoomDetailPage } from "../../pages/room-detail/RoomDetailPage.jsx";
 import { RoomsPage } from "../../pages/rooms/RoomsPage.jsx";
 import { ProtectedRoute } from "./ProtectedRoute.jsx";
@@ -51,7 +52,7 @@ function AppRouter() {
           >
             <Route
               path="/booking/:roomId/date-time"
-              element={<RoutePlaceholder title="날짜와 시간" />}
+              element={<BookingDateTimePage />}
             />
             <Route
               path="/booking/information"
