@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { fetchRoom } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { RoomDetail } from "../../entities/room/RoomDetail.jsx";
 import { StartBookingButton } from "../../features/book-room/StartBookingButton.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
@@ -31,19 +31,18 @@ function RoomDetailPage({ loadRoom = fetchRoom }) {
       .catch((error) => {
         if (controller.signal.aborted || recoverUnauthorized(error)) return;
         const unavailable = error.data?.code === "ROOM_INACTIVE";
+        let errorMessage = "회의실 정보를 불러오지 못했어요.";
+        if (error.status === 404) errorMessage = "회의실을 찾을 수 없어요.";
+        if (unavailable) errorMessage = "현재 예약할 수 없는 회의실이에요.";
         setState({
           status: error.status === 404 || unavailable ? "not-found" : "error",
           room: null,
-          error: unavailable
-            ? "현재 예약할 수 없는 회의실이에요."
-            : error.status === 404
-              ? "회의실을 찾을 수 없어요."
-              : "회의실 정보를 불러오지 못했어요.",
+          error: errorMessage,
         });
       });
 
     return () => controller.abort();
-  }, [loadRoom, roomId]);
+  }, [loadRoom, recoverUnauthorized, roomId]);
 
   if (state.status === "not-found" || state.status === "error") {
     return (

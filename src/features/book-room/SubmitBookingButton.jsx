@@ -18,6 +18,8 @@ function SubmitBookingButton({
 }) {
   const [submitting, setSubmitting] = useState(false);
   const idempotencyKeyRef = useRef("");
+  let label = editingReservationId ? "예약 변경" : "예약 확정";
+  if (submitting) label = editingReservationId ? "변경 중…" : "예약 중…";
 
   async function submit() {
     if (submitting) return;
@@ -48,13 +50,7 @@ function SubmitBookingButton({
       aria-busy={submitting}
       onClick={submit}
     >
-      {submitting
-        ? editingReservationId
-          ? "변경 중…"
-          : "예약 중…"
-        : editingReservationId
-          ? "예약 변경"
-          : "예약 확정"}
+      {label}
     </button>
   );
 }

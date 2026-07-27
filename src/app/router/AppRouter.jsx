@@ -1,6 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from "react-router";
 import { AppLayout } from "../layout/AppLayout.jsx";
-import { useAuth } from "../providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { BookingDraftProvider } from "../../features/book-room/model/BookingDraftProvider.jsx";
 import { LoginPage } from "../../pages/login/LoginPage.jsx";
 import { SignupPage } from "../../pages/signup/SignupPage.jsx";

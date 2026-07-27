@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { fetchRoom } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import {
   BookingInformationForm,
   FORM_ID,
@@ -76,7 +76,15 @@ function BookingInformationPage({ loadRoom = fetchRoom }) {
         });
       });
     return () => controller.abort();
-  }, [draft.roomId, guardRoute, loadRoom, requestVersion]);
+  }, [
+    dispatch,
+    draft.roomId,
+    guardRoute,
+    loadRoom,
+    navigate,
+    recoverUnauthorized,
+    requestVersion,
+  ]);
 
   if (guardRoute) return <Navigate to={guardRoute} replace />;
 

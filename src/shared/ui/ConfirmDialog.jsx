@@ -36,16 +36,16 @@ function ConfirmDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="withdraw-dialog"
-      aria-labelledby="withdraw-title"
-      aria-describedby="withdraw-description"
+      className="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
       onCancel={(event) => {
         event.preventDefault();
         if (!busy) onCancel();
       }}
     >
-      <h2 id="withdraw-title">{title}</h2>
-      <p id="withdraw-description">{description}</p>
+      <h2 id="confirm-title">{title}</h2>
+      <p id="confirm-description">{description}</p>
       <div className="dialog-actions">
         <button
           ref={cancelButtonRef}

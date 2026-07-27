@@ -355,7 +355,6 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
       updatedAt: changedAt,
     };
     writeAll([reservation, ...reservations]);
-    storage?.setItem("lastConfirmedReservation", JSON.stringify(reservation));
     return clone(toPublicReservation(reservation));
   }
 

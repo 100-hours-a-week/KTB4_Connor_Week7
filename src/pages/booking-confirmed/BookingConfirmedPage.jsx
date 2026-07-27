@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { fetchReservation } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { BookingConfirmationSummary } from "../../features/book-room/BookingConfirmationSummary.jsx";
 
 function BookingConfirmedPage({
@@ -14,39 +14,56 @@ function BookingConfirmedPage({
   const [state, setState] = useState(() => ({
     status: navigationState?.reservation ? "success" : "loading",
     reservation: navigationState?.reservation || null,
+    refreshError: false,
   }));
 
   useEffect(() => {
     const controller = new AbortController();
     if (!navigationState?.reservation) {
-      setState({ status: "loading", reservation: null });
+      setState({
+        status: "loading",
+        reservation: null,
+        refreshError: false,
+      });
     }
     loadReservation(reservationId, { signal: controller.signal })
       .then((reservation) => {
         if (!controller.signal.aborted) {
-          setState({ status: "success", reservation });
+          setState({
+            status: "success",
+            reservation,
+            refreshError: false,
+          });
         }
       })
       .catch((error) => {
         if (
           controller.signal.aborted ||
-          recoverUnauthorized(error) ||
-          navigationState?.reservation
+          recoverUnauthorized(error)
         ) {
           return;
         }
-        setState({
-          status:
-            error?.status === 403
-              ? "forbidden"
-              : error?.status === 404
-                ? "notFound"
-                : "error",
-          reservation: null,
-        });
+        if (
+          navigationState?.reservation &&
+          error?.status !== 403 &&
+          error?.status !== 404
+        ) {
+          setState((current) => ({ ...current, refreshError: true }));
+          return;
+        }
+        let status = "error";
+        if (error?.status === 403) status = "forbidden";
+        if (error?.status === 404) status = "notFound";
+        setState({ status, reservation: null, refreshError: false });
       });
     return () => controller.abort();
-  }, [loadReservation, requestVersion, reservationId]);
+  }, [
+    loadReservation,
+    navigationState?.reservation,
+    recoverUnauthorized,
+    requestVersion,
+    reservationId,
+  ]);
 
   return (
     <div className="booking-body booking-app-shell booking-confirmed-shell">
@@ -80,9 +97,6 @@ function BookingConfirmedPage({
         <Link
           className="booking-primary-link"
           to="/rooms"
-          onClick={() =>
-            sessionStorage.removeItem("lastConfirmedReservation")
-          }
         >
           확인
         </Link>

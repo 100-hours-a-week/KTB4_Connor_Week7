@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { logout } from "../../api/auth.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "./AuthContext.jsx";
 import { AUTH_LOGOUT_FAILURE_LOG } from "../../constants/messages.js";
 
 function LogoutButton({ logoutRequest = logout }) {

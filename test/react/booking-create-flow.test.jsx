@@ -200,7 +200,7 @@ describe("예약 검토 제출", () => {
     sessionStorage.setItem("nickname", "코너");
   });
 
-  it("생성 결과를 저장하고 완료 route로 이동한다", async () => {
+  it("생성 결과를 navigation state로 전달하고 완료 route로 이동한다", async () => {
     const user = userEvent.setup();
     const create = vi.fn().mockResolvedValue(reservation);
     renderReviewPage({ create });
@@ -212,8 +212,7 @@ describe("예약 검토 제출", () => {
     expect(screen.getByLabelText("현재 경로")).toHaveTextContent(
       "/booking/confirmed/reservation-1",
     );
-    expect(JSON.parse(sessionStorage.getItem("lastConfirmedReservation")))
-      .toEqual(reservation);
+    expect(sessionStorage.getItem("lastConfirmedReservation")).toBeNull();
     expect(sessionStorage.getItem(BOOKING_DRAFT_KEY)).toBeNull();
   });
 
@@ -301,6 +300,28 @@ describe("예약 완료 화면", () => {
       "reservation-1",
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
+  });
+
+  it("최신 조회가 실패하면 기존 내용을 유지하고 다시 시도한다", async () => {
+    const user = userEvent.setup();
+    const loadReservation = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValueOnce({ ...reservation, topic: "최신 프로젝트 회의" });
+    renderConfirmedPage({
+      navigationReservation: reservation,
+      loadReservation,
+    });
+
+    expect(screen.getByText("프로젝트 회의 (2명)")).toBeInTheDocument();
+    await user.click(
+      await screen.findByRole("button", { name: "다시 시도" }),
+    );
+
+    expect(
+      await screen.findByText("최신 프로젝트 회의 (2명)"),
+    ).toBeInTheDocument();
+    expect(loadReservation).toHaveBeenCalledTimes(2);
   });
 
   it("응답에 예약자 이름이 없으면 로그인 사용자 닉네임을 표시한다", () => {

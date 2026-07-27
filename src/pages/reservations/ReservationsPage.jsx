@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchMyReservations } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { ReservationCard } from "../../entities/reservation/ReservationCard.jsx";
 import { ReservationStatusFilter } from "../../features/manage-reservation/ReservationStatusFilter.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
@@ -18,8 +18,14 @@ const emptyMessages = {
 };
 
 function mergeReservations(current, incoming) {
-  const byId = new Map(current.map((reservation) => [reservation.reservationId, reservation]));
-  incoming.forEach((reservation) => byId.set(reservation.reservationId, reservation));
+  const byId = new Map(
+    current.map((reservation) => [reservation.reservationId, reservation]),
+  );
+  incoming.forEach((reservation) => {
+    if (!byId.has(reservation.reservationId)) {
+      byId.set(reservation.reservationId, reservation);
+    }
+  });
   return [...byId.values()];
 }
 
@@ -31,6 +37,8 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
     items: [],
     nextCursor: null,
   });
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const requestRef = useRef({
     id: 0,
     status: "UPCOMING",
@@ -39,71 +47,77 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
     mounted: true,
   });
 
-  function loadPage({ status = state.statusFilter, reset = false } = {}) {
-    if (requestRef.current.loading && !reset) return;
+  const loadPage = useCallback(
+    ({ status = stateRef.current.statusFilter, reset = false } = {}) => {
+      if (requestRef.current.loading && !reset) return;
 
-    requestRef.current.controller?.abort();
-    const requestId = requestRef.current.id + 1;
-    const controller = new AbortController();
-    const cursor = reset ? "" : state.nextCursor || "";
-    requestRef.current = {
-      id: requestId,
-      status,
-      controller,
-      loading: true,
-      mounted: requestRef.current.mounted,
-    };
-    setState((current) => ({
-      ...current,
-      statusFilter: status,
-      status: "loading",
-      items: reset ? [] : current.items,
-      nextCursor: reset ? null : current.nextCursor,
-    }));
+      requestRef.current.controller?.abort();
+      const requestId = requestRef.current.id + 1;
+      const controller = new AbortController();
+      const cursor = reset ? "" : stateRef.current.nextCursor || "";
+      requestRef.current = {
+        id: requestId,
+        status,
+        controller,
+        loading: true,
+        mounted: requestRef.current.mounted,
+      };
+      setState((current) => ({
+        ...current,
+        statusFilter: status,
+        status: "loading",
+        items: reset ? [] : current.items,
+        nextCursor: reset ? null : current.nextCursor,
+      }));
 
-    loadReservations({
-      status,
-      cursor,
-      size: PAGE_SIZE,
-      signal: controller.signal,
-    })
-      .then((page) => {
-        if (
-          controller.signal.aborted ||
-          !requestRef.current.mounted ||
-          requestRef.current.id !== requestId ||
-          requestRef.current.status !== status
-        ) {
-          return;
-        }
-        setState((current) => {
-          const items = mergeReservations(reset ? [] : current.items, page.items);
-          return {
-            statusFilter: status,
-            status: items.length ? "success" : "empty",
-            items,
-            nextCursor: page.nextCursor,
-          };
+      loadReservations({
+        status,
+        cursor,
+        size: PAGE_SIZE,
+        signal: controller.signal,
+      })
+        .then((page) => {
+          if (
+            controller.signal.aborted ||
+            !requestRef.current.mounted ||
+            requestRef.current.id !== requestId ||
+            requestRef.current.status !== status
+          ) {
+            return;
+          }
+          setState((current) => {
+            const items = mergeReservations(
+              reset ? [] : current.items,
+              page.items,
+            );
+            return {
+              statusFilter: status,
+              status: items.length ? "success" : "empty",
+              items,
+              nextCursor: page.nextCursor,
+            };
+          });
+        })
+        .catch((error) => {
+          if (
+            controller.signal.aborted ||
+            !requestRef.current.mounted ||
+            requestRef.current.id !== requestId
+          ) {
+            return;
+          }
+          if (recoverUnauthorized(error)) return;
+          setState((current) => ({ ...current, status: "error" }));
+        })
+        .finally(() => {
+          if (requestRef.current.id === requestId) {
+            requestRef.current.loading = false;
+            requestRef.current.controller = null;
+          }
         });
-      })
-      .catch((error) => {
-        if (
-          controller.signal.aborted ||
-          !requestRef.current.mounted ||
-          requestRef.current.id !== requestId
-        ) {
-          return;
-        }
-        if (recoverUnauthorized(error)) return;
-        setState((current) => ({ ...current, status: "error" }));
-      })
-      .finally(() => {
-        if (requestRef.current.id === requestId) {
-          requestRef.current.loading = false;
-          requestRef.current.controller = null;
-        }
-      });
-  }
+    },
+    [loadReservations, recoverUnauthorized],
+  );
 
   useEffect(() => {
     requestRef.current.mounted = true;
@@ -113,7 +127,7 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
       requestRef.current.controller?.abort();
       requestRef.current.id += 1;
     };
-  }, [loadReservations]);
+  }, [loadPage]);
 
   const contentStatus = state.items.length > 0 ? "success" : state.status;
 

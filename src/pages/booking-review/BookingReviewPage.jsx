@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { fetchRoom } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { BookingReviewList } from "../../features/book-room/BookingReviewList.jsx";
 import { BookingStepLayout } from "../../features/book-room/BookingStepLayout.jsx";
 import { SubmitBookingButton } from "../../features/book-room/SubmitBookingButton.jsx";
@@ -66,7 +66,15 @@ function BookingReviewPage({ loadRoom = fetchRoom, create, update }) {
         });
       });
     return () => controller.abort();
-  }, [draft.roomId, guardRoute, loadRoom]);
+  }, [
+    dispatch,
+    draft.attendeeChips.length,
+    draft.roomId,
+    guardRoute,
+    loadRoom,
+    navigate,
+    recoverUnauthorized,
+  ]);
 
   if (guardRoute) return <Navigate to={guardRoute} replace />;
 
@@ -90,10 +98,6 @@ function BookingReviewPage({ loadRoom = fetchRoom, create, update }) {
             clear={() => dispatch({ type: "clear" })}
             onCompleted={(reservation) => {
               completedRef.current = true;
-              sessionStorage.setItem(
-                "lastConfirmedReservation",
-                JSON.stringify(reservation),
-              );
               navigate(
                 editingReservationId
                   ? `/reservations/${encodeURIComponent(reservation.reservationId)}`

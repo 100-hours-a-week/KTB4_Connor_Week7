@@ -17,12 +17,13 @@ function BookingConfirmationSummary({
   }
 
   if (state.status !== "success") {
-    const message =
-      state.status === "forbidden"
-        ? "이 예약을 확인할 권한이 없어요."
-        : state.status === "notFound"
-          ? "예약 정보를 찾을 수 없어요."
-          : "예약 결과를 불러오지 못했어요.";
+    let message = "예약 결과를 불러오지 못했어요.";
+    if (state.status === "forbidden") {
+      message = "이 예약을 확인할 권한이 없어요.";
+    }
+    if (state.status === "notFound") {
+      message = "예약 정보를 찾을 수 없어요.";
+    }
 
     return (
       <section className="confirmed-summary" aria-live="polite">
@@ -61,6 +62,14 @@ function BookingConfirmationSummary({
           </div>
         ))}
       </dl>
+      {state.refreshError ? (
+        <p className="booking-inline-feedback is-error" aria-live="polite">
+          최신 예약 정보를 불러오지 못했어요.{" "}
+          <button type="button" onClick={onRetry}>
+            다시 시도
+          </button>
+        </p>
+      ) : null}
     </section>
   );
 }

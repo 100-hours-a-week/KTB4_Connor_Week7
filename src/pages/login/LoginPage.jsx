@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { login } from "../../api/auth.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { LoginForm } from "../../features/authenticate/LoginForm.jsx";
 
 function LoginPage() {

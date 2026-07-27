@@ -147,7 +147,10 @@ describe("내 예약 목록과 상세", () => {
       .fn()
       .mockResolvedValueOnce({ items: [upcoming], nextCursor: "1" })
       .mockResolvedValueOnce({
-        items: [upcoming, { ...past, reservationId: "reservation-second" }],
+        items: [
+          { ...upcoming, topic: "뒤늦게 도착한 중복 예약" },
+          { ...past, reservationId: "reservation-second" },
+        ],
         nextCursor: null,
       });
     renderReservationsWithRoute(loadReservations);
@@ -160,6 +163,7 @@ describe("내 예약 목록과 상세", () => {
       expect.objectContaining({ status: "UPCOMING", cursor: "1" }),
     );
     expect(screen.getAllByText("프로젝트 회의")).toHaveLength(1);
+    expect(screen.queryByText("뒤늦게 도착한 중복 예약")).not.toBeInTheDocument();
   });
 
   it("결과가 없으면 필터에 맞는 empty 상태를 표시한다", async () => {

@@ -256,8 +256,9 @@ test("예약 변경 fixture는 새 조건이 유효할 때만 기존 예약을 �
 });
 
 test("새 fixture 예약은 내 예정 예약과 상세 조회에 즉시 반영된다", async () => {
+  const storage = createMemoryStorage();
   const store = createFixtureReservationStore({
-    storage: createMemoryStorage(),
+    storage,
     now: () => new Date("2026-07-20T09:00:00+09:00"),
   });
   const created = await store.createReservation({
@@ -279,6 +280,7 @@ test("새 fixture 예약은 내 예정 예약과 상세 조회에 즉시 반영�
     upcoming.items.some(({ reservationId }) => reservationId === created.reservationId),
     true,
   );
+  assert.equal(storage.getItem("lastConfirmedReservation"), null);
 });
 
 test("확정 예약은 시간 슬롯을 막고 취소하면 다시 예약 가능하게 만든다", async () => {

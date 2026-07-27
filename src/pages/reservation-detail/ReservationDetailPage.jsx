@@ -4,7 +4,7 @@ import {
   cancelReservation,
   fetchReservation,
 } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { ReservationDetail } from "../../entities/reservation/ReservationDetail.jsx";
 import { CancelReservationButton } from "../../features/manage-reservation/CancelReservationButton.jsx";
 import { StartReservationEditButton } from "../../features/manage-reservation/StartReservationEditButton.jsx";
@@ -42,19 +42,19 @@ function ReservationDetailPage({
       })
       .catch((error) => {
         if (controller.signal.aborted || recoverUnauthorized(error)) return;
-        setState({
-          status:
-            error?.status === 403
-              ? "forbidden"
-              : error?.status === 404
-                ? "notFound"
-                : "error",
-          reservation: null,
-        });
+        let status = "error";
+        if (error?.status === 403) status = "forbidden";
+        if (error?.status === 404) status = "notFound";
+        setState({ status, reservation: null });
       });
 
     return () => controller.abort();
-  }, [loadReservation, requestVersion, reservationId]);
+  }, [
+    loadReservation,
+    recoverUnauthorized,
+    requestVersion,
+    reservationId,
+  ]);
 
   useEffect(() => {
     if (actionsForbidden) actionFeedbackRef.current?.focus();

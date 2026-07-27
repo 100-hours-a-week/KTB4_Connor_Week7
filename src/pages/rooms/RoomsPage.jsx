@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import { fetchRooms } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { RoomCard } from "../../entities/room/RoomCard.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
 import { createBookingDraftStore } from "../../utils/booking-draft.js";
@@ -15,14 +15,17 @@ function RoomsPage({ loadRooms = fetchRooms }) {
     rooms: [],
     error: "",
   });
-  const store = createBookingDraftStore(sessionStorage);
+  const store = useMemo(
+    () => createBookingDraftStore(sessionStorage),
+    [],
+  );
   const editing =
     searchParams.get("mode") === "change" &&
     Boolean(store.getEditingReservationId());
 
   useEffect(() => {
     if (!editing) store.clear();
-  }, [editing]);
+  }, [editing, store]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -47,7 +50,7 @@ function RoomsPage({ loadRooms = fetchRooms }) {
       });
 
     return () => controller.abort();
-  }, [loadRooms, requestVersion]);
+  }, [loadRooms, recoverUnauthorized, requestVersion]);
 
   return (
     <main className="booking-body booking-app-shell is-navigation-free booking-page rooms-page">

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { uploadImage } from "../../api/images.js";
 import { fetchMe, updateMe, withdrawMe } from "../../api/users.js";
 import { ProfileEditForm } from "../../features/manage-profile/ProfileEditForm.jsx";
@@ -26,7 +26,7 @@ function ProfileEditPage({
   });
   const initialLoadStarted = useRef(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     setRequestState({ status: "loading", user: null, error: "" });
 
     try {
@@ -41,13 +41,13 @@ function ProfileEditPage({
         error: error.message || PROFILE_LOAD_FAILURE,
       });
     }
-  }
+  }, [loadProfile, recoverUnauthorized, updateAuthenticatedUser]);
 
   useEffect(() => {
     if (initialLoadStarted.current) return;
     initialLoadStarted.current = true;
     load();
-  }, []);
+  }, [load]);
 
   return (
     <main className="profile-edit-page">

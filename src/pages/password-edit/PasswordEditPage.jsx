@@ -1,5 +1,5 @@
 import { updatePassword } from "../../api/users.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { PasswordChangeForm } from "../../features/manage-profile/PasswordChangeForm.jsx";
 
 function PasswordEditPage({ changePassword = updatePassword }) {

@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router";
 import {
   fetchRoomDaySlots,
   fetchRoomMonthAvailability,
 } from "../../api/booking.js";
-import { useAuth } from "../../app/providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { BookingScheduleSummary } from "../../features/book-room/BookingScheduleSummary.jsx";
 import { BookingStepLayout } from "../../features/book-room/BookingStepLayout.jsx";
 import { MonthlyAvailabilityCalendar } from "../../features/book-room/MonthlyAvailabilityCalendar.jsx";
@@ -60,7 +60,7 @@ function BookingDateTimePage({
     () => sessionStorage.getItem("bookingFeedback") || "",
   );
 
-  function recoverAvailabilityError(error) {
+  const recoverAvailabilityError = useCallback((error) => {
     if (recoverUnauthorized(error)) return true;
     if (error?.data?.code !== "ROOM_INACTIVE") return false;
     dispatch({ type: "changeRoom" });
@@ -70,7 +70,7 @@ function BookingDateTimePage({
     );
     navigate("/rooms", { replace: true });
     return true;
-  }
+  }, [dispatch, navigate, recoverUnauthorized]);
 
   useEffect(() => {
     if (feedback) sessionStorage.removeItem("bookingFeedback");
@@ -108,6 +108,7 @@ function BookingDateTimePage({
     guardRoute,
     loadMonth,
     monthRequestVersion,
+    recoverAvailabilityError,
     roomId,
     visibleMonth.month,
     visibleMonth.year,
@@ -151,7 +152,14 @@ function BookingDateTimePage({
         }));
       });
     return () => controller.abort();
-  }, [dayRequestVersion, draft.date, guardRoute, loadDay, roomId]);
+  }, [
+    dayRequestVersion,
+    draft.date,
+    guardRoute,
+    loadDay,
+    recoverAvailabilityError,
+    roomId,
+  ]);
 
   if (guardRoute) return <Navigate to={guardRoute} replace />;
 

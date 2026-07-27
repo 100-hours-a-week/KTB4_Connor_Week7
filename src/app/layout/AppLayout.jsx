@@ -1,7 +1,7 @@
 import { Link, Outlet } from "react-router";
 import { LogoutButton } from "../../features/authenticate/LogoutButton.jsx";
 import { UserAvatar } from "../../entities/user/UserAvatar.jsx";
-import { useAuth } from "../providers/AuthProvider.jsx";
+import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 
 function AppLayout() {
   const { user } = useAuth();
