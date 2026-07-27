@@ -241,7 +241,9 @@ describe("내 예약 목록과 상세", () => {
     expect(
       screen.getByRole("button", { name: "예약 변경" }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "예약 취소" })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "예약 취소" }),
+    ).toBeInTheDocument();
     expect(loadReservation).toHaveBeenCalledWith(
       "reservation-upcoming",
       expect.objectContaining({ signal: expect.any(AbortSignal) }),

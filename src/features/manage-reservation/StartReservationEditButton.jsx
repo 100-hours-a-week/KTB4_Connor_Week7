@@ -7,11 +7,6 @@ function StartReservationEditButton({
   onStarted,
 }) {
   const navigate = useNavigate();
-  const manageable =
-    reservation.status === "CONFIRMED" &&
-    new Date(reservation.startAt) > new Date();
-
-  if (!manageable) return null;
 
   function start() {
     const draft = {
@@ -39,15 +34,13 @@ function StartReservationEditButton({
   }
 
   return (
-    <div className="reservation-detail-actions">
-      <button
-        className="booking-secondary-button"
-        type="button"
-        onClick={start}
-      >
-        예약 변경
-      </button>
-    </div>
+    <button
+      className="booking-secondary-button"
+      type="button"
+      onClick={start}
+    >
+      예약 변경
+    </button>
   );
 }
 

@@ -1,14 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
-import { fetchReservation } from "../../api/booking.js";
+import {
+  cancelReservation,
+  fetchReservation,
+} from "../../api/booking.js";
 import { useAuth } from "../../app/providers/AuthProvider.jsx";
 import { ReservationDetail } from "../../entities/reservation/ReservationDetail.jsx";
+import { CancelReservationButton } from "../../features/manage-reservation/CancelReservationButton.jsx";
 import { StartReservationEditButton } from "../../features/manage-reservation/StartReservationEditButton.jsx";
 
-function ReservationDetailPage({ loadReservation = fetchReservation }) {
+function ReservationDetailPage({
+  loadReservation = fetchReservation,
+  cancel = cancelReservation,
+}) {
   const { reservationId = "" } = useParams();
   const { recoverUnauthorized } = useAuth();
+  const actionFeedbackRef = useRef(null);
   const [requestVersion, setRequestVersion] = useState(0);
+  const [actionError, setActionError] = useState("");
+  const [actionsForbidden, setActionsForbidden] = useState(false);
   const [state, setState] = useState({
     status: "loading",
     reservation: null,
@@ -21,6 +31,8 @@ function ReservationDetailPage({ loadReservation = fetchReservation }) {
       return () => controller.abort();
     }
 
+    setActionError("");
+    setActionsForbidden(false);
     setState({ status: "loading", reservation: null });
     loadReservation(reservationId, { signal: controller.signal })
       .then((reservation) => {
@@ -43,6 +55,10 @@ function ReservationDetailPage({ loadReservation = fetchReservation }) {
 
     return () => controller.abort();
   }, [loadReservation, requestVersion, reservationId]);
+
+  useEffect(() => {
+    if (actionsForbidden) actionFeedbackRef.current?.focus();
+  }, [actionsForbidden]);
 
   function renderState() {
     if (state.status === "loading") {
@@ -72,10 +88,42 @@ function ReservationDetailPage({ loadReservation = fetchReservation }) {
         </section>
       );
     }
+    const reservation = state.reservation;
+    const manageable =
+      reservation.status === "CONFIRMED" &&
+      new Date(reservation.startAt) > new Date();
+
     return (
       <>
-        <ReservationDetail reservation={state.reservation} />
-        <StartReservationEditButton reservation={state.reservation} />
+        <ReservationDetail reservation={reservation} />
+        {actionError ? (
+          <p
+            ref={actionFeedbackRef}
+            className="booking-inline-feedback is-error"
+            aria-live="assertive"
+            tabIndex={-1}
+          >
+            {actionError}
+          </p>
+        ) : null}
+        {manageable && !actionsForbidden ? (
+          <div className="reservation-detail-actions">
+            <StartReservationEditButton reservation={reservation} />
+            <CancelReservationButton
+              reservation={reservation}
+              cancel={cancel}
+              onCanceled={() =>
+                setRequestVersion((version) => version + 1)
+              }
+              onUnauthorized={recoverUnauthorized}
+              onForbidden={(message) => {
+                setActionsForbidden(true);
+                setActionError(message);
+              }}
+              onError={setActionError}
+            />
+          </div>
+        ) : null}
       </>
     );
   }
