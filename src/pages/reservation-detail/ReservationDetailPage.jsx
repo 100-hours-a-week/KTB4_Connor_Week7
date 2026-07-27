@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { fetchReservation } from "../../api/booking.js";
 import { useAuth } from "../../app/providers/AuthProvider.jsx";
 import { ReservationDetail } from "../../entities/reservation/ReservationDetail.jsx";
+import { StartReservationEditButton } from "../../features/manage-reservation/StartReservationEditButton.jsx";
 
 function ReservationDetailPage({ loadReservation = fetchReservation }) {
   const { reservationId = "" } = useParams();
@@ -71,7 +72,12 @@ function ReservationDetailPage({ loadReservation = fetchReservation }) {
         </section>
       );
     }
-    return <ReservationDetail reservation={state.reservation} />;
+    return (
+      <>
+        <ReservationDetail reservation={state.reservation} />
+        <StartReservationEditButton reservation={state.reservation} />
+      </>
+    );
   }
 
   return (

@@ -238,7 +238,9 @@ describe("내 예약 목록과 상세", () => {
     expect(screen.getByText("예약 확정")).toBeInTheDocument();
     expect(screen.getByText("RYAN2 (인포데스크 옆)")).toBeInTheDocument();
     expect(screen.getByText("참석자", { exact: false })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "예약 변경" })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "예약 변경" }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "예약 취소" })).not.toBeInTheDocument();
     expect(loadReservation).toHaveBeenCalledWith(
       "reservation-upcoming",
