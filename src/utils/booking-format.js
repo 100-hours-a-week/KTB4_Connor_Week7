@@ -25,7 +25,7 @@ function formatDuration(minutes) {
 }
 
 function formatBookingSchedule({ date, startTime, endTime }) {
-  return `${formatBookingDate(date)} · ${formatTime(startTime)}~${formatTime(endTime)}`;
+  return `${formatBookingDate(date)} ${formatTime(startTime)}~${formatTime(endTime)}`;
 }
 
 export { formatBookingDate, formatBookingSchedule, formatDuration, formatTime, parseLocalDate };

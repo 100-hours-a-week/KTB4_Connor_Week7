@@ -47,7 +47,7 @@ const FIXTURE_ROOMS = [
   {
     roomId: "t1",
     name: "T1",
-    location: "G1 사무실 옆 · 타운홀 좌측",
+    location: "G1 사무실 옆, 타운홀 좌측",
     capacity: 6,
     facilities: [],
     description: "좌석 구성에 따라 4~6명이 이용할 수 있어요.",
@@ -355,7 +355,6 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
       updatedAt: changedAt,
     };
     writeAll([reservation, ...reservations]);
-    storage?.setItem("lastConfirmedReservation", JSON.stringify(reservation));
     return clone(toPublicReservation(reservation));
   }
 
@@ -485,12 +484,15 @@ async function fetchFixtureMonthAvailability({ roomId, year, month }) {
   });
 }
 
-async function fetchFixtureDaySlots({ roomId, date }) {
+async function fetchFixtureDaySlots(
+  { roomId, date },
+  { storage = globalThis.sessionStorage, now = () => new Date() } = {},
+) {
   const room = findRoom(roomId);
   if (!room) throw fixtureError("회의실을 찾을 수 없어요.", 404, "ROOM_NOT_FOUND");
   if (!room.active) throw fixtureError("이 회의실은 더 이상 예약할 수 없어요.", 409, "ROOM_INACTIVE");
-  const store = createFixtureReservationStore();
-  const editingReservationId = globalThis.sessionStorage?.getItem("roomBookingEditingReservationId") || "";
+  const store = createFixtureReservationStore({ storage, now });
+  const editingReservationId = storage?.getItem("roomBookingEditingReservationId") || "";
   const roomReservations = await store.fetchConfirmedReservations({
     roomId,
     date,

@@ -80,7 +80,7 @@ test("회의실 fixture 목록은 실제 회의실 정보와 이미지를 제공
   );
 });
 
-test("내 예약 fixture는 예정·지난·취소 예약을 필터링하고 페이지로 나눈다", async () => {
+test("내 예약 fixture는 예정, 지난, 취소 예약을 필터링하고 페이지로 나눈다", async () => {
   const store = createFixtureReservationStore({
     storage: createMemoryStorage(),
     now: () => new Date("2026-07-20T09:00:00+09:00"),
@@ -151,6 +151,7 @@ test("내 예약 fixture는 로그인 사용자의 예약만 조회하고 변경
 test("다른 사용자의 확정 예약도 fixture 시간 슬롯을 막는다", async () => {
   const originalStorage = globalThis.sessionStorage;
   const storage = createMemoryStorage();
+  const now = () => new Date("2026-07-20T09:00:00+09:00");
   storage.setItem("userId", "current-user");
   storage.setItem("roomBookingEditingReservationId", "another-users");
   storage.setItem(
@@ -169,7 +170,10 @@ test("다른 사용자의 확정 예약도 fixture 시간 슬롯을 막는다", 
   );
   globalThis.sessionStorage = storage;
   try {
-    const slots = await fetchFixtureDaySlots({ roomId: "t2", date: "2026-07-21" });
+    const slots = await fetchFixtureDaySlots(
+      { roomId: "t2", date: "2026-07-21" },
+      { storage, now },
+    );
 
     assert.deepEqual(slots.slots.slice(0, 2).map(({ state }) => state), ["UNAVAILABLE", "UNAVAILABLE"]);
   } finally {
@@ -252,8 +256,9 @@ test("예약 변경 fixture는 새 조건이 유효할 때만 기존 예약을 �
 });
 
 test("새 fixture 예약은 내 예정 예약과 상세 조회에 즉시 반영된다", async () => {
+  const storage = createMemoryStorage();
   const store = createFixtureReservationStore({
-    storage: createMemoryStorage(),
+    storage,
     now: () => new Date("2026-07-20T09:00:00+09:00"),
   });
   const created = await store.createReservation({
@@ -275,17 +280,16 @@ test("새 fixture 예약은 내 예정 예약과 상세 조회에 즉시 반영�
     upcoming.items.some(({ reservationId }) => reservationId === created.reservationId),
     true,
   );
+  assert.equal(storage.getItem("lastConfirmedReservation"), null);
 });
 
 test("확정 예약은 시간 슬롯을 막고 취소하면 다시 예약 가능하게 만든다", async () => {
   const originalStorage = globalThis.sessionStorage;
   const storage = createMemoryStorage();
+  const now = () => new Date("2026-07-20T09:00:00+09:00");
   globalThis.sessionStorage = storage;
   try {
-    const store = createFixtureReservationStore({
-      storage,
-      now: () => new Date("2026-07-20T09:00:00+09:00"),
-    });
+    const store = createFixtureReservationStore({ storage, now });
     const created = await store.createReservation({
       roomId: "t2",
       startAt: "2026-07-21T09:00:00+09:00",
@@ -297,11 +301,20 @@ test("확정 예약은 시간 슬롯을 막고 취소하면 다시 예약 가능
     });
 
     storage.setItem("roomBookingEditingReservationId", created.reservationId);
-    const editing = await fetchFixtureDaySlots({ roomId: "t2", date: "2026-07-21" });
+    const editing = await fetchFixtureDaySlots(
+      { roomId: "t2", date: "2026-07-21" },
+      { storage, now },
+    );
     storage.removeItem("roomBookingEditingReservationId");
-    const reserved = await fetchFixtureDaySlots({ roomId: "t2", date: "2026-07-21" });
+    const reserved = await fetchFixtureDaySlots(
+      { roomId: "t2", date: "2026-07-21" },
+      { storage, now },
+    );
     await store.cancelReservation(created.reservationId);
-    const canceled = await fetchFixtureDaySlots({ roomId: "t2", date: "2026-07-21" });
+    const canceled = await fetchFixtureDaySlots(
+      { roomId: "t2", date: "2026-07-21" },
+      { storage, now },
+    );
 
     assert.deepEqual(editing.slots.slice(0, 2).map(({ state }) => state), ["AVAILABLE", "AVAILABLE"]);
     assert.deepEqual(reserved.slots.slice(0, 2).map(({ state }) => state), ["UNAVAILABLE", "UNAVAILABLE"]);
