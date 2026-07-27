@@ -96,4 +96,6 @@ export {
   EMPTY_BOOKING_DRAFT,
   bookingDraftStore,
   createBookingDraftStore,
+  emptyDraft,
+  normalizeDraft,
 };

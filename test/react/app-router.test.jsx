@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "../../src/app/providers/AuthProvider.jsx"
 import { AppRouter } from "../../src/app/router/AppRouter.jsx";
 import { RouteErrorBoundary } from "../../src/app/router/RouteErrorBoundary.jsx";
 import { RouteFocus } from "../../src/app/router/RouteFocus.jsx";
+import { BOOKING_DRAFT_KEY } from "../../src/utils/booking-draft.js";
 
 function saveAuthenticatedSnapshot() {
   sessionStorage.setItem("accessToken", "token");
@@ -177,6 +178,20 @@ describe("AppRouter", () => {
     expect(
       await screen.findByRole("heading", { name: "로그인" }),
     ).toBeInTheDocument();
+  });
+
+  it("예약 route에서만 저장된 예약 초안을 Provider로 복원한다", async () => {
+    saveAuthenticatedSnapshot();
+    sessionStorage.setItem(BOOKING_DRAFT_KEY, "not-json");
+
+    const profile = renderRoute("/profile");
+    await screen.findByRole("heading", { name: "회원정보수정" });
+    expect(sessionStorage.getItem(BOOKING_DRAFT_KEY)).toBe("not-json");
+    profile.unmount();
+
+    renderRoute("/booking/information");
+    await screen.findByRole("heading", { name: "예약 정보" });
+    expect(sessionStorage.getItem(BOOKING_DRAFT_KEY)).toBeNull();
   });
 });
 

@@ -1,6 +1,7 @@
-import { Navigate, Route, Routes } from "react-router";
+import { Navigate, Outlet, Route, Routes } from "react-router";
 import { AppLayout } from "../layout/AppLayout.jsx";
 import { useAuth } from "../providers/AuthProvider.jsx";
+import { BookingDraftProvider } from "../../features/book-room/model/BookingDraftProvider.jsx";
 import { LoginPage } from "../../pages/login/LoginPage.jsx";
 import { SignupPage } from "../../pages/signup/SignupPage.jsx";
 import { ProfileEditPage } from "../../pages/profile-edit/ProfileEditPage.jsx";
@@ -42,21 +43,29 @@ function AppRouter() {
             element={<RoomDetailPage />}
           />
           <Route
-            path="/booking/:roomId/date-time"
-            element={<RoutePlaceholder title="날짜와 시간" />}
-          />
-          <Route
-            path="/booking/information"
-            element={<RoutePlaceholder title="예약 정보" />}
-          />
-          <Route
-            path="/booking/review"
-            element={<RoutePlaceholder title="예약 확인" />}
-          />
-          <Route
-            path="/booking/confirmed/:reservationId"
-            element={<RoutePlaceholder title="예약 완료" />}
-          />
+            element={
+              <BookingDraftProvider>
+                <Outlet />
+              </BookingDraftProvider>
+            }
+          >
+            <Route
+              path="/booking/:roomId/date-time"
+              element={<RoutePlaceholder title="날짜와 시간" />}
+            />
+            <Route
+              path="/booking/information"
+              element={<RoutePlaceholder title="예약 정보" />}
+            />
+            <Route
+              path="/booking/review"
+              element={<RoutePlaceholder title="예약 확인" />}
+            />
+            <Route
+              path="/booking/confirmed/:reservationId"
+              element={<RoutePlaceholder title="예약 완료" />}
+            />
+          </Route>
           <Route
             path="/reservations"
             element={<RoutePlaceholder title="내 예약" />}
