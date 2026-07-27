@@ -5,6 +5,8 @@ import { LoginPage } from "../../pages/login/LoginPage.jsx";
 import { SignupPage } from "../../pages/signup/SignupPage.jsx";
 import { ProfileEditPage } from "../../pages/profile-edit/ProfileEditPage.jsx";
 import { PasswordEditPage } from "../../pages/password-edit/PasswordEditPage.jsx";
+import { RoomDetailPage } from "../../pages/room-detail/RoomDetailPage.jsx";
+import { RoomsPage } from "../../pages/rooms/RoomsPage.jsx";
 import { ProtectedRoute } from "./ProtectedRoute.jsx";
 
 function RoutePlaceholder({ title }) {
@@ -34,10 +36,10 @@ function AppRouter() {
             path="/profile/password"
             element={<PasswordEditPage />}
           />
-          <Route path="/rooms" element={<RoutePlaceholder title="회의실" />} />
+          <Route path="/rooms" element={<RoomsPage />} />
           <Route
             path="/rooms/:roomId"
-            element={<RoutePlaceholder title="회의실 상세" />}
+            element={<RoomDetailPage />}
           />
           <Route
             path="/booking/:roomId/date-time"
