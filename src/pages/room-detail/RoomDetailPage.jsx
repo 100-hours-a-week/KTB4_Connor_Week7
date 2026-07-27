@@ -6,6 +6,7 @@ import { RoomDetail } from "../../entities/room/RoomDetail.jsx";
 import { StartBookingButton } from "../../features/book-room/StartBookingButton.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
 import { createBookingDraftStore } from "../../utils/booking-draft.js";
+import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
 
 function RoomDetailPage({ loadRoom = fetchRoom }) {
   const { recoverUnauthorized } = useAuth();
@@ -44,19 +45,8 @@ function RoomDetailPage({ loadRoom = fetchRoom }) {
     return () => controller.abort();
   }, [loadRoom, recoverUnauthorized, roomId]);
 
-  if (state.status === "not-found" || state.status === "error") {
-    return (
-      <main className="booking-body booking-page room-detail-page">
-        <h1 tabIndex={-1}>회의실 상세</h1>
-        <section className="booking-content-state is-error" aria-live="polite">
-          <p>{state.error}</p>
-          <Link to="/rooms">회의실 목록으로</Link>
-        </section>
-      </main>
-    );
-  }
-
   const room = state.room;
+  const hasError = state.status === "not-found" || state.status === "error";
   const store = createBookingDraftStore(sessionStorage);
   const editing =
     searchParams.get("mode") === "change" &&
@@ -79,24 +69,32 @@ function RoomDetailPage({ loadRoom = fetchRoom }) {
   }
 
   return (
-    <div className="booking-body booking-app-shell room-detail-shell">
+    <div className="booking-body booking-app-shell room-detail-shell is-navigation-free">
+      <BookingPageHeader />
       <main className="booking-page room-detail-page">
-        <h1 tabIndex={-1}>회의실 상세</h1>
-        <ContentState
-          status={state.status}
-          loadingMessage="회의실 정보를 불러오는 중이에요."
-        >
-          {room ? (
-            <>
-              {!room.active ? (
-                <p className="booking-content-state" aria-live="polite">
-                  현재 예약할 수 없는 회의실이에요.
-                </p>
-              ) : null}
-              <RoomDetail room={room} />
-            </>
-          ) : null}
-        </ContentState>
+        <h1 className="visually-hidden" tabIndex={-1}>회의실 상세</h1>
+        {hasError ? (
+          <section className="booking-content-state is-error" aria-live="polite">
+            <p>{state.error}</p>
+            <Link to="/rooms">회의실 목록으로</Link>
+          </section>
+        ) : (
+          <ContentState
+            status={state.status}
+            loadingMessage="회의실 정보를 불러오는 중이에요."
+          >
+            {room ? (
+              <>
+                {!room.active ? (
+                  <p className="booking-content-state" aria-live="polite">
+                    현재 예약할 수 없는 회의실이에요.
+                  </p>
+                ) : null}
+                <RoomDetail room={room} />
+              </>
+            ) : null}
+          </ContentState>
+        )}
       </main>
       {room ? (
         <footer className="booking-footer">

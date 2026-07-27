@@ -4,6 +4,7 @@ import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { ReservationCard } from "../../entities/reservation/ReservationCard.jsx";
 import { ReservationStatusFilter } from "../../features/manage-reservation/ReservationStatusFilter.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
+import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
 
 const PAGE_SIZE = 5;
 const summaryLabels = {
@@ -133,8 +134,9 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
 
   return (
     <div className="booking-body booking-app-shell is-navigation-free">
+      <BookingPageHeader />
       <main className="booking-page reservations-page">
-        <h1 tabIndex={-1}>내 예약</h1>
+        <h1 className="booking-page-title" tabIndex={-1}>내 예약</h1>
         <h2 className="visually-hidden">예약 상태별 내역</h2>
         <ReservationStatusFilter
           value={state.statusFilter}

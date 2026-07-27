@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { formatDuration } from "../../utils/booking-format.js";
 
-const facilityIconNames = {
-  TV: "tv",
-  화이트보드: "whiteboard",
-  보드마카: "marker",
-};
-
 function RoomDetail({ room }) {
   const [imageFailed, setImageFailed] = useState(false);
   const facilities = room.facilities.length
@@ -44,12 +38,6 @@ function RoomDetail({ room }) {
         <ul className="facility-list">
           {facilities.map((facility) => (
             <li key={facility}>
-              {facilityIconNames[facility] ? (
-                <span
-                  className={`facility-icon facility-icon--${facilityIconNames[facility]}`}
-                  aria-hidden="true"
-                />
-              ) : null}
               <span>{facility}</span>
             </li>
           ))}

@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
-const facilityIconNames = {
-  TV: "tv",
-  화이트보드: "whiteboard",
-  보드마카: "marker",
-};
-
 function RoomCard({ room, editing = false }) {
   const [imageFailed, setImageFailed] = useState(false);
   const [scrollPosition, setScrollPosition] = useState({
@@ -90,12 +84,6 @@ function RoomCard({ room, editing = false }) {
           >
             {facilities.map((facility) => (
               <li key={facility}>
-                {facilityIconNames[facility] ? (
-                  <span
-                    className={`facility-icon facility-icon--${facilityIconNames[facility]}`}
-                    aria-hidden="true"
-                  />
-                ) : null}
                 {facility}
               </li>
             ))}

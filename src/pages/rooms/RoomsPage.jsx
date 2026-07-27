@@ -5,6 +5,7 @@ import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { RoomCard } from "../../entities/room/RoomCard.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
 import { createBookingDraftStore } from "../../utils/booking-draft.js";
+import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
 
 function RoomsPage({ loadRooms = fetchRooms }) {
   const { recoverUnauthorized } = useAuth();
@@ -53,28 +54,31 @@ function RoomsPage({ loadRooms = fetchRooms }) {
   }, [loadRooms, recoverUnauthorized, requestVersion]);
 
   return (
-    <main className="booking-body booking-app-shell is-navigation-free booking-page rooms-page">
-      <div className="rooms-introduction">
-        <h1 tabIndex={-1}>회의실</h1>
-        <h2>어떤 회의실을 이용할까요?</h2>
-        <p className="booking-page-description">
-          공간을 선택하면 예약 가능한 시간을 확인할 수 있어요.
-        </p>
-      </div>
-      <ContentState
-        status={state.status}
-        loadingMessage="회의실을 불러오는 중이에요."
-        emptyMessage="예약 가능한 회의실이 없어요."
-        errorMessage="회의실을 불러오지 못했어요."
-        onRetry={() => setRequestVersion((version) => version + 1)}
-      >
-        <section className="rooms-card-list" aria-label="회의실 목록">
-          {state.rooms.map((item) => (
-            <RoomCard key={item.roomId} room={item} editing={editing} />
-          ))}
-        </section>
-      </ContentState>
-    </main>
+    <div className="booking-body booking-app-shell is-navigation-free rooms-shell">
+      <BookingPageHeader />
+      <main className="booking-page rooms-page">
+        <div className="rooms-introduction">
+          <h1 className="visually-hidden" tabIndex={-1}>회의실</h1>
+          <h2>어떤 회의실을 이용할까요?</h2>
+          <p className="booking-page-description">
+            공간을 선택하면 예약 가능한 시간을 확인할 수 있어요.
+          </p>
+        </div>
+        <ContentState
+          status={state.status}
+          loadingMessage="회의실을 불러오는 중이에요."
+          emptyMessage="예약 가능한 회의실이 없어요."
+          errorMessage="회의실을 불러오지 못했어요."
+          onRetry={() => setRequestVersion((version) => version + 1)}
+        >
+          <section className="rooms-card-list" aria-label="회의실 목록">
+            {state.rooms.map((item) => (
+              <RoomCard key={item.roomId} room={item} editing={editing} />
+            ))}
+          </section>
+        </ContentState>
+      </main>
+    </div>
   );
 }
 

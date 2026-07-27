@@ -8,6 +8,7 @@ import { useAuth } from "../../features/authenticate/AuthContext.jsx";
 import { ReservationDetail } from "../../entities/reservation/ReservationDetail.jsx";
 import { CancelReservationButton } from "../../features/manage-reservation/CancelReservationButton.jsx";
 import { StartReservationEditButton } from "../../features/manage-reservation/StartReservationEditButton.jsx";
+import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
 
 function ReservationDetailPage({
   loadReservation = fetchReservation,
@@ -130,8 +131,9 @@ function ReservationDetailPage({
 
   return (
     <div className="booking-body booking-app-shell is-navigation-free">
+      <BookingPageHeader />
       <main className="booking-page reservation-detail-page">
-        <h1 tabIndex={-1}>예약 상세</h1>
+        <h1 className="visually-hidden" tabIndex={-1}>예약 상세</h1>
         {renderState()}
       </main>
     </div>

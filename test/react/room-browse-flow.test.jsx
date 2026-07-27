@@ -74,13 +74,37 @@ describe("회의실 목록", () => {
   });
 
   it("회의실과 상세 링크를 표시한다", async () => {
+    const user = userEvent.setup();
     renderRooms(vi.fn().mockResolvedValue([room]));
 
     expect(await screen.findByRole("link", { name: "T2" })).toHaveAttribute(
       "href",
       "/rooms/t2",
     );
-    expect(screen.getByRole("main")).toHaveClass("booking-app-shell");
+    expect(screen.getByRole("link", { name: "회의실 목록으로" })).toHaveAttribute(
+      "href",
+      "/rooms",
+    );
+
+    const profileButton = screen.getByRole("button", {
+      name: "사용자 메뉴 열기",
+    });
+    await user.click(profileButton);
+
+    expect(screen.getByRole("link", { name: "내 예약" })).toHaveAttribute(
+      "href",
+      "/reservations",
+    );
+    expect(screen.getByRole("link", { name: "마이페이지" })).toHaveAttribute(
+      "href",
+      "/profile",
+    );
+    expect(screen.getByRole("button", { name: "로그아웃" })).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("navigation", { name: "사용자 메뉴" })).not.toBeInTheDocument();
+    expect(profileButton).toHaveFocus();
+    expect(screen.getByRole("main")).toHaveClass("rooms-page");
     expect(screen.getByText("최대 인원 6명")).toBeInTheDocument();
   });
 

@@ -31,7 +31,7 @@
 }
 
 .booking-app-shell {
-  width: min(100%, 390px);
+  width: min(100%, 600px);
   min-height: 100dvh;
   margin: 0 auto;
   padding-bottom: calc(148px + env(safe-area-inset-bottom));
@@ -40,8 +40,9 @@
 }
 
 .booking-app-shell.is-navigation-free {
+  width: min(100%, 600px);
   padding-bottom: calc(32px + env(safe-area-inset-bottom));
-  background: var(--booking-surface);
+  background: #ffffff;
 }
 
 .booking-confirmed-shell {
@@ -655,26 +656,181 @@
   line-height: 22px;
 }
 
-.rooms-page,
+.rooms-page {
+  width: 100%;
+  min-height: calc(100dvh - 72px);
+  padding: 32px 0;
+  background: var(--booking-surface);
+}
+
 .reservations-page {
-  padding-top: 16px;
+  padding: 24px 20px 0;
+}
+
+.booking-page-header {
+  position: sticky;
+  z-index: 30;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: 0 20px;
+  border-bottom: 0;
+  background: rgba(247, 247, 247, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+.booking-brand-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.booking-brand-logo {
+  display: block;
+  width: 38px;
+  height: 38px;
+}
+
+.booking-brand-link:focus-visible,
+.booking-header-back:focus-visible,
+.booking-profile-button:focus-visible,
+.booking-profile-menu a:focus-visible,
+.booking-profile-menu button:focus-visible {
+  border-radius: 8px;
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.booking-public-header {
+  position: relative;
+  justify-content: center;
+}
+
+.booking-header-back {
+  position: absolute;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--booking-text);
+  font-size: 34px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.booking-profile-menu-container {
+  position: relative;
+}
+
+.booking-profile-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 50%;
+  color: var(--booking-text);
+  background: #dedede;
+  cursor: pointer;
+}
+
+.booking-profile-image,
+.booking-profile-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.booking-profile-image {
+  object-fit: cover;
+}
+
+.booking-profile-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666666;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.booking-profile-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  width: 176px;
+  padding: 8px;
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+.booking-profile-menu a,
+.booking-profile-menu .logout-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--booking-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.booking-profile-menu a:hover,
+.booking-profile-menu .logout-button:hover {
+  background: var(--booking-surface);
+}
+
+.booking-page-title,
+.member-page-title {
+  margin: 0 0 24px;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 38px;
+  outline: none;
+}
+
+.rooms-shell,
+.auth-app-shell,
+.member-app-shell {
+  background: var(--booking-surface);
 }
 
 .rooms-introduction h2 {
-  margin: 0 0 6px;
-  font-size: 21px;
-  line-height: 31px;
+  margin: 0 20px 8px;
+  font-size: 28px;
+  line-height: 38px;
 }
 
 .rooms-introduction .booking-page-description {
-  margin: 0 0 20px;
-  font-size: 13px;
-  line-height: 21px;
+  margin: 0 20px 28px;
+  color: var(--booking-text-secondary);
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .rooms-card-list {
   display: grid;
   gap: 12px;
+  padding: 0 20px;
 }
 
 .rooms-card {
@@ -843,11 +999,6 @@
   line-height: 16px;
   white-space: nowrap;
   background: #ffffff;
-}
-
-.rooms-card-facilities .facility-icon {
-  width: 14px;
-  height: 14px;
 }
 
 .rooms-card-skeleton {
@@ -1253,28 +1404,6 @@
   background: #ffffff;
 }
 
-.facility-icon {
-  flex: 0 0 auto;
-  width: 20px;
-  height: 20px;
-  background-image: url("../assets/icons/facility-icons-3d.png");
-  background-repeat: no-repeat;
-  background-position-y: center;
-  background-size: 300% auto;
-}
-
-.facility-icon--tv {
-  background-position-x: left;
-}
-
-.facility-icon--whiteboard {
-  background-position-x: center;
-}
-
-.facility-icon--marker {
-  background-position-x: right;
-}
-
 .selected-booking-room {
   display: flex;
   align-items: center;
@@ -1666,86 +1795,70 @@ body {
   background: var(--page-bg);
 }
 
-.site-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 104px;
-  border-bottom: 1px solid var(--line);
-}
-
-.site-header h1 {
-  margin: 0;
-  font-size: 31px;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.back-link {
-  position: absolute;
-  left: max(20px, calc(50% - 280px));
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  color: var(--text-primary);
-  font-size: 42px;
-  font-weight: 300;
-  line-height: 1;
-  text-decoration: none;
+html,
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-sans);
 }
 
 .login-page,
 .signup-page,
 .profile-edit-page,
 .password-edit-page {
-  display: flex;
-  justify-content: center;
-  min-height: calc(100vh - 105px);
+  min-height: calc(100dvh - 72px);
 }
 
-.login-page {
-  padding: clamp(180px, 26vh, 284px) 24px 48px;
-}
-
+.login-page,
 .signup-page {
-  padding: clamp(142px, 20vh, 196px) 24px 48px;
+  padding: 64px 24px 48px;
 }
 
-.profile-edit-page {
-  padding: 126px 24px 72px;
-}
-
+.profile-edit-page,
 .password-edit-page {
-  padding: clamp(164px, 23vh, 260px) 24px 72px;
+  padding: 28px 20px 48px;
 }
 
 .login-section,
 .signup-section {
   width: min(100%, 390px);
-  text-align: center;
+  margin: 0 auto;
+  padding: 28px 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 }
 
 .profile-edit-section,
 .password-edit-section {
-  width: min(100%, 330px);
-  text-align: center;
+  width: min(100%, 390px);
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 }
 
-.login-section h2,
-.signup-section h2,
+.login-section h1,
+.signup-section h1,
 .profile-edit-section h2,
 .password-edit-section h2 {
   margin: 0 0 24px;
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.25;
+  text-align: left;
+  outline: none;
 }
 
-.signup-section h2 {
-  margin-bottom: 8px;
+.signup-section h1 {
+  margin-bottom: 20px;
+}
+
+.profile-edit-section h2,
+.password-edit-section h2 {
+  font-size: 20px;
 }
 
 .login-form,
@@ -1769,10 +1882,10 @@ body {
 
 .field input {
   width: 100%;
-  height: 34px;
-  padding: 0 11px;
-  border: 1px solid var(--input-border);
-  border-radius: 3px;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid #dddddd;
+  border-radius: 10px;
   color: var(--text-primary);
   font: inherit;
   font-size: 14px;
@@ -1844,103 +1957,6 @@ body {
 .profile-upload.has-image .profile-plus {
   display: none;
 }
-
-.header-profile {
-  position: absolute;
-  right: max(20px, calc(50% - 330px));
-  top: 50%;
-  z-index: 10;
-  transform: translateY(-50%);
-}
-
-.logout-button {
-  position: absolute;
-  right: max(72px, calc(50% - 278px));
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.header-avatar {
-  display: block;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-  border-radius: 50%;
-  background: #d9d9d9;
-  cursor: pointer;
-}
-
-.header-avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.header-avatar-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-weight: 700;
-}
-
-.profile-menu {
-  position: absolute;
-  top: 44px;
-  left: 50%;
-  width: 100px;
-  padding: 4px 0;
-  background: #d9d9d9;
-  transform: translateX(-50%);
-}
-
-.profile-menu a,
-.profile-menu button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 36px;
-  border: 0;
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  text-decoration: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.profile-menu a:hover,
-.profile-menu button:hover,
-.profile-menu a:focus-visible,
-.profile-menu button:focus-visible {
-  background: #e9e9e9;
-  outline: none;
-}
-
-.booking-list-actions .booking-header-profile {
-  position: relative;
-  top: auto;
-  right: auto;
-  transform: none;
-}
-
-.booking-header-profile .header-avatar {
-  width: 40px;
-  height: 40px;
-}
-
-.booking-header-profile .profile-menu {
-  right: 0;
-  left: auto;
-  transform: none;
-}
-
 
 .profile-edit-form {
   display: grid;
@@ -2025,19 +2041,19 @@ body.modal-open {
 
 .profile-submit {
   width: 100%;
-  height: 34px;
+  height: 46px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 10px;
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
-  background: var(--button-disabled);
+  background: var(--booking-text);
   cursor: pointer;
 }
 
 .withdraw-button {
-  width: 250px;
-  height: 34px;
+  width: 100%;
+  min-height: 44px;
   margin-top: 8px;
   border: 0;
   color: var(--text-primary);
@@ -2128,9 +2144,9 @@ body.modal-open {
 .signup-button,
 .password-submit {
   width: 100%;
-  height: 34px;
+  height: 46px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 10px;
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
@@ -2138,10 +2154,15 @@ body.modal-open {
   cursor: not-allowed;
 }
 
+.login-button:disabled {
+  color: #777777;
+  background: #e5e5e5;
+}
+
 .login-button:not(:disabled),
 .signup-button:not(:disabled),
 .password-submit:not(:disabled) {
-  background: var(--button-active);
+  background: var(--booking-text);
   cursor: pointer;
 }
 
@@ -2149,12 +2170,11 @@ body.modal-open {
 .signup-button:focus-visible,
 .signup-link:focus-visible,
 .login-link:focus-visible,
+.profile-password-link:focus-visible,
 .profile-submit:focus-visible,
 .password-submit:focus-visible,
 .withdraw-button:focus-visible,
 .dialog-actions button:focus-visible,
-.header-avatar:focus-visible,
-.back-link:focus-visible,
 .profile-upload:focus-within {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
@@ -2165,7 +2185,8 @@ body.modal-open {
 }
 
 .login-link,
-.signup-link {
+.signup-link,
+.profile-password-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2179,77 +2200,53 @@ body.modal-open {
 .login-link {
   display: flex;
   width: 100%;
-  height: 40px;
-  border: 1px solid var(--input-border);
-  border-radius: 4px;
+  height: 44px;
+  border: 1px solid #dddddd;
+  border-radius: 10px;
 }
 
 .login-link:hover,
-.signup-link:hover {
+.signup-link:hover,
+.profile-password-link:hover {
   text-decoration: underline;
 }
 
+.profile-password-link {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+}
+
 @media (max-width: 640px) {
-  .site-header {
-    min-height: 84px;
+  .booking-app-shell {
+    box-shadow: none;
+  }
+
+  .booking-page-header {
     padding: 0 16px;
   }
 
-  .site-header h1 {
-    font-size: 26px;
+  .rooms-page {
+    width: 100%;
+    padding-bottom: 32px;
   }
 
   .login-page,
-  .signup-page,
+  .signup-page {
+    padding: 48px 20px 40px;
+  }
+
   .profile-edit-page,
   .password-edit-page {
-    align-items: flex-start;
-    min-height: calc(100vh - 85px);
-    padding: 112px 20px 40px;
-  }
-
-  .login-section h2,
-  .signup-section h2 {
-    font-size: 26px;
-  }
-
-  .back-link {
-    left: 12px;
-    width: 40px;
-    height: 40px;
-    font-size: 38px;
+    padding: 24px 16px 40px;
   }
 
   .profile-upload {
     width: 132px;
     height: 132px;
   }
-
-  .header-profile {
-    right: 16px;
-  }
-
-  .header-avatar {
-    width: 34px;
-    height: 34px;
-  }
-
-  .profile-menu {
-    right: 0;
-    left: auto;
-    transform: none;
-  }
-
-
-  .profile-edit-page {
-    padding-top: 86px;
-  }
-
-  .profile-edit-section h2,
-  .password-edit-section h2 {
-    font-size: 26px;
-  }
-
 
   .modal-backdrop {
     justify-content: center;

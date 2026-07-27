@@ -152,6 +152,26 @@ describe("LoginForm", () => {
 describe("LoginPage", () => {
   beforeEach(() => sessionStorage.clear());
 
+  it("브랜드 헤더와 모바일 앱 셸 안에 로그인 화면을 표시한다", () => {
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <AuthProvider>
+          <LoginPage />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: "홈으로" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+    expect(screen.getByRole("main").closest(".auth-app-shell")).toHaveClass(
+      "booking-body",
+      "booking-app-shell",
+      "auth-app-shell",
+    );
+  });
+
   it("인증 만료 피드백을 한 번 표시하고 저장소에서 지운다", () => {
     sessionStorage.setItem(
       "loginFeedback",
@@ -242,17 +262,4 @@ describe("LogoutButton", () => {
     resolveLogout();
   });
 
-  it("보호 route의 공통 layout에 로그아웃 동작을 표시한다", () => {
-    saveAuthenticatedSnapshot();
-
-    render(
-      <MemoryRouter initialEntries={["/rooms"]}>
-        <AuthProvider>
-          <AppRouter />
-        </AuthProvider>
-      </MemoryRouter>,
-    );
-
-    expect(screen.getByRole("button", { name: "로그아웃" })).toBeInTheDocument();
-  });
 });

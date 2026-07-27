@@ -77,6 +77,27 @@ describe("프로필 조회·수정 흐름", () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
+  it("공통 헤더와 마이페이지 제목을 표시한다", async () => {
+    renderProfilePage({
+      loadProfile: vi.fn().mockResolvedValue(currentUser),
+      upload: vi.fn(),
+      updateProfile: vi.fn(),
+    });
+
+    expect(screen.getByRole("link", { name: "회의실 목록으로" })).toHaveAttribute(
+      "href",
+      "/rooms",
+    );
+    expect(
+      screen.getByRole("heading", { name: "마이페이지", level: 1 }),
+    ).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("기존닉네임")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "비밀번호 수정" })).toHaveAttribute(
+      "href",
+      "/profile/password",
+    );
+  });
+
   it("현재 정보를 표시하고 기존 이미지와 변경한 닉네임을 저장한다", async () => {
     const user = userEvent.setup();
     const updateProfile = vi.fn().mockResolvedValue({
@@ -324,9 +345,11 @@ describe("프로필 조회·수정 흐름", () => {
     await user.type(nickname, "새닉네임");
     await user.click(screen.getByRole("button", { name: "수정하기" }));
 
-    const profileLink = screen.getByRole("link", { name: "회원정보 수정" });
+    const profileButton = screen.getByRole("button", {
+      name: "사용자 메뉴 열기",
+    });
     expect(
-      await within(profileLink).findByAltText("새닉네임 프로필 사진"),
+      await within(profileButton).findByAltText("새닉네임 프로필 사진"),
     ).toHaveAttribute("src", "http://localhost:8080/images/new.png");
     expect(sessionStorage.getItem("nickname")).toBe("새닉네임");
     expect(sessionStorage.getItem("profileImage")).toBe("/images/new.png");
