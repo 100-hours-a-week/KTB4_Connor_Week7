@@ -5,6 +5,10 @@ function BookingStepLayout({
   backLabel,
   onExit,
   nextDisabled,
+  nextAriaDisabled = nextDisabled,
+  nextForm,
+  nextLabel = "다음",
+  nextType = "button",
   onNext,
   children,
 }) {
@@ -27,11 +31,13 @@ function BookingStepLayout({
       <footer className="booking-footer">
         <button
           className="booking-primary-button"
-          type="button"
+          type={nextType}
+          form={nextForm}
           disabled={nextDisabled}
+          aria-disabled={nextAriaDisabled}
           onClick={onNext}
         >
-          다음
+          {nextLabel}
         </button>
       </footer>
     </div>

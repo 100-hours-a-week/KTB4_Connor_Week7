@@ -157,8 +157,6 @@ describe("AppRouter", () => {
     ["/profile/password", "비밀번호 수정"],
     ["/rooms", "회의실"],
     ["/rooms/ryan2", "회의실 상세"],
-    ["/booking/information", "예약 정보"],
-    ["/booking/review", "예약 확인"],
     ["/booking/confirmed/reservation-1", "예약 완료"],
     ["/reservations", "내 예약"],
     ["/reservations/reservation-1", "예약 상세"],
@@ -170,6 +168,34 @@ describe("AppRouter", () => {
       await screen.findByRole("heading", { name: heading }),
     ).toBeInTheDocument();
   });
+
+  it.each([
+    ["/booking/information", "예약 정보를 입력해 주세요", false],
+    ["/booking/review", "예약 내용을 확인해 주세요", true],
+  ])(
+    "%s 예약 route를 유효한 초안과 함께 표시한다",
+    async (path, heading, includeInformation) => {
+      saveAuthenticatedSnapshot();
+      sessionStorage.setItem(
+        BOOKING_DRAFT_KEY,
+        JSON.stringify({
+          roomId: "ryan2",
+          roomName: "RYAN2",
+          roomCapacity: 6,
+          date: "2026-07-28",
+          startTime: "09:00",
+          endTime: "10:00",
+          topic: includeInformation ? "프로젝트 회의" : "",
+          attendeeChips: includeInformation ? ["코너"] : [],
+        }),
+      );
+      renderRoute(path);
+
+      expect(
+        await screen.findByRole("heading", { name: heading }),
+      ).toBeInTheDocument();
+    },
+  );
 
   it("예약 초안과 일치하는 날짜·시간 화면을 표시한다", async () => {
     saveAuthenticatedSnapshot();
@@ -208,7 +234,7 @@ describe("AppRouter", () => {
     profile.unmount();
 
     renderRoute("/booking/information");
-    await screen.findByRole("heading", { name: "예약 정보" });
+    await screen.findByRole("heading", { name: "회의실" });
     expect(sessionStorage.getItem(BOOKING_DRAFT_KEY)).toBeNull();
   });
 });
