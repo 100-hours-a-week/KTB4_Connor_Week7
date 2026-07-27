@@ -12,15 +12,9 @@ import { BookingInformationPage } from "../../pages/booking-information/BookingI
 import { BookingReviewPage } from "../../pages/booking-review/BookingReviewPage.jsx";
 import { RoomDetailPage } from "../../pages/room-detail/RoomDetailPage.jsx";
 import { RoomsPage } from "../../pages/rooms/RoomsPage.jsx";
+import { ReservationDetailPage } from "../../pages/reservation-detail/ReservationDetailPage.jsx";
+import { ReservationsPage } from "../../pages/reservations/ReservationsPage.jsx";
 import { ProtectedRoute } from "./ProtectedRoute.jsx";
-
-function RoutePlaceholder({ title }) {
-  return (
-    <main>
-      <h1 tabIndex={-1}>{title}</h1>
-    </main>
-  );
-}
 
 function RootRedirect() {
   const { isAuthenticated } = useAuth();
@@ -70,13 +64,10 @@ function AppRouter() {
               element={<BookingConfirmedPage />}
             />
           </Route>
-          <Route
-            path="/reservations"
-            element={<RoutePlaceholder title="내 예약" />}
-          />
+          <Route path="/reservations" element={<ReservationsPage />} />
           <Route
             path="/reservations/:reservationId"
-            element={<RoutePlaceholder title="예약 상세" />}
+            element={<ReservationDetailPage />}
           />
         </Route>
       </Route>
