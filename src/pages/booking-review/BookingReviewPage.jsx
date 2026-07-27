@@ -6,6 +6,7 @@ import { BookingReviewList } from "../../features/book-room/BookingReviewList.js
 import { BookingStepLayout } from "../../features/book-room/BookingStepLayout.jsx";
 import { SubmitBookingButton } from "../../features/book-room/SubmitBookingButton.jsx";
 import { useBookingDraft } from "../../features/book-room/model/BookingDraftProvider.jsx";
+import { recoverBookingMutation } from "../../features/book-room/recoverBookingMutation.js";
 
 function getIncompleteBookingRoute(draft) {
   if (!draft.roomId) return "/rooms";
@@ -103,10 +104,13 @@ function BookingReviewPage({ loadRoom = fetchRoom, create, update }) {
               );
             }}
             onRecover={(error) =>
-              setSubmissionError(
-                error?.message ||
-                  "예약을 확정하지 못했어요. 다시 시도해 주세요.",
-              )
+              recoverBookingMutation(error, {
+                roomId: draft.roomId,
+                dispatch,
+                navigate,
+                setFeedback: setSubmissionError,
+                recoverUnauthorized,
+              })
             }
           />
         ) : undefined
