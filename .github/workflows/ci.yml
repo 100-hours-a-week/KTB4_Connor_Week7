@@ -1,0 +1,238 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run checks
+        run: |
+          npm run check:js
+          npm test
+          npm run test:react
+          npm run build
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      - name: Build ARM64 Docker image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          platforms: linux/arm64
+          push: false
+
+  publish:
+    name: Publish ARM64 image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ap-northeast-2
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64 # v2
+
+      - name: Set image name
+        id: image
+        shell: bash
+        run: echo "image=${{ steps.login-ecr.outputs.registry }}/kbtroom-frontend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether image already exists
+        id: existing-image
+        shell: bash
+        run: |
+          if error="$(
+            aws ecr describe-images \
+              --repository-name kbtroom-frontend \
+              --image-ids "imageTag=$GITHUB_SHA" \
+              2>&1 >/dev/null
+          )"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$error" == *ImageNotFoundException* ]]; then
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "$error" >&2
+            exit 1
+          fi
+
+      - name: Set up QEMU
+        if: steps.existing-image.outputs.exists != 'true'
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
+
+      - name: Set up Docker Buildx
+        if: steps.existing-image.outputs.exists != 'true'
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      - name: Build and publish ARM64 image
+        if: steps.existing-image.outputs.exists != 'true'
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ steps.image.outputs.image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to existing EC2
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      vars.EC2_DEPLOY_ENABLED == 'true'
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: kbtroom-production
+      cancel-in-progress: false
+    env:
+      AWS_REGION: ap-northeast-2
+      EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+      IMAGE: ${{ needs.publish.outputs.image }}
+
+    steps:
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Deploy with SSM and verify health
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          current_main_sha="$(gh api "repos/${GITHUB_REPOSITORY}/commits/main" --jq .sha)"
+          if [ "$current_main_sha" != "$GITHUB_SHA" ]; then
+            echo "Skipping stale deployment for $GITHUB_SHA; main is $current_main_sha."
+            exit 0
+          fi
+
+          python3 - <<'PY' > /tmp/kbtroom-frontend-ssm-parameters.json
+          import json
+          import os
+
+          print(json.dumps({"Image": [os.environ["IMAGE"]]}))
+          PY
+
+          command_id="$(
+            aws ssm send-command \
+              --region "$AWS_REGION" \
+              --instance-ids "$EC2_INSTANCE_ID" \
+              --document-name kbtroom-deploy-frontend \
+              --comment "Deploy frontend ${GITHUB_SHA}" \
+              --parameters file:///tmp/kbtroom-frontend-ssm-parameters.json \
+              --query 'Command.CommandId' \
+              --output text
+          )"
+          rm -f /tmp/kbtroom-frontend-ssm-parameters.json
+
+          command_complete=false
+          cancel_on_exit() {
+            if [ "$command_complete" != "true" ]; then
+              aws ssm cancel-command \
+                --region "$AWS_REGION" \
+                --command-id "$command_id" >/dev/null 2>&1 || true
+            fi
+          }
+          trap cancel_on_exit EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+
+          status=""
+          for attempt in $(seq 1 360); do
+            status="$(
+              aws ssm get-command-invocation \
+                --region "$AWS_REGION" \
+                --command-id "$command_id" \
+                --instance-id "$EC2_INSTANCE_ID" \
+                --query Status \
+                --output text 2>/dev/null || true
+            )"
+
+            case "$status" in
+              Success|Cancelled|TimedOut|Failed)
+                break
+                ;;
+              *)
+                sleep 5
+                ;;
+            esac
+          done
+
+          if [[ "$status" != "Success" && "$status" != "Cancelled" && "$status" != "TimedOut" && "$status" != "Failed" ]]; then
+            aws ssm cancel-command \
+              --region "$AWS_REGION" \
+              --command-id "$command_id" >/dev/null
+            command_complete=true
+            echo "Cancelled SSM command after waiting 30 minutes." >&2
+            exit 1
+          fi
+
+          command_complete=true
+
+          if [ "$status" != "Success" ]; then
+            aws ssm get-command-invocation \
+              --region "$AWS_REGION" \
+              --command-id "$command_id" \
+              --instance-id "$EC2_INSTANCE_ID" \
+              --query '{Status:Status,Error:StandardErrorContent}'
+            exit 1
+          fi
+
+          aws ssm get-command-invocation \
+            --region "$AWS_REGION" \
+            --command-id "$command_id" \
+            --instance-id "$EC2_INSTANCE_ID" \
+            --query '{Status:Status}'

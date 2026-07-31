@@ -35,8 +35,8 @@ describe("내 예약 목록과 상세", () => {
   const upcoming = {
     reservationId: "reservation-upcoming",
     room,
-    startAt: "2026-07-28T10:00:00+09:00",
-    endAt: "2026-07-28T11:00:00+09:00",
+    startAt: "2099-07-28T10:00:00+09:00",
+    endAt: "2099-07-28T11:00:00+09:00",
     topic: "프로젝트 회의",
     attendees: ["김현", "이도윤"],
     additionalInfo: "화이트보드를 사용할 예정입니다.",
