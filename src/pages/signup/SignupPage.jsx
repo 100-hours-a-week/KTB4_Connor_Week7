@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router";
 import { uploadImage } from "../../api/images.js";
 import { signup } from "../../api/users.js";
-import { SignupForm } from "../../features/register-user/SignupForm.jsx";
-import { BookingPublicHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
+import { SignupForm } from "../../features/auth/SignupForm.jsx";
+import { BookingPublicHeader } from "../../features/auth/BookingPageHeader.jsx";
 
 function SignupPage({ upload = uploadImage, register = signup }) {
   const navigate = useNavigate();

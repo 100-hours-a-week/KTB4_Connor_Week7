@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { fetchRoom } from "../../api/booking.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
 import {
   BookingInformationForm,
   FORM_ID,
-} from "../../features/book-room/BookingInformationForm.jsx";
-import { BookingStepLayout } from "../../features/book-room/BookingStepLayout.jsx";
-import { useBookingDraft } from "../../features/book-room/model/BookingDraftProvider.jsx";
+} from "../../features/booking/components/BookingInformationForm.jsx";
+import { BookingStepLayout } from "../../features/booking/components/BookingStepLayout.jsx";
+import { useBookingDraft } from "../../features/booking/model/BookingDraftProvider.jsx";
 
 function getInformationGuardRoute(draft) {
   if (!draft.roomId) return "/rooms";

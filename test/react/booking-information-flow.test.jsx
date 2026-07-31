@@ -13,12 +13,12 @@ import {
   useLocation,
 } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
-import { AttendeeInput } from "../../src/features/book-room/AttendeeInput.jsx";
-import { BookingDraftProvider } from "../../src/features/book-room/model/BookingDraftProvider.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
+import { AttendeeInput } from "../../src/features/booking/components/AttendeeInput.jsx";
+import { BookingDraftProvider } from "../../src/features/booking/model/BookingDraftProvider.jsx";
 import { BookingInformationPage } from "../../src/pages/booking-information/BookingInformationPage.jsx";
 import { BookingReviewPage } from "../../src/pages/booking-review/BookingReviewPage.jsx";
-import { BOOKING_DRAFT_KEY } from "../../src/utils/booking-draft.js";
+import { BOOKING_DRAFT_KEY } from "../../src/features/booking/model/bookingDraftStore.js";
 
 function AttendeeHarness({ initialValue = [], capacity = 6 }) {
   const [value, setValue] = useState(initialValue);

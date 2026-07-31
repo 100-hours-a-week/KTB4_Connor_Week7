@@ -4,11 +4,11 @@ import {
   cancelReservation,
   fetchReservation,
 } from "../../api/booking.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { ReservationDetail } from "../../entities/reservation/ReservationDetail.jsx";
-import { CancelReservationButton } from "../../features/manage-reservation/CancelReservationButton.jsx";
-import { StartReservationEditButton } from "../../features/manage-reservation/StartReservationEditButton.jsx";
-import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { ReservationDetail } from "../../features/booking/reservations/ReservationDetail.jsx";
+import { CancelReservationButton } from "../../features/booking/reservations/CancelReservationButton.jsx";
+import { StartReservationEditButton } from "../../features/booking/reservations/StartReservationEditButton.jsx";
+import { BookingPageHeader } from "../../features/auth/BookingPageHeader.jsx";
 
 function ReservationDetailPage({
   loadReservation = fetchReservation,

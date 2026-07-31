@@ -7,10 +7,10 @@ import {
   useLocation,
 } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
-import { BookingDraftProvider } from "../../src/features/book-room/model/BookingDraftProvider.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
+import { BookingDraftProvider } from "../../src/features/booking/model/BookingDraftProvider.jsx";
 import { BookingReviewPage } from "../../src/pages/booking-review/BookingReviewPage.jsx";
-import { BOOKING_DRAFT_KEY } from "../../src/utils/booking-draft.js";
+import { BOOKING_DRAFT_KEY } from "../../src/features/booking/model/bookingDraftStore.js";
 
 const draft = {
   roomId: "t2",

@@ -22,9 +22,9 @@ import {
   vi,
 } from "vitest";
 import { AppLayout } from "../../src/app/layout/AppLayout.jsx";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
-import { UserAvatar } from "../../src/entities/user/UserAvatar.jsx";
-import { ProfileEditForm } from "../../src/features/manage-profile/ProfileEditForm.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
+import { UserAvatar } from "../../src/shared/ui/UserAvatar.jsx";
+import { ProfileEditForm } from "../../src/features/profile/ProfileEditForm.jsx";
 import { ProfileEditPage } from "../../src/pages/profile-edit/ProfileEditPage.jsx";
 
 const currentUser = {

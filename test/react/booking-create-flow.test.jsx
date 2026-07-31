@@ -7,15 +7,15 @@ import {
   useLocation,
 } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
-import { BookingDraftProvider } from "../../src/features/book-room/model/BookingDraftProvider.jsx";
-import { SubmitBookingButton } from "../../src/features/book-room/SubmitBookingButton.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
+import { BookingDraftProvider } from "../../src/features/booking/model/BookingDraftProvider.jsx";
+import { SubmitBookingButton } from "../../src/features/booking/components/SubmitBookingButton.jsx";
 import { BookingConfirmedPage } from "../../src/pages/booking-confirmed/BookingConfirmedPage.jsx";
 import { BookingReviewPage } from "../../src/pages/booking-review/BookingReviewPage.jsx";
 import {
   BOOKING_DRAFT_KEY,
   BOOKING_EDITING_RESERVATION_KEY,
-} from "../../src/utils/booking-draft.js";
+} from "../../src/features/booking/model/bookingDraftStore.js";
 
 const draft = {
   roomId: "t2",

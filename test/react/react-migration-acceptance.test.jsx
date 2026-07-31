@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
 import { AppRouter } from "../../src/app/router/AppRouter.jsx";
 
 function renderRoute(route) {

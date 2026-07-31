@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   buildReservationPayload,
   getReservationErrorAction,
-} from "../src/utils/booking-validation.js";
+} from "../src/features/booking/lib/booking-validation.js";
 
 test("예약 초안을 offset이 포함된 서버 요청으로 변환한다", () => {
   assert.deepEqual(

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { fetchRoom } from "../../api/booking.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { RoomDetail } from "../../entities/room/RoomDetail.jsx";
-import { StartBookingButton } from "../../features/book-room/StartBookingButton.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { RoomDetail } from "../../features/booking/rooms/RoomDetail.jsx";
+import { StartBookingButton } from "../../features/booking/components/StartBookingButton.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
-import { createBookingDraftStore } from "../../utils/booking-draft.js";
-import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
+import { createBookingDraftStore } from "../../features/booking/model/bookingDraftStore.js";
+import { BookingPageHeader } from "../../features/auth/BookingPageHeader.jsx";
 
 function RoomDetailPage({ loadRoom = fetchRoom }) {
   const { recoverUnauthorized } = useAuth();

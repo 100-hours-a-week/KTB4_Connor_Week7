@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
 import { uploadImage } from "../../api/images.js";
 import { fetchMe, updateMe, withdrawMe } from "../../api/users.js";
-import { ProfileEditForm } from "../../features/manage-profile/ProfileEditForm.jsx";
-import { WithdrawAccountButton } from "../../features/manage-profile/WithdrawAccountButton.jsx";
-import { PROFILE_LOAD_FAILURE } from "../../constants/messages.js";
-import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
+import { ProfileEditForm } from "../../features/profile/ProfileEditForm.jsx";
+import { WithdrawAccountButton } from "../../features/profile/WithdrawAccountButton.jsx";
+import { PROFILE_LOAD_FAILURE } from "../../shared/constants/messages.js";
+import { BookingPageHeader } from "../../features/auth/BookingPageHeader.jsx";
 
 function ProfileEditPage({
   loadProfile = fetchMe,

@@ -7,13 +7,13 @@ import {
   useLocation,
 } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
 import { RoomDetailPage } from "../../src/pages/room-detail/RoomDetailPage.jsx";
 import { RoomsPage } from "../../src/pages/rooms/RoomsPage.jsx";
 import {
   BOOKING_EDITING_RESERVATION_KEY,
   createBookingDraftStore,
-} from "../../src/utils/booking-draft.js";
+} from "../../src/features/booking/model/bookingDraftStore.js";
 
 const room = {
   roomId: "t2",

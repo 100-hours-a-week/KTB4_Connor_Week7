@@ -3,12 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { MemoryRouter, useLocation, useNavigate } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
-import { useAuth } from "../../src/features/authenticate/AuthContext.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
+import { useAuth } from "../../src/features/auth/AuthProvider.jsx";
 import { AppRouter } from "../../src/app/router/AppRouter.jsx";
 import { RouteErrorBoundary } from "../../src/app/router/RouteErrorBoundary.jsx";
 import { RouteFocus } from "../../src/app/router/RouteFocus.jsx";
-import { BOOKING_DRAFT_KEY } from "../../src/utils/booking-draft.js";
+import { BOOKING_DRAFT_KEY } from "../../src/features/booking/model/bookingDraftStore.js";
 
 function saveAuthenticatedSnapshot() {
   sessionStorage.setItem("accessToken", "token");

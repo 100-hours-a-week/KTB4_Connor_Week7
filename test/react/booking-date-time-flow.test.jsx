@@ -12,12 +12,12 @@ import {
   useLocation,
 } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
-import { BookingDraftProvider } from "../../src/features/book-room/model/BookingDraftProvider.jsx";
-import { MonthlyAvailabilityCalendar } from "../../src/features/book-room/MonthlyAvailabilityCalendar.jsx";
-import { TimeRangeSelector } from "../../src/features/book-room/TimeRangeSelector.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
+import { BookingDraftProvider } from "../../src/features/booking/model/BookingDraftProvider.jsx";
+import { MonthlyAvailabilityCalendar } from "../../src/features/booking/components/MonthlyAvailabilityCalendar.jsx";
+import { TimeRangeSelector } from "../../src/features/booking/components/TimeRangeSelector.jsx";
 import { BookingDateTimePage } from "../../src/pages/booking-date-time/BookingDateTimePage.jsx";
-import { BOOKING_DRAFT_KEY } from "../../src/utils/booking-draft.js";
+import { BOOKING_DRAFT_KEY } from "../../src/features/booking/model/bookingDraftStore.js";
 
 const slots = [
   { startTime: "09:00", endTime: "09:30", state: "AVAILABLE" },
@@ -168,6 +168,18 @@ function CurrentPath() {
   return <output aria-label="현재 경로">{location.pathname}</output>;
 }
 
+function getCurrentMonthTestDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  return {
+    year,
+    month,
+    date: `${year}-${String(month).padStart(2, "0")}-28`,
+    label: `${year}년 ${month}월 28일`,
+  };
+}
+
 function renderPage({
   path = "/booking/t2/date-time",
   loadMonth = vi.fn().mockResolvedValue({
@@ -231,6 +243,7 @@ describe("예약 날짜·시간 화면", () => {
 
   it("날짜와 시간을 선택한 뒤 예약 정보 단계로 이동한다", async () => {
     const user = userEvent.setup();
+    const currentMonth = getCurrentMonthTestDate();
     sessionStorage.setItem(
       BOOKING_DRAFT_KEY,
       JSON.stringify({
@@ -240,11 +253,14 @@ describe("예약 날짜·시간 화면", () => {
       }),
     );
     const loadMonth = vi.fn().mockResolvedValue({
-      year: 2026,
-      month: 7,
+      year: currentMonth.year,
+      month: currentMonth.month,
       dates: [
-        { date: "2026-07-27", status: "PAST" },
-        { date: "2026-07-28", status: "AVAILABLE" },
+        {
+          date: `${currentMonth.date.slice(0, -2)}27`,
+          status: "PAST",
+        },
+        { date: currentMonth.date, status: "AVAILABLE" },
       ],
     });
     const loadDay = vi.fn().mockResolvedValue({
@@ -254,7 +270,7 @@ describe("예약 날짜·시간 화면", () => {
     renderPage({ loadMonth, loadDay });
 
     await user.click(
-      await screen.findByRole("button", { name: "2026년 7월 28일" }),
+      await screen.findByRole("button", { name: currentMonth.label }),
     );
     await user.click(
       await screen.findByRole("button", { name: /^09:00부터/ }),
@@ -262,10 +278,14 @@ describe("예약 날짜·시간 화면", () => {
     await user.click(screen.getByRole("button", { name: "다음" }));
 
     expect(loadMonth).toHaveBeenCalledWith(
-      expect.objectContaining({ roomId: "t2", year: 2026, month: 7 }),
+      expect.objectContaining({
+        roomId: "t2",
+        year: currentMonth.year,
+        month: currentMonth.month,
+      }),
     );
     expect(loadDay).toHaveBeenCalledWith(
-      expect.objectContaining({ roomId: "t2", date: "2026-07-28" }),
+      expect.objectContaining({ roomId: "t2", date: currentMonth.date }),
     );
     expect(screen.getByLabelText("현재 경로")).toHaveTextContent(
       "/booking/information",
@@ -397,6 +417,7 @@ describe("예약 날짜·시간 화면", () => {
 
   it("월 조회 실패 후 다시 시도한다", async () => {
     const user = userEvent.setup();
+    const currentMonth = getCurrentMonthTestDate();
     sessionStorage.setItem(
       BOOKING_DRAFT_KEY,
       JSON.stringify({ roomId: "t2", roomName: "T2", roomCapacity: 6 }),
@@ -405,9 +426,9 @@ describe("예약 날짜·시간 화면", () => {
       .fn()
       .mockRejectedValueOnce(new Error("network"))
       .mockResolvedValueOnce({
-        year: 2026,
-        month: 7,
-        dates: [{ date: "2026-07-28", status: "AVAILABLE" }],
+        year: currentMonth.year,
+        month: currentMonth.month,
+        dates: [{ date: currentMonth.date, status: "AVAILABLE" }],
       });
     renderPage({ loadMonth });
 
@@ -416,7 +437,7 @@ describe("예약 날짜·시간 화면", () => {
     );
 
     expect(
-      await screen.findByRole("button", { name: "2026년 7월 28일" }),
+      await screen.findByRole("button", { name: currentMonth.label }),
     ).toBeInTheDocument();
     expect(loadMonth).toHaveBeenCalledTimes(2);
   });

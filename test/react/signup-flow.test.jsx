@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SignupForm } from "../../src/features/register-user/SignupForm.jsx";
+import { SignupForm } from "../../src/features/auth/SignupForm.jsx";
 import { SignupPage } from "../../src/pages/signup/SignupPage.jsx";
 
 const imageFile = new File(["image"], "profile.png", {

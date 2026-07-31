@@ -1,5 +1,5 @@
 import { request } from "./client.js";
-import { createAuthHeaders } from "../utils/session.js";
+import { createAuthHeaders } from "../shared/lib/session.js";
 
 function signup({ email, password, nickname, profileImage }) {
     return request(

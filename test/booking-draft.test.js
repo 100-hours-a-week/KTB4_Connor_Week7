@@ -5,7 +5,7 @@ import {
   BOOKING_DRAFT_KEY,
   EMPTY_BOOKING_DRAFT,
   createBookingDraftStore,
-} from "../src/utils/booking-draft.js";
+} from "../src/features/booking/model/bookingDraftStore.js";
 
 function createMemoryStorage(initialValue) {
   const values = new Map();
