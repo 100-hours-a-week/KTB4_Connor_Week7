@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
 import { ReservationDetailPage } from "../../src/pages/reservation-detail/ReservationDetailPage.jsx";
 
 const reservation = {

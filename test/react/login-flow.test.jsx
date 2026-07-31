@@ -3,10 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { StrictMode } from "react";
 import { MemoryRouter, useLocation } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
 import { AppRouter } from "../../src/app/router/AppRouter.jsx";
-import { LoginForm } from "../../src/features/authenticate/LoginForm.jsx";
-import { LogoutButton } from "../../src/features/authenticate/LogoutButton.jsx";
+import { LoginForm } from "../../src/features/auth/LoginForm.jsx";
+import { LogoutButton } from "../../src/features/auth/LogoutButton.jsx";
 import { LoginPage } from "../../src/pages/login/LoginPage.jsx";
 
 function saveAuthenticatedSnapshot() {

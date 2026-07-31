@@ -4,13 +4,13 @@ import {
   fetchRoomDaySlots,
   fetchRoomMonthAvailability,
 } from "../../api/booking.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { BookingScheduleSummary } from "../../features/book-room/BookingScheduleSummary.jsx";
-import { BookingStepLayout } from "../../features/book-room/BookingStepLayout.jsx";
-import { MonthlyAvailabilityCalendar } from "../../features/book-room/MonthlyAvailabilityCalendar.jsx";
-import { TimeRangeSelector } from "../../features/book-room/TimeRangeSelector.jsx";
-import { useBookingDraft } from "../../features/book-room/model/BookingDraftProvider.jsx";
-import { parseLocalDate } from "../../utils/booking-format.js";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { BookingScheduleSummary } from "../../features/booking/components/BookingScheduleSummary.jsx";
+import { BookingStepLayout } from "../../features/booking/components/BookingStepLayout.jsx";
+import { MonthlyAvailabilityCalendar } from "../../features/booking/components/MonthlyAvailabilityCalendar.jsx";
+import { TimeRangeSelector } from "../../features/booking/components/TimeRangeSelector.jsx";
+import { useBookingDraft } from "../../features/booking/model/BookingDraftProvider.jsx";
+import { parseLocalDate } from "../../features/booking/lib/booking-format.js";
 
 function getDateTimeGuardRoute(routeRoomId, draft) {
   if (!draft.roomId) return "/rooms";

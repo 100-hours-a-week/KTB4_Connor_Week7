@@ -1,5 +1,5 @@
 import { BrowserRouter } from "react-router";
-import { AuthProvider } from "./providers/AuthProvider.jsx";
+import { AuthProvider } from "../features/auth/AuthProvider.jsx";
 import { AppRouter } from "./router/AppRouter.jsx";
 import { RouteErrorBoundary } from "./router/RouteErrorBoundary.jsx";
 import { RouteFocus } from "./router/RouteFocus.jsx";

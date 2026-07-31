@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchMyReservations } from "../../api/booking.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { ReservationCard } from "../../entities/reservation/ReservationCard.jsx";
-import { ReservationStatusFilter } from "../../features/manage-reservation/ReservationStatusFilter.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { ReservationCard } from "../../features/booking/reservations/ReservationCard.jsx";
+import { ReservationStatusFilter } from "../../features/booking/reservations/ReservationStatusFilter.jsx";
 import { ContentState } from "../../shared/ui/ContentState.jsx";
-import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
+import { BookingPageHeader } from "../../features/auth/BookingPageHeader.jsx";
 
 const PAGE_SIZE = 5;
 const summaryLabels = {

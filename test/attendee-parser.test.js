@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseAttendeeInput } from "../src/utils/attendee-parser.js";
+import { parseAttendeeInput } from "../src/features/booking/lib/attendee-parser.js";
 
 test("쉼표로 끝난 이름만 중복 없이 참석자 칩으로 만든다", () => {
   assert.deepEqual(

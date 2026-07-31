@@ -1,4 +1,4 @@
-import { COMMON_REQUEST_FAILURE } from "../constants/messages.js";
+import { COMMON_REQUEST_FAILURE } from "../shared/constants/messages.js";
 import { API_BASE_URL } from "../config.js";
 
 async function parseJson(response) {

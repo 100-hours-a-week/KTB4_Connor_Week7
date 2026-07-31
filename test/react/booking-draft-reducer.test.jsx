@@ -4,17 +4,17 @@ import { describe, expect, it } from "vitest";
 import {
   BOOKING_DRAFT_KEY,
   BOOKING_EDITING_RESERVATION_KEY,
-} from "../../src/utils/booking-draft.js";
+} from "../../src/features/booking/model/bookingDraftStore.js";
 import {
   bookingDraftReducer,
   createEmptyBookingState,
-} from "../../src/features/book-room/model/bookingDraft.js";
+} from "../../src/features/booking/model/bookingDraft.js";
 import {
   BookingDraftProvider,
   persistBookingState,
   readBookingState,
   useBookingDraft,
-} from "../../src/features/book-room/model/BookingDraftProvider.jsx";
+} from "../../src/features/booking/model/BookingDraftProvider.jsx";
 
 function createMemoryStorage(initialEntries = []) {
   const values = new Map(initialEntries);

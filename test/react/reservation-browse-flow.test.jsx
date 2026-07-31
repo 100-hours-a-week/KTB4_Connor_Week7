@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
 import { ReservationDetailPage } from "../../src/pages/reservation-detail/ReservationDetailPage.jsx";
 import { ReservationsPage } from "../../src/pages/reservations/ReservationsPage.jsx";
 

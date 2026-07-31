@@ -1,5 +1,5 @@
 import { request } from "./client.js";
-import { IMAGE_UPLOAD_FAILURE } from "../constants/messages.js";
+import { IMAGE_UPLOAD_FAILURE } from "../shared/constants/messages.js";
 
 function uploadImage(file, fallbackMessage = IMAGE_UPLOAD_FAILURE) {
     const formData = new FormData();

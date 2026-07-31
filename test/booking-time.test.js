@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { selectTimeRange } from "../src/utils/booking-time.js";
+import { selectTimeRange } from "../src/features/booking/lib/booking-time.js";
 
 const slots = [
   { startTime: "10:00", endTime: "10:30", state: "AVAILABLE" },

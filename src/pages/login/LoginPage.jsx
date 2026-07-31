@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { login } from "../../api/auth.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { LoginForm } from "../../features/authenticate/LoginForm.jsx";
-import { BookingPublicHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { LoginForm } from "../../features/auth/LoginForm.jsx";
+import { BookingPublicHeader } from "../../features/auth/BookingPageHeader.jsx";
 
 function LoginPage() {
   const navigate = useNavigate();

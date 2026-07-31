@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { fetchReservation } from "../../api/booking.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { BookingConfirmationSummary } from "../../features/book-room/BookingConfirmationSummary.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { BookingConfirmationSummary } from "../../features/booking/components/BookingConfirmationSummary.jsx";
 
 function BookingConfirmedPage({
   loadReservation = fetchReservation,

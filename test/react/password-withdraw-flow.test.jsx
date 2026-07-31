@@ -2,9 +2,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useLocation } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthProvider } from "../../src/app/providers/AuthProvider.jsx";
-import { PasswordChangeForm } from "../../src/features/manage-profile/PasswordChangeForm.jsx";
-import { WithdrawAccountButton } from "../../src/features/manage-profile/WithdrawAccountButton.jsx";
+import { AuthProvider } from "../../src/features/auth/AuthProvider.jsx";
+import { PasswordChangeForm } from "../../src/features/profile/PasswordChangeForm.jsx";
+import { WithdrawAccountButton } from "../../src/features/profile/WithdrawAccountButton.jsx";
 import { ProfileEditPage } from "../../src/pages/profile-edit/ProfileEditPage.jsx";
 
 const currentUser = {

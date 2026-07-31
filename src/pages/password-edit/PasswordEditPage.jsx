@@ -1,7 +1,7 @@
 import { updatePassword } from "../../api/users.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { PasswordChangeForm } from "../../features/manage-profile/PasswordChangeForm.jsx";
-import { BookingPageHeader } from "../../widgets/booking-header/BookingPageHeader.jsx";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { PasswordChangeForm } from "../../features/profile/PasswordChangeForm.jsx";
+import { BookingPageHeader } from "../../features/auth/BookingPageHeader.jsx";
 
 function PasswordEditPage({ changePassword = updatePassword }) {
   const { recoverUnauthorized } = useAuth();

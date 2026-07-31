@@ -1,5 +1,5 @@
 import { USE_BOOKING_FIXTURES } from "../config.js";
-import { createAuthHeaders } from "../utils/session.js";
+import { createAuthHeaders } from "../shared/lib/session.js";
 import { request } from "./client.js";
 import {
   cancelFixtureReservation,

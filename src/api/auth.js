@@ -1,6 +1,6 @@
 import { request } from "./client.js";
-import { AUTH_LOGIN_FAILURE } from "../constants/messages.js";
-import { createAuthHeaders } from "../utils/session.js";
+import { AUTH_LOGIN_FAILURE } from "../shared/constants/messages.js";
+import { createAuthHeaders } from "../shared/lib/session.js";
 
 function login({ email, password }) {
   return request(

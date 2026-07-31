@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { fetchRoom } from "../../api/booking.js";
-import { useAuth } from "../../features/authenticate/AuthContext.jsx";
-import { BookingReviewList } from "../../features/book-room/BookingReviewList.jsx";
-import { BookingStepLayout } from "../../features/book-room/BookingStepLayout.jsx";
-import { SubmitBookingButton } from "../../features/book-room/SubmitBookingButton.jsx";
-import { useBookingDraft } from "../../features/book-room/model/BookingDraftProvider.jsx";
-import { recoverBookingMutation } from "../../features/book-room/recoverBookingMutation.js";
+import { useAuth } from "../../features/auth/AuthProvider.jsx";
+import { BookingReviewList } from "../../features/booking/components/BookingReviewList.jsx";
+import { BookingStepLayout } from "../../features/booking/components/BookingStepLayout.jsx";
+import { SubmitBookingButton } from "../../features/booking/components/SubmitBookingButton.jsx";
+import { useBookingDraft } from "../../features/booking/model/BookingDraftProvider.jsx";
+import { recoverBookingMutation } from "../../features/booking/recoverBookingMutation.js";
 
 function getIncompleteBookingRoute(draft) {
   if (!draft.roomId) return "/rooms";
