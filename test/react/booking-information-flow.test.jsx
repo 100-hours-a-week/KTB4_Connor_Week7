@@ -94,10 +94,9 @@ const room = {
   capacity: 2,
   facilities: ["TV", "화이트보드"],
   description: "프로젝트 회의실",
-  operatingHours: "09:00~18:00",
-  usageGuide: "깨끗하게 사용해 주세요.",
-  minimumDurationMinutes: 30,
-  maximumDurationMinutes: 120,
+  openTime: "09:00",
+  closeTime: "23:00",
+  guide: "깨끗하게 사용해 주세요.",
   imageUrl: "/assets/rooms/t2.png",
   active: true,
 };

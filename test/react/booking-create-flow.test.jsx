@@ -37,8 +37,8 @@ const reservation = {
     location: "인포데스크 옆",
   },
   reserverName: "코너",
-  startAt: "2026-07-28T09:00:00+09:00",
-  endAt: "2026-07-28T10:00:00+09:00",
+  startAt: "2026-07-28T09:00:00",
+  endAt: "2026-07-28T10:00:00",
   topic: "프로젝트 회의",
   attendees: ["김현", "이도윤"],
   additionalInfo: "화이트보드 사용",
@@ -60,7 +60,6 @@ it("예약을 한 번 생성하고 성공 후 draft를 지운다", async () => {
       clear={clear}
       onCompleted={onCompleted}
       onRecover={vi.fn()}
-      createIdempotencyKey={() => "request-1"}
     />,
   );
 
@@ -69,12 +68,11 @@ it("예약을 한 번 생성하고 성공 후 draft를 지운다", async () => {
   expect(create).toHaveBeenCalledOnce();
   expect(create).toHaveBeenCalledWith({
     roomId: "t2",
-    startAt: "2026-07-28T09:00:00+09:00",
-    endAt: "2026-07-28T10:00:00+09:00",
+    startAt: "2026-07-28T09:00:00",
+    endAt: "2026-07-28T10:00:00",
     topic: "프로젝트 회의",
     attendees: ["김현", "이도윤"],
     additionalInfo: "화이트보드 사용",
-    idempotencyKey: "request-1",
   });
   expect(clear).toHaveBeenCalledOnce();
   expect(onCompleted).toHaveBeenCalledWith(reservation);
@@ -99,7 +97,6 @@ it("제출 중에는 같은 예약을 다시 생성하지 않는다", async () =
       clear={vi.fn()}
       onCompleted={vi.fn()}
       onRecover={vi.fn()}
-      createIdempotencyKey={() => "request-1"}
     />,
   );
 
@@ -128,7 +125,6 @@ it("예약 변경 중이면 기존 예약을 갱신한다", async () => {
       clear={vi.fn()}
       onCompleted={vi.fn()}
       onRecover={vi.fn()}
-      createIdempotencyKey={() => "request-1"}
     />,
   );
 
@@ -137,7 +133,10 @@ it("예약 변경 중이면 기존 예약을 갱신한다", async () => {
   expect(create).not.toHaveBeenCalled();
   expect(update).toHaveBeenCalledWith(
     "reservation-1",
-    expect.objectContaining({ idempotencyKey: "request-1" }),
+    expect.objectContaining({
+      startAt: "2026-07-28T09:00:00",
+      endAt: "2026-07-28T10:00:00",
+    }),
   );
 });
 

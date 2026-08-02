@@ -157,7 +157,7 @@ describe("AppRouter", () => {
     ["/profile", "회원정보수정"],
     ["/profile/password", "비밀번호 수정"],
     ["/rooms", "회의실"],
-    ["/rooms/ryan2", "회의실 상세"],
+    ["/rooms/1", "회의실 상세"],
     ["/booking/confirmed/reservation-1", "예약 완료"],
     ["/reservations", "내 예약"],
     ["/reservations/reservation-1", "예약 상세"],
@@ -189,7 +189,7 @@ describe("AppRouter", () => {
       sessionStorage.setItem(
         BOOKING_DRAFT_KEY,
         JSON.stringify({
-          roomId: "ryan2",
+          roomId: 1,
           roomName: "RYAN2",
           roomCapacity: 6,
           date: "2026-07-28",
@@ -212,12 +212,12 @@ describe("AppRouter", () => {
     sessionStorage.setItem(
       BOOKING_DRAFT_KEY,
       JSON.stringify({
-        roomId: "ryan2",
+        roomId: 1,
         roomName: "RYAN2",
         roomCapacity: 6,
       }),
     );
-    renderRoute("/booking/ryan2/date-time");
+    renderRoute("/booking/1/date-time");
 
     expect(
       await screen.findByRole("heading", {

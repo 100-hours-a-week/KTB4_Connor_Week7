@@ -18,14 +18,16 @@ const reservation = {
     location: "인포데스크 옆",
     capacity: 6,
   },
-  startAt: "2099-07-28T09:00:00+09:00",
-  endAt: "2099-07-28T10:00:00+09:00",
+  startAt: "2099-07-28T09:00:00",
+  endAt: "2099-07-28T10:00:00",
   topic: "프로젝트 회의",
   attendees: ["김현", "이도윤"],
   additionalInfo: "화이트보드 사용",
   status: "CONFIRMED",
-  createdAt: "2026-07-20T10:00:00+09:00",
-  updatedAt: "2026-07-20T10:00:00+09:00",
+  canChange: true,
+  canCancel: true,
+  createdAt: "2026-07-20T10:00:00",
+  updatedAt: "2026-07-20T10:00:00",
 };
 
 function renderDetail(value = reservation) {
@@ -83,12 +85,14 @@ describe("예약 변경 진입", () => {
   });
 
   it.each([
-    ["완료된 예약", { status: "COMPLETED" }],
+    ["완료된 예약", { status: "COMPLETED", canChange: false, canCancel: false }],
     [
       "이미 시작한 예약",
       {
-        startAt: "2020-07-28T09:00:00+09:00",
-        endAt: "2020-07-28T10:00:00+09:00",
+        startAt: "2020-07-28T09:00:00",
+        endAt: "2020-07-28T10:00:00",
+        canChange: false,
+        canCancel: false,
       },
     ],
   ])("%s에는 변경 버튼을 표시하지 않는다", async (_name, patch) => {

@@ -1,97 +1,85 @@
 const FIXTURE_ROOMS = [
   {
-    roomId: "ryan2",
+    roomId: 1,
     name: "RYAN2",
     location: "R2",
     capacity: 6,
     facilities: ["TV", "화이트보드", "보드마카"],
     description: "최대 6명이 이용할 수 있는 회의실입니다.",
-    operatingHours: "운영 시간 정보 없음",
-    usageGuide: "TV, 화이트보드, 보드마카를 사용할 수 있어요.",
-    minimumDurationMinutes: 30,
-    maximumDurationMinutes: 120,
-    imageUrl: "../assets/rooms/ryan2.png",
+    guide: "TV, 화이트보드, 보드마카를 사용할 수 있어요.",
+    openTime: "09:00",
+    closeTime: "23:00",
+    imageUrl: "https://images.kbtroom.cloud/content/rooms/ryan2.png",
     active: true,
-    displayOrder: 1,
   },
   {
-    roomId: "ryan3",
+    roomId: 2,
     name: "RYAN3",
     location: "R3",
     capacity: 8,
     facilities: ["TV", "화이트보드", "보드마카"],
     description: "최대 8명이 이용할 수 있는 회의실입니다.",
-    operatingHours: "운영 시간 정보 없음",
-    usageGuide: "TV, 화이트보드, 보드마카를 사용할 수 있어요.",
-    minimumDurationMinutes: 30,
-    maximumDurationMinutes: 120,
-    imageUrl: "../assets/rooms/ryan3.png",
+    guide: "TV, 화이트보드, 보드마카를 사용할 수 있어요.",
+    openTime: "09:00",
+    closeTime: "23:00",
+    imageUrl: "https://images.kbtroom.cloud/content/rooms/ryan3.png",
     active: true,
-    displayOrder: 2,
   },
   {
-    roomId: "sangbae2",
+    roomId: 3,
     name: "SANGBAE2",
     location: "S2",
     capacity: 8,
     facilities: ["TV", "화이트보드", "보드마카"],
     description: "최대 8명이 이용할 수 있는 회의실입니다.",
-    operatingHours: "운영 시간 정보 없음",
-    usageGuide: "TV, 화이트보드, 보드마카를 사용할 수 있어요.",
-    minimumDurationMinutes: 30,
-    maximumDurationMinutes: 120,
-    imageUrl: "../assets/rooms/sangbae2.png",
+    guide: "TV, 화이트보드, 보드마카를 사용할 수 있어요.",
+    openTime: "09:00",
+    closeTime: "23:00",
+    imageUrl: "https://images.kbtroom.cloud/content/rooms/sangbae2.png",
     active: true,
-    displayOrder: 3,
   },
   {
-    roomId: "t1",
+    roomId: 4,
     name: "T1",
     location: "G1 사무실 옆, 타운홀 좌측",
     capacity: 6,
     facilities: [],
     description: "좌석 구성에 따라 4~6명이 이용할 수 있어요.",
-    operatingHours: "운영 시간 정보 없음",
-    usageGuide: "별도 장비가 없으며 의자가 부족할 수 있어요.",
-    minimumDurationMinutes: 30,
-    maximumDurationMinutes: 120,
-    imageUrl: "../assets/rooms/t1.png",
+    guide: "별도 장비가 없으며 의자가 부족할 수 있어요.",
+    openTime: "09:00",
+    closeTime: "23:00",
+    imageUrl: "https://images.kbtroom.cloud/content/rooms/t1.png",
     active: true,
-    displayOrder: 4,
   },
   {
-    roomId: "t2",
+    roomId: 5,
     name: "T2",
     location: "인포데스크 옆",
     capacity: 6,
     facilities: [],
     description: "좌석 구성에 따라 4~6명이 이용할 수 있어요.",
-    operatingHours: "운영 시간 정보 없음",
-    usageGuide: "별도 장비가 없으며 의자가 부족할 수 있어요.",
-    minimumDurationMinutes: 30,
-    maximumDurationMinutes: 120,
-    imageUrl: "../assets/rooms/t2.png",
+    guide: "별도 장비가 없으며 의자가 부족할 수 있어요.",
+    openTime: "09:00",
+    closeTime: "23:00",
+    imageUrl: "https://images.kbtroom.cloud/content/rooms/t2.png",
     active: true,
-    displayOrder: 5,
   },
   {
-    roomId: "t3",
+    roomId: 6,
     name: "T3",
     location: "타운홀 우측",
     capacity: 5,
     facilities: [],
     description: "좌석 구성에 따라 4~5명이 이용할 수 있어요.",
-    operatingHours: "운영 시간 정보 없음",
-    usageGuide: "별도 장비가 없어요.",
-    minimumDurationMinutes: 30,
-    maximumDurationMinutes: 120,
-    imageUrl: "../assets/rooms/t3.png",
+    guide: "별도 장비가 없어요.",
+    openTime: "09:00",
+    closeTime: "23:00",
+    imageUrl: "https://images.kbtroom.cloud/content/rooms/t3.png",
     active: true,
-    displayOrder: 6,
   },
 ];
 
-const FIXTURE_RESERVATIONS_KEY = "fixtureReservations";
+const FIXTURE_RESERVATIONS_KEY = "fixtureReservationsV2";
 
 function delay(value, milliseconds = 180) {
   return new Promise((resolve) => globalThis.setTimeout(() => resolve(value), milliseconds));
@@ -111,8 +99,15 @@ function toDateKey(date) {
   return `${year}-${month}-${day}`;
 }
 
+function toLocalDateTime(date) {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${toDateKey(date)}T${hours}:${minutes}:${seconds}`;
+}
+
 function findRoom(roomId) {
-  return FIXTURE_ROOMS.find((room) => room.roomId === roomId);
+  return FIXTURE_ROOMS.find((room) => String(room.roomId) === String(roomId));
 }
 
 function clone(value) {
@@ -128,67 +123,51 @@ function offsetDateKey(baseDate, dayOffset) {
 function createSeedReservations(now, ownerId) {
   const createdAt = new Date(now);
   createdAt.setDate(createdAt.getDate() - 7);
-  const updatedAt = new Date(now);
   const earlierUpdatedAt = new Date(now);
   earlierUpdatedAt.setDate(earlierUpdatedAt.getDate() - 1);
 
   return [
     {
-      reservationId: "fixture-upcoming-1",
+      reservationId: 1001,
       ownerId,
       status: "CONFIRMED",
-      roomId: "ryan2",
-      room: findRoom("ryan2"),
-      startAt: `${offsetDateKey(now, 1)}T10:00:00+09:00`,
-      endAt: `${offsetDateKey(now, 1)}T11:00:00+09:00`,
+      roomId: 1,
+      room: findRoom(1),
+      startAt: `${offsetDateKey(now, 1)}T10:00:00`,
+      endAt: `${offsetDateKey(now, 1)}T11:00:00`,
       topic: "프로젝트 회의",
       attendees: ["김현", "이도윤"],
       additionalInfo: "화이트보드를 사용할 예정입니다.",
-      createdAt: createdAt.toISOString(),
-      updatedAt: createdAt.toISOString(),
+      createdAt: toLocalDateTime(createdAt),
+      updatedAt: toLocalDateTime(createdAt),
     },
     {
-      reservationId: "fixture-past-1",
+      reservationId: 1002,
       ownerId,
       status: "COMPLETED",
-      roomId: "ryan3",
-      room: findRoom("ryan3"),
-      startAt: `${offsetDateKey(now, -2)}T14:00:00+09:00`,
-      endAt: `${offsetDateKey(now, -2)}T15:00:00+09:00`,
+      roomId: 2,
+      room: findRoom(2),
+      startAt: `${offsetDateKey(now, -2)}T14:00:00`,
+      endAt: `${offsetDateKey(now, -2)}T15:00:00`,
       topic: "지난 스터디 회의",
       attendees: ["박서준", "최유진", "정하늘"],
       additionalInfo: "",
-      createdAt: createdAt.toISOString(),
-      updatedAt: createdAt.toISOString(),
+      createdAt: toLocalDateTime(createdAt),
+      updatedAt: toLocalDateTime(createdAt),
     },
     {
-      reservationId: "fixture-canceled-user",
+      reservationId: 1003,
       ownerId,
       status: "CANCELED_BY_USER",
-      roomId: "t1",
-      room: findRoom("t1"),
-      startAt: `${offsetDateKey(now, 2)}T11:00:00+09:00`,
-      endAt: `${offsetDateKey(now, 2)}T12:00:00+09:00`,
+      roomId: 4,
+      room: findRoom(4),
+      startAt: `${offsetDateKey(now, 2)}T11:00:00`,
+      endAt: `${offsetDateKey(now, 2)}T12:00:00`,
       topic: "취소한 인터뷰 연습",
       attendees: ["김현"],
       additionalInfo: "",
-      createdAt: createdAt.toISOString(),
-      updatedAt: earlierUpdatedAt.toISOString(),
-    },
-    {
-      reservationId: "fixture-canceled-admin",
-      ownerId,
-      status: "CANCELED_BY_ADMIN",
-      roomId: "sangbae2",
-      room: findRoom("sangbae2"),
-      startAt: `${offsetDateKey(now, 3)}T15:00:00+09:00`,
-      endAt: `${offsetDateKey(now, 3)}T16:00:00+09:00`,
-      topic: "운영 일정으로 취소된 회의",
-      attendees: ["이도윤", "최유진"],
-      additionalInfo: "",
-      adminCancelReason: "부트캠프 운영 일정으로 회의실을 사용할 수 없어요.",
-      createdAt: createdAt.toISOString(),
-      updatedAt: updatedAt.toISOString(),
+      createdAt: toLocalDateTime(createdAt),
+      updatedAt: toLocalDateTime(earlierUpdatedAt),
     },
   ];
 }
@@ -223,7 +202,9 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
   }
 
   function findReservation(reservationId) {
-    const reservation = readAll().find((candidate) => candidate.reservationId === reservationId);
+    const reservation = readAll().find(
+      (candidate) => String(candidate.reservationId) === String(reservationId),
+    );
     if (!reservation) {
       throw fixtureError("예약을 찾을 수 없어요.", 404, "RESERVATION_NOT_FOUND");
     }
@@ -239,8 +220,18 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
   }
 
   function toPublicReservation(reservation) {
-    const { ownerId: _ownerId, ...publicReservation } = reservation;
-    return publicReservation;
+    const currentReservation = withCurrentStatus(reservation);
+    const { ownerId: _ownerId, ...publicReservation } = currentReservation;
+    const changeDeadline = new Date(currentReservation.startAt);
+    changeDeadline.setHours(changeDeadline.getHours() - 1);
+    const changeable =
+      currentReservation.status === "CONFIRMED" &&
+      new Date(now()) <= changeDeadline;
+    return {
+      ...publicReservation,
+      canChange: changeable,
+      canCancel: changeable,
+    };
   }
 
   function withCurrentStatus(reservation) {
@@ -252,7 +243,10 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
 
   function validateReservationPayload(payload, { excludeReservationId = "" } = {}) {
     const room = findRoom(payload.roomId);
-    if (!room || !room.active) {
+    if (!room) {
+      throw fixtureError("회의실을 찾을 수 없어요.", 404, "ROOM_NOT_FOUND");
+    }
+    if (!room.active) {
       throw fixtureError("이 회의실은 더 이상 예약할 수 없어요.", 409, "ROOM_INACTIVE");
     }
     if (payload.attendees.length > room.capacity) {
@@ -267,9 +261,9 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
     );
     const overlapsReservation = readAll().some(
       (reservation) =>
-        reservation.reservationId !== excludeReservationId &&
+        String(reservation.reservationId) !== String(excludeReservationId) &&
         reservation.status === "CONFIRMED" &&
-        reservation.roomId === payload.roomId &&
+        String(reservation.roomId) === String(payload.roomId) &&
         reservation.startAt < payload.endAt &&
         reservation.endAt > payload.startAt,
     );
@@ -283,29 +277,35 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
     return room;
   }
 
-  async function fetchMyReservations({ status = "UPCOMING", cursor = "", size = 10 } = {}) {
+  async function fetchMyReservations({
+    status = "UPCOMING",
+    page = 0,
+    size = 20,
+    sortOrder = "DESC",
+  } = {}) {
     const reservations = readAll()
       .filter((reservation) => reservation.ownerId === getCurrentOwnerId())
       .map(withCurrentStatus)
       .filter((reservation) => {
         if (status === "UPCOMING") return reservation.status === "CONFIRMED";
         if (status === "PAST") return reservation.status === "COMPLETED";
-        if (status === "CANCELED") return reservation.status.startsWith("CANCELED_");
+        if (status === "CANCELED") return reservation.status === "CANCELED_BY_USER";
         return true;
       });
     reservations.sort((left, right) => {
-      if (status === "UPCOMING") return left.startAt.localeCompare(right.startAt);
-      if (status === "PAST") return right.startAt.localeCompare(left.startAt);
-      return right.updatedAt.localeCompare(left.updatedAt);
+      const direction = sortOrder === "ASC" ? 1 : -1;
+      const startComparison = left.startAt.localeCompare(right.startAt);
+      if (startComparison !== 0) return startComparison * direction;
+      return (Number(left.reservationId) - Number(right.reservationId)) * direction;
     });
 
-    const startIndex = Math.max(0, Number.parseInt(cursor || "0", 10) || 0);
-    const pageSize = Math.max(1, Number(size) || 10);
+    const pageNumber = Math.max(0, Number.parseInt(page, 10) || 0);
+    const pageSize = Math.max(1, Number(size) || 20);
+    const startIndex = pageNumber * pageSize;
     const items = reservations.slice(startIndex, startIndex + pageSize);
-    const nextIndex = startIndex + items.length;
     return {
       items: clone(items.map(toPublicReservation)),
-      nextCursor: nextIndex < reservations.length ? String(nextIndex) : null,
+      hasNext: startIndex + items.length < reservations.length,
     };
   }
 
@@ -316,7 +316,7 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
   async function fetchConfirmedReservations({ roomId, date, excludeReservationId = "" }) {
     const excludedReservation = readAll().find(
       (reservation) =>
-        reservation.reservationId === excludeReservationId &&
+        String(reservation.reservationId) === String(excludeReservationId) &&
         reservation.ownerId === getCurrentOwnerId(),
     );
     const effectiveExcludeId = excludedReservation?.reservationId || "";
@@ -326,8 +326,8 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
         .filter(
           (reservation) =>
             reservation.status === "CONFIRMED" &&
-            reservation.reservationId !== effectiveExcludeId &&
-            reservation.roomId === roomId &&
+            String(reservation.reservationId) !== String(effectiveExcludeId) &&
+            String(reservation.roomId) === String(roomId) &&
             reservation.startAt.startsWith(date),
         )
         .map(toPublicReservation),
@@ -336,17 +336,11 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
 
   async function createReservation(payload) {
     const reservations = readAll();
-    const existingReservation = reservations.find(
-      (reservation) =>
-        reservation.ownerId === getCurrentOwnerId() &&
-        reservation.idempotencyKey === payload.idempotencyKey,
-    );
-    if (existingReservation) return clone(toPublicReservation(existingReservation));
-
     const room = validateReservationPayload(payload);
-    const changedAt = new Date(now()).toISOString();
+    const changedAt = toLocalDateTime(new Date(now()));
     const reservation = {
-      reservationId: globalThis.crypto?.randomUUID?.() || `reservation-${Date.now()}`,
+      reservationId:
+        Math.max(0, ...reservations.map(({ reservationId }) => Number(reservationId) || 0)) + 1,
       ownerId: getCurrentOwnerId(),
       status: "CONFIRMED",
       ...payload,
@@ -364,17 +358,19 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
     if (reservation.status === "CANCELED_BY_USER") {
       return clone(toPublicReservation(reservation));
     }
-    if (withCurrentStatus(reservation).status !== "CONFIRMED") {
+    if (!toPublicReservation(reservation).canCancel) {
       throw fixtureError("이 예약은 취소할 수 없어요.", 409, "RESERVATION_NOT_CHANGEABLE");
     }
     const canceledReservation = {
       ...reservation,
       status: "CANCELED_BY_USER",
-      updatedAt: new Date(now()).toISOString(),
+      updatedAt: toLocalDateTime(new Date(now())),
     };
     writeAll(
       reservations.map((candidate) =>
-        candidate.reservationId === reservationId ? canceledReservation : candidate,
+        String(candidate.reservationId) === String(reservationId)
+          ? canceledReservation
+          : candidate,
       ),
     );
     return clone(toPublicReservation(canceledReservation));
@@ -383,7 +379,7 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
   async function updateReservation(reservationId, payload) {
     const reservations = readAll();
     const reservation = findOwnedReservation(reservationId);
-    if (withCurrentStatus(reservation).status !== "CONFIRMED") {
+    if (!toPublicReservation(reservation).canChange) {
       throw fixtureError("이 예약은 변경할 수 없어요.", 409, "RESERVATION_NOT_CHANGEABLE");
     }
     const room = validateReservationPayload(payload, { excludeReservationId: reservationId });
@@ -392,11 +388,13 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
       ...payload,
       room,
       status: "CONFIRMED",
-      updatedAt: new Date(now()).toISOString(),
+      updatedAt: toLocalDateTime(new Date(now())),
     };
     writeAll(
       reservations.map((candidate) =>
-        candidate.reservationId === reservationId ? updatedReservation : candidate,
+        String(candidate.reservationId) === String(reservationId)
+          ? updatedReservation
+          : candidate,
       ),
     );
     return clone(toPublicReservation(updatedReservation));
@@ -415,15 +413,15 @@ function createFixtureReservationStore({ storage = globalThis.sessionStorage, no
 function createSlots(roomId, date) {
   const daySeed = Number(date.slice(-2));
   const unavailableIndexes = {
-    ryan2: [(daySeed + 3) % 18, (daySeed + 4) % 18],
-    ryan3: [(daySeed + 7) % 18, (daySeed + 8) % 18, (daySeed + 9) % 18],
-    sangbae2: [(daySeed + 12) % 18, (daySeed + 13) % 18],
-    t1: [(daySeed + 2) % 18, (daySeed + 3) % 18],
-    t2: [(daySeed + 9) % 18, (daySeed + 10) % 18],
-    t3: [(daySeed + 14) % 18, (daySeed + 15) % 18],
-  }[roomId] || [];
+    1: [(daySeed + 3) % 28, (daySeed + 4) % 28],
+    2: [(daySeed + 7) % 28, (daySeed + 8) % 28, (daySeed + 9) % 28],
+    3: [(daySeed + 12) % 28, (daySeed + 13) % 28],
+    4: [(daySeed + 2) % 28, (daySeed + 3) % 28],
+    5: [(daySeed + 9) % 28, (daySeed + 10) % 28],
+    6: [(daySeed + 14) % 28, (daySeed + 15) % 28],
+  }[String(roomId)] || [];
 
-  return Array.from({ length: 18 }, (_, index) => {
+  return Array.from({ length: 28 }, (_, index) => {
     const totalMinutes = 9 * 60 + index * 30;
     const endTotalMinutes = totalMinutes + 30;
     return {
@@ -435,11 +433,7 @@ function createSlots(roomId, date) {
 }
 
 async function fetchFixtureRooms() {
-  return delay(
-    FIXTURE_ROOMS.filter((room) => room.active).sort(
-      (left, right) => left.displayOrder - right.displayOrder || left.name.localeCompare(right.name, "ko"),
-    ),
-  );
+  return delay(FIXTURE_ROOMS.filter((room) => room.active));
 }
 
 async function fetchFixtureRoom(roomId) {
@@ -464,39 +458,35 @@ async function fetchFixtureMonthAvailability({ roomId, year, month }) {
     month,
     dates: Array.from({ length: lastDay }, (_, index) => {
       const date = new Date(year, month - 1, index + 1);
-      const isClosed = date.getDay() === 0;
       const isPast = date < today;
       const isOutsideRange = date > lastBookableDate;
-      const isFull = !isClosed && (index + room.displayOrder) % 11 === 0;
+      const isFull = (index + room.roomId) % 11 === 0;
       return {
         date: toDateKey(date),
         status: isPast
           ? "PAST"
           : isOutsideRange
             ? "OUTSIDE"
-            : isClosed
-              ? "CLOSED"
-              : isFull
-                ? "FULL"
-                : "AVAILABLE",
+            : isFull
+              ? "FULL"
+              : "AVAILABLE",
       };
     }),
   });
 }
 
 async function fetchFixtureDaySlots(
-  { roomId, date },
+  { roomId, date, excludeReservationId = "" },
   { storage = globalThis.sessionStorage, now = () => new Date() } = {},
 ) {
   const room = findRoom(roomId);
   if (!room) throw fixtureError("회의실을 찾을 수 없어요.", 404, "ROOM_NOT_FOUND");
   if (!room.active) throw fixtureError("이 회의실은 더 이상 예약할 수 없어요.", 409, "ROOM_INACTIVE");
   const store = createFixtureReservationStore({ storage, now });
-  const editingReservationId = storage?.getItem("roomBookingEditingReservationId") || "";
   const roomReservations = await store.fetchConfirmedReservations({
     roomId,
     date,
-    excludeReservationId: editingReservationId,
+    excludeReservationId,
   });
   const slots = createSlots(roomId, date).map((slot) => {
     const reserved = roomReservations.some((reservation) => {
@@ -506,7 +496,7 @@ async function fetchFixtureDaySlots(
     });
     return reserved ? { ...slot, state: "UNAVAILABLE" } : slot;
   });
-  return delay({ maximumDurationMinutes: room.maximumDurationMinutes, slots });
+  return delay({ maximumDurationMinutes: 120, slots });
 }
 
 async function createFixtureReservation(payload) {

@@ -14,7 +14,11 @@ import {
 } from "./booking-fixtures.js";
 
 function queryString(values) {
-  return new URLSearchParams(values).toString();
+  return new URLSearchParams(
+    Object.entries(values).filter(
+      ([, value]) => value !== undefined && value !== null && value !== "",
+    ),
+  ).toString();
 }
 
 function fetchRooms({ signal } = {}) {
@@ -39,10 +43,20 @@ function fetchRoomMonthAvailability({ roomId, year, month, signal } = {}) {
   );
 }
 
-function fetchRoomDaySlots({ roomId, date, signal } = {}) {
-  if (USE_BOOKING_FIXTURES) return fetchFixtureDaySlots({ roomId, date });
+function fetchRoomDaySlots({
+  roomId,
+  date,
+  excludeReservationId,
+  signal,
+} = {}) {
+  if (USE_BOOKING_FIXTURES) {
+    return fetchFixtureDaySlots({ roomId, date, excludeReservationId });
+  }
   return request(
-    `/api/rooms/${encodeURIComponent(roomId)}/availability/day?${queryString({ date })}`,
+    `/api/rooms/${encodeURIComponent(roomId)}/availability/day?${queryString({
+      date,
+      excludeReservationId,
+    })}`,
     { headers: createAuthHeaders(), signal },
   );
 }
@@ -55,9 +69,17 @@ function fetchReservation(reservationId, { signal } = {}) {
   });
 }
 
-function fetchMyReservations({ status, cursor = "", size = 10, signal } = {}) {
-  if (USE_BOOKING_FIXTURES) return fetchFixtureMyReservations({ status, cursor, size });
-  return request(`/api/reservations/me?${queryString({ status, cursor, size })}`, {
+function fetchMyReservations({
+  status = "UPCOMING",
+  page = 0,
+  size = 20,
+  sortOrder = "DESC",
+  signal,
+} = {}) {
+  if (USE_BOOKING_FIXTURES) {
+    return fetchFixtureMyReservations({ status, page, size, sortOrder });
+  }
+  return request(`/api/reservations/me?${queryString({ status, page, size, sortOrder })}`, {
     headers: createAuthHeaders(),
     signal,
   });
@@ -67,10 +89,7 @@ function createReservation(payload, { signal } = {}) {
   if (USE_BOOKING_FIXTURES) return createFixtureReservation(payload);
   return request("/api/reservations", {
     method: "POST",
-    headers: createAuthHeaders({
-      "Content-Type": "application/json",
-      "Idempotency-Key": payload.idempotencyKey,
-    }),
+    headers: createAuthHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload),
     signal,
   });
@@ -80,10 +99,7 @@ function updateReservation(reservationId, payload, { signal } = {}) {
   if (USE_BOOKING_FIXTURES) return updateFixtureReservation(reservationId, payload);
   return request(`/api/reservations/${encodeURIComponent(reservationId)}`, {
     method: "PATCH",
-    headers: createAuthHeaders({
-      "Content-Type": "application/json",
-      "Idempotency-Key": payload.idempotencyKey,
-    }),
+    headers: createAuthHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload),
     signal,
   });

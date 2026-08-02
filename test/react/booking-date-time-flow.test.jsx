@@ -17,7 +17,10 @@ import { BookingDraftProvider } from "../../src/features/booking/model/BookingDr
 import { MonthlyAvailabilityCalendar } from "../../src/features/booking/components/MonthlyAvailabilityCalendar.jsx";
 import { TimeRangeSelector } from "../../src/features/booking/components/TimeRangeSelector.jsx";
 import { BookingDateTimePage } from "../../src/pages/booking-date-time/BookingDateTimePage.jsx";
-import { BOOKING_DRAFT_KEY } from "../../src/features/booking/model/bookingDraftStore.js";
+import {
+  BOOKING_DRAFT_KEY,
+  BOOKING_EDITING_RESERVATION_KEY,
+} from "../../src/features/booking/model/bookingDraftStore.js";
 
 const slots = [
   { startTime: "09:00", endTime: "09:30", state: "AVAILABLE" },
@@ -323,6 +326,43 @@ describe("예약 날짜·시간 화면", () => {
       screen.getByRole("button", { name: /^09:00부터/ }),
     ).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "다음" })).toBeEnabled();
+  });
+
+  it("예약 변경 중에는 일간 가용성에서 현재 예약을 제외한다", async () => {
+    sessionStorage.setItem(
+      BOOKING_DRAFT_KEY,
+      JSON.stringify({
+        roomId: 5,
+        roomName: "T2",
+        roomCapacity: 6,
+        date: "2026-07-28",
+      }),
+    );
+    sessionStorage.setItem(BOOKING_EDITING_RESERVATION_KEY, "51");
+    const loadDay = vi.fn().mockResolvedValue({
+      maximumDurationMinutes: 120,
+      slots,
+    });
+
+    renderPage({
+      path: "/booking/5/date-time",
+      loadMonth: vi.fn().mockResolvedValue({
+        year: 2026,
+        month: 7,
+        dates: [{ date: "2026-07-28", status: "AVAILABLE" }],
+      }),
+      loadDay,
+    });
+
+    await waitFor(() =>
+      expect(loadDay).toHaveBeenCalledWith(
+        expect.objectContaining({
+          roomId: "5",
+          date: "2026-07-28",
+          excludeReservationId: "51",
+        }),
+      ),
+    );
   });
 
   it("날짜를 바꾸면 기존 시간만 지우고 다음 이동을 막는다", async () => {

@@ -1,10 +1,9 @@
 import { formatBookingSchedule } from "./booking-format.js";
 
 const RESERVATION_STATUS_LABELS = {
-  CONFIRMED: "예약 확정",
+  CONFIRMED: "예약 완료",
   COMPLETED: "이용 완료",
   CANCELED_BY_USER: "예약 취소",
-  CANCELED_BY_ADMIN: "관리자 취소",
 };
 
 function formatReservationSchedule({ startAt, endAt }) {

@@ -1,5 +1,4 @@
 const DATE_STATUS_LABELS = {
-  CLOSED: "휴무",
   FULL: "마감",
   OUTSIDE: "기간 밖",
   PAST: "지난날",

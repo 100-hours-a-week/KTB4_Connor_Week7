@@ -14,14 +14,16 @@ const reservation = {
     location: "인포데스크 옆",
     capacity: 6,
   },
-  startAt: "2099-07-28T09:00:00+09:00",
-  endAt: "2099-07-28T10:00:00+09:00",
+  startAt: "2099-07-28T09:00:00",
+  endAt: "2099-07-28T10:00:00",
   topic: "프로젝트 회의",
   attendees: ["김현", "이도윤"],
   additionalInfo: "화이트보드 사용",
   status: "CONFIRMED",
-  createdAt: "2026-07-20T10:00:00+09:00",
-  updatedAt: "2026-07-20T10:00:00+09:00",
+  canChange: true,
+  canCancel: true,
+  createdAt: "2026-07-20T10:00:00",
+  updatedAt: "2026-07-20T10:00:00",
 };
 
 function renderDetail({
@@ -64,7 +66,9 @@ describe("예약 취소", () => {
     const canceled = {
       ...reservation,
       status: "CANCELED_BY_USER",
-      updatedAt: "2026-07-27T10:00:00+09:00",
+      canChange: false,
+      canCancel: false,
+      updatedAt: "2026-07-27T10:00:00",
     };
     const loadReservation = vi
       .fn()

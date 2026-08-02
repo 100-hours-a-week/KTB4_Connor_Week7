@@ -7,7 +7,7 @@ const API_BASE_URL =
 const BOOKING_DATA_SOURCE =
   globalThis.APP_CONFIG?.BOOKING_DATA_SOURCE ??
   import.meta.env?.VITE_BOOKING_DATA_SOURCE ??
-  "fixture";
+  "api";
 const USE_BOOKING_FIXTURES = BOOKING_DATA_SOURCE !== "api";
 
 export { API_BASE_URL, BOOKING_DATA_SOURCE, USE_BOOKING_FIXTURES };

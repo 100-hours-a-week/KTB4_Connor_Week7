@@ -6,28 +6,26 @@ import {
   getReservationErrorAction,
 } from "../src/features/booking/lib/booking-validation.js";
 
-test("예약 초안을 offset이 포함된 서버 요청으로 변환한다", () => {
+test("예약 초안을 LocalDateTime 서버 요청으로 변환한다", () => {
   assert.deepEqual(
     buildReservationPayload(
       {
         date: "2026-07-21",
         startTime: "10:00",
         endTime: "11:00",
-        roomId: "room-a",
+        roomId: 5,
         topic: " 프로젝트 회의 ",
         attendeeChips: ["김현", "이도윤"],
         additionalInfo: " 모니터 사용 ",
       },
-      "request-1",
     ),
     {
-      roomId: "room-a",
-      startAt: "2026-07-21T10:00:00+09:00",
-      endAt: "2026-07-21T11:00:00+09:00",
+      roomId: 5,
+      startAt: "2026-07-21T10:00:00",
+      endAt: "2026-07-21T11:00:00",
       topic: "프로젝트 회의",
       attendees: ["김현", "이도윤"],
       additionalInfo: "모니터 사용",
-      idempotencyKey: "request-1",
     },
   );
 });

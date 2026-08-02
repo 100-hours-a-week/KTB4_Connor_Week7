@@ -35,48 +35,59 @@ test("회의실 fixture 목록은 실제 회의실 정보와 이미지를 제공
     })),
     [
       {
-        roomId: "ryan2",
+        roomId: 1,
         name: "RYAN2",
         capacity: 6,
         facilities: ["TV", "화이트보드", "보드마카"],
-        imageUrl: "../assets/rooms/ryan2.png",
+        imageUrl: "https://images.kbtroom.cloud/content/rooms/ryan2.png",
       },
       {
-        roomId: "ryan3",
+        roomId: 2,
         name: "RYAN3",
         capacity: 8,
         facilities: ["TV", "화이트보드", "보드마카"],
-        imageUrl: "../assets/rooms/ryan3.png",
+        imageUrl: "https://images.kbtroom.cloud/content/rooms/ryan3.png",
       },
       {
-        roomId: "sangbae2",
+        roomId: 3,
         name: "SANGBAE2",
         capacity: 8,
         facilities: ["TV", "화이트보드", "보드마카"],
-        imageUrl: "../assets/rooms/sangbae2.png",
+        imageUrl: "https://images.kbtroom.cloud/content/rooms/sangbae2.png",
       },
       {
-        roomId: "t1",
+        roomId: 4,
         name: "T1",
         capacity: 6,
         facilities: [],
-        imageUrl: "../assets/rooms/t1.png",
+        imageUrl: "https://images.kbtroom.cloud/content/rooms/t1.png",
       },
       {
-        roomId: "t2",
+        roomId: 5,
         name: "T2",
         capacity: 6,
         facilities: [],
-        imageUrl: "../assets/rooms/t2.png",
+        imageUrl: "https://images.kbtroom.cloud/content/rooms/t2.png",
       },
       {
-        roomId: "t3",
+        roomId: 6,
         name: "T3",
         capacity: 5,
         facilities: [],
-        imageUrl: "../assets/rooms/t3.png",
+        imageUrl: "https://images.kbtroom.cloud/content/rooms/t3.png",
       },
     ],
+  );
+  assert.equal(
+    rooms.every(
+      (room) =>
+        room.openTime === "09:00" &&
+        room.closeTime === "23:00" &&
+        room.guide &&
+        !("displayOrder" in room) &&
+        !("minimumDurationMinutes" in room),
+    ),
+    true,
   );
 });
 
@@ -92,37 +103,34 @@ test("내 예약 fixture는 예정, 지난, 취소 예약을 필터링하고 페
 
   assert.equal(upcoming.items.length, 1);
   assert.equal(upcoming.items[0].status, "CONFIRMED");
-  assert.equal(upcoming.nextCursor, null);
+  assert.equal(upcoming.hasNext, false);
   assert.deepEqual(past.items.map(({ status }) => status), ["COMPLETED"]);
-  assert.deepEqual(
-    canceled.items.map(({ status }) => status),
-    ["CANCELED_BY_ADMIN", "CANCELED_BY_USER"],
-  );
+  assert.deepEqual(canceled.items.map(({ status }) => status), ["CANCELED_BY_USER"]);
 });
 
 test("내 예약 fixture는 로그인 사용자의 예약만 조회하고 변경할 수 있다", async () => {
   const storage = createMemoryStorage();
   storage.setItem("userId", "current-user");
   storage.setItem(
-    "fixtureReservations",
+    "fixtureReservationsV2",
     JSON.stringify([
       {
         reservationId: "mine",
         ownerId: "current-user",
         status: "CONFIRMED",
-        roomId: "ryan2",
-        startAt: "2026-07-21T09:00:00+09:00",
-        endAt: "2026-07-21T09:30:00+09:00",
-        updatedAt: "2026-07-20T09:00:00+09:00",
+        roomId: 1,
+        startAt: "2026-07-21T09:00:00",
+        endAt: "2026-07-21T09:30:00",
+        updatedAt: "2026-07-20T09:00:00",
       },
       {
         reservationId: "another-users",
         ownerId: "another-user",
         status: "CONFIRMED",
-        roomId: "t2",
-        startAt: "2026-07-21T09:00:00+09:00",
-        endAt: "2026-07-21T10:00:00+09:00",
-        updatedAt: "2026-07-20T09:00:00+09:00",
+        roomId: 5,
+        startAt: "2026-07-21T09:00:00",
+        endAt: "2026-07-21T10:00:00",
+        updatedAt: "2026-07-20T09:00:00",
       },
     ]),
   );
@@ -153,25 +161,24 @@ test("다른 사용자의 확정 예약도 fixture 시간 슬롯을 막는다", 
   const storage = createMemoryStorage();
   const now = () => new Date("2026-07-20T09:00:00+09:00");
   storage.setItem("userId", "current-user");
-  storage.setItem("roomBookingEditingReservationId", "another-users");
   storage.setItem(
-    "fixtureReservations",
+    "fixtureReservationsV2",
     JSON.stringify([
       {
         reservationId: "another-users",
         ownerId: "another-user",
         status: "CONFIRMED",
-        roomId: "t2",
-        startAt: "2026-07-21T09:00:00+09:00",
-        endAt: "2026-07-21T10:00:00+09:00",
-        updatedAt: "2026-07-20T09:00:00+09:00",
+        roomId: 5,
+        startAt: "2026-07-21T09:00:00",
+        endAt: "2026-07-21T10:00:00",
+        updatedAt: "2026-07-20T09:00:00",
       },
     ]),
   );
   globalThis.sessionStorage = storage;
   try {
     const slots = await fetchFixtureDaySlots(
-      { roomId: "t2", date: "2026-07-21" },
+      { roomId: 5, date: "2026-07-21", excludeReservationId: "another-users" },
       { storage, now },
     );
 
@@ -185,14 +192,14 @@ test("다른 사용자의 확정 예약도 fixture 시간 슬롯을 막는다", 
 test("종료된 확정 예약은 예정이 아니라 이용 완료로 조회한다", async () => {
   const storage = createMemoryStorage();
   storage.setItem(
-    "fixtureReservations",
+    "fixtureReservationsV2",
     JSON.stringify([
       {
         reservationId: "confirmed-ended",
         status: "CONFIRMED",
-        startAt: "2026-07-19T10:00:00+09:00",
-        endAt: "2026-07-19T11:00:00+09:00",
-        updatedAt: "2026-07-19T11:00:00+09:00",
+        startAt: "2026-07-19T10:00:00",
+        endAt: "2026-07-19T11:00:00",
+        updatedAt: "2026-07-19T11:00:00",
       },
     ]),
   );
@@ -214,9 +221,9 @@ test("예약 취소 fixture는 상세 상태를 바꾸고 반복 요청에도 �
     now: () => new Date("2026-07-20T09:00:00+09:00"),
   });
 
-  const firstResult = await store.cancelReservation("fixture-upcoming-1");
-  const secondResult = await store.cancelReservation("fixture-upcoming-1");
-  const detail = await store.fetchReservation("fixture-upcoming-1");
+  const firstResult = await store.cancelReservation(1001);
+  const secondResult = await store.cancelReservation(1001);
+  const detail = await store.fetchReservation(1001);
 
   assert.equal(firstResult.status, "CANCELED_BY_USER");
   assert.deepEqual(secondResult, firstResult);
@@ -229,29 +236,34 @@ test("예약 변경 fixture는 새 조건이 유효할 때만 기존 예약을 �
     now: () => new Date("2026-07-20T09:00:00+09:00"),
   });
   const validChange = {
-    roomId: "ryan2",
-    startAt: "2026-07-21T16:00:00+09:00",
-    endAt: "2026-07-21T17:00:00+09:00",
+    roomId: 1,
+    startAt: "2026-07-21T16:00:00",
+    endAt: "2026-07-21T17:00:00",
     topic: "변경한 프로젝트 회의",
     attendees: ["김현", "이도윤"],
     additionalInfo: "변경된 요청",
-    idempotencyKey: "change-1",
   };
 
-  const changed = await store.updateReservation("fixture-upcoming-1", validChange);
+  const changed = await store.updateReservation(1001, validChange);
+  await store.createReservation({
+    ...validChange,
+    startAt: "2026-07-21T12:00:00",
+    endAt: "2026-07-21T12:30:00",
+    topic: "겹치는 예약",
+  });
   await assert.rejects(
     () =>
-      store.updateReservation("fixture-upcoming-1", {
+      store.updateReservation(1001, {
         ...validChange,
-        startAt: "2026-07-21T12:00:00+09:00",
-        endAt: "2026-07-21T12:30:00+09:00",
+        startAt: "2026-07-21T12:00:00",
+        endAt: "2026-07-21T12:30:00",
       }),
     (error) => error.data?.code === "RESERVATION_CONFLICT",
   );
-  const detail = await store.fetchReservation("fixture-upcoming-1");
+  const detail = await store.fetchReservation(1001);
 
   assert.equal(changed.topic, "변경한 프로젝트 회의");
-  assert.equal(detail.startAt, "2026-07-21T16:00:00+09:00");
+  assert.equal(detail.startAt, "2026-07-21T16:00:00");
   assert.equal(detail.topic, "변경한 프로젝트 회의");
 });
 
@@ -262,13 +274,12 @@ test("새 fixture 예약은 내 예정 예약과 상세 조회에 즉시 반영�
     now: () => new Date("2026-07-20T09:00:00+09:00"),
   });
   const created = await store.createReservation({
-    roomId: "t2",
-    startAt: "2026-07-21T09:00:00+09:00",
-    endAt: "2026-07-21T10:00:00+09:00",
+    roomId: 5,
+    startAt: "2026-07-21T09:00:00",
+    endAt: "2026-07-21T10:00:00",
     topic: "새 예약",
     attendees: ["김현"],
     additionalInfo: "",
-    idempotencyKey: "create-1",
   });
 
   const upcoming = await store.fetchMyReservations({ status: "UPCOMING", size: 10 });
@@ -291,28 +302,25 @@ test("확정 예약은 시간 슬롯을 막고 취소하면 다시 예약 가능
   try {
     const store = createFixtureReservationStore({ storage, now });
     const created = await store.createReservation({
-      roomId: "t2",
-      startAt: "2026-07-21T09:00:00+09:00",
-      endAt: "2026-07-21T10:00:00+09:00",
+      roomId: 5,
+      startAt: "2026-07-21T09:00:00",
+      endAt: "2026-07-21T10:00:00",
       topic: "슬롯 확인",
       attendees: ["김현"],
       additionalInfo: "",
-      idempotencyKey: "slot-1",
     });
 
-    storage.setItem("roomBookingEditingReservationId", created.reservationId);
     const editing = await fetchFixtureDaySlots(
-      { roomId: "t2", date: "2026-07-21" },
+      { roomId: 5, date: "2026-07-21", excludeReservationId: created.reservationId },
       { storage, now },
     );
-    storage.removeItem("roomBookingEditingReservationId");
     const reserved = await fetchFixtureDaySlots(
-      { roomId: "t2", date: "2026-07-21" },
+      { roomId: 5, date: "2026-07-21" },
       { storage, now },
     );
     await store.cancelReservation(created.reservationId);
     const canceled = await fetchFixtureDaySlots(
-      { roomId: "t2", date: "2026-07-21" },
+      { roomId: 5, date: "2026-07-21" },
       { storage, now },
     );
 

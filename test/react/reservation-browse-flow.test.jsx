@@ -26,7 +26,7 @@ describe("내 예약 목록과 상세", () => {
   beforeEach(() => sessionStorage.clear());
 
   const room = {
-    roomId: "ryan2",
+    roomId: 1,
     name: "RYAN2",
     location: "인포데스크 옆",
     imageUrl: "/room.png",
@@ -35,14 +35,16 @@ describe("내 예약 목록과 상세", () => {
   const upcoming = {
     reservationId: "reservation-upcoming",
     room,
-    startAt: "2099-07-28T10:00:00+09:00",
-    endAt: "2099-07-28T11:00:00+09:00",
+    startAt: "2099-07-28T10:00:00",
+    endAt: "2099-07-28T11:00:00",
     topic: "프로젝트 회의",
     attendees: ["김현", "이도윤"],
     additionalInfo: "화이트보드를 사용할 예정입니다.",
     status: "CONFIRMED",
-    createdAt: "2026-07-20T10:00:00+09:00",
-    updatedAt: "2026-07-20T10:00:00+09:00",
+    canChange: true,
+    canCancel: true,
+    createdAt: "2026-07-20T10:00:00",
+    updatedAt: "2026-07-20T10:00:00",
   };
 
   const past = {
@@ -95,7 +97,7 @@ describe("내 예약 목록과 상세", () => {
   it("예약 목록과 접근 가능한 상세 링크를 표시한다", async () => {
     const loadReservations = vi.fn().mockResolvedValue({
       items: [upcoming],
-      nextCursor: null,
+      hasNext: false,
     });
     renderReservations(loadReservations);
 
@@ -107,8 +109,9 @@ describe("내 예약 목록과 상세", () => {
     expect(loadReservations).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "UPCOMING",
-        cursor: "",
+        page: 0,
         size: 5,
+        sortOrder: "DESC",
         signal: expect.any(AbortSignal),
       }),
     );
@@ -134,24 +137,24 @@ describe("내 예약 목록과 상세", () => {
     await waitFor(() => expect(requests).toHaveLength(2));
     expect(requests[0].signal.aborted).toBe(true);
 
-    requests[0].resolve({ items: [upcoming], nextCursor: null });
-    requests[1].resolve({ items: [past], nextCursor: null });
+    requests[0].resolve({ items: [upcoming], hasNext: false });
+    requests[1].resolve({ items: [past], hasNext: false });
 
     expect(await screen.findByText("완료한 스터디")).toBeInTheDocument();
     expect(screen.queryByText("프로젝트 회의")).not.toBeInTheDocument();
   });
 
-  it("cursor로 더 불러오고 중복 예약은 한 번만 표시한다", async () => {
+  it("다음 page를 더 불러오고 중복 예약은 한 번만 표시한다", async () => {
     const user = userEvent.setup();
     const loadReservations = vi
       .fn()
-      .mockResolvedValueOnce({ items: [upcoming], nextCursor: "1" })
+      .mockResolvedValueOnce({ items: [upcoming], hasNext: true })
       .mockResolvedValueOnce({
         items: [
           { ...upcoming, topic: "뒤늦게 도착한 중복 예약" },
           { ...past, reservationId: "reservation-second" },
         ],
-        nextCursor: null,
+        hasNext: false,
       });
     renderReservationsWithRoute(loadReservations);
 
@@ -160,7 +163,7 @@ describe("내 예약 목록과 상세", () => {
 
     expect(await screen.findByText("완료한 스터디")).toBeInTheDocument();
     expect(loadReservations).toHaveBeenLastCalledWith(
-      expect.objectContaining({ status: "UPCOMING", cursor: "1" }),
+      expect.objectContaining({ status: "UPCOMING", page: 1, sortOrder: "DESC" }),
     );
     expect(screen.getAllByText("프로젝트 회의")).toHaveLength(1);
     expect(screen.queryByText("뒤늦게 도착한 중복 예약")).not.toBeInTheDocument();
@@ -168,7 +171,7 @@ describe("내 예약 목록과 상세", () => {
 
   it("결과가 없으면 필터에 맞는 empty 상태를 표시한다", async () => {
     renderReservationsWithRoute(
-      vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      vi.fn().mockResolvedValue({ items: [], hasNext: false }),
     );
 
     expect(await screen.findByText("예정된 예약이 없어요.")).toBeInTheDocument();
@@ -179,7 +182,7 @@ describe("내 예약 목록과 상세", () => {
     const loadReservations = vi
       .fn()
       .mockRejectedValueOnce(new Error("network"))
-      .mockResolvedValueOnce({ items: [upcoming], nextCursor: null });
+      .mockResolvedValueOnce({ items: [upcoming], hasNext: false });
     renderReservationsWithRoute(loadReservations);
 
     await user.click(await screen.findByRole("button", { name: "다시 시도" }));
@@ -192,9 +195,9 @@ describe("내 예약 목록과 상세", () => {
     const user = userEvent.setup();
     const loadReservations = vi
       .fn()
-      .mockResolvedValueOnce({ items: [upcoming], nextCursor: "1" })
+      .mockResolvedValueOnce({ items: [upcoming], hasNext: true })
       .mockRejectedValueOnce(new Error("network"))
-      .mockResolvedValueOnce({ items: [past], nextCursor: null });
+      .mockResolvedValueOnce({ items: [past], hasNext: false });
     renderReservationsWithRoute(loadReservations);
 
     await screen.findByText("프로젝트 회의");
@@ -239,7 +242,7 @@ describe("내 예약 목록과 상세", () => {
     renderReservationDetail(loadReservation);
 
     expect(await screen.findByRole("heading", { name: "프로젝트 회의" })).toBeInTheDocument();
-    expect(screen.getByText("예약 확정")).toBeInTheDocument();
+    expect(screen.getByText("예약 완료")).toBeInTheDocument();
     expect(screen.getByText("RYAN2 (인포데스크 옆)")).toBeInTheDocument();
     expect(screen.getByText("참석자", { exact: false })).toBeInTheDocument();
     expect(
@@ -252,6 +255,20 @@ describe("내 예약 목록과 상세", () => {
       "reservation-upcoming",
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
+  });
+
+  it("상세 관리 버튼은 서버의 canChange와 canCancel 값을 각각 따른다", async () => {
+    renderReservationDetail(
+      vi.fn().mockResolvedValue({
+        ...upcoming,
+        canChange: false,
+        canCancel: true,
+      }),
+    );
+
+    expect(await screen.findByRole("heading", { name: "프로젝트 회의" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "예약 변경" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "예약 취소" })).toBeInTheDocument();
   });
 
   it.each([

@@ -36,7 +36,8 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
     statusFilter: "UPCOMING",
     status: "loading",
     items: [],
-    nextCursor: null,
+    page: 0,
+    hasNext: false,
   });
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -55,7 +56,7 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
       requestRef.current.controller?.abort();
       const requestId = requestRef.current.id + 1;
       const controller = new AbortController();
-      const cursor = reset ? "" : stateRef.current.nextCursor || "";
+      const page = reset ? 0 : stateRef.current.page;
       requestRef.current = {
         id: requestId,
         status,
@@ -68,16 +69,18 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
         statusFilter: status,
         status: "loading",
         items: reset ? [] : current.items,
-        nextCursor: reset ? null : current.nextCursor,
+        page: reset ? 0 : current.page,
+        hasNext: reset ? false : current.hasNext,
       }));
 
       loadReservations({
         status,
-        cursor,
+        page,
         size: PAGE_SIZE,
+        sortOrder: "DESC",
         signal: controller.signal,
       })
-        .then((page) => {
+        .then((result) => {
           if (
             controller.signal.aborted ||
             !requestRef.current.mounted ||
@@ -89,13 +92,14 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
           setState((current) => {
             const items = mergeReservations(
               reset ? [] : current.items,
-              page.items,
+              result.items,
             );
             return {
               statusFilter: status,
               status: items.length ? "success" : "empty",
               items,
-              nextCursor: page.nextCursor,
+              page: page + 1,
+              hasNext: result.hasNext,
             };
           });
         })
@@ -175,7 +179,7 @@ function ReservationsPage({ loadReservations = fetchMyReservations }) {
             </button>
           </p>
         ) : null}
-        {state.nextCursor ? (
+        {state.hasNext ? (
           <button
             className="reservation-load-more"
             type="button"

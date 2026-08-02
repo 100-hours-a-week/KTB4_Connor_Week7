@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { formatDuration } from "../lib/booking-format.js";
-
 function RoomDetail({ room }) {
   const [imageFailed, setImageFailed] = useState(false);
   const facilities = room.facilities.length
@@ -45,15 +43,12 @@ function RoomDetail({ room }) {
       </section>
       <section aria-labelledby="room-hours-heading">
         <h3 id="room-hours-heading">운영 시간</h3>
-        <p>{room.operatingHours}</p>
-        <p>
-          최소 {formatDuration(room.minimumDurationMinutes)}, 최대{" "}
-          {formatDuration(room.maximumDurationMinutes)}
-        </p>
+        <p>{room.openTime}~{room.closeTime}</p>
+        <p>예약은 30분부터 2시간까지 가능해요.</p>
       </section>
       <section aria-labelledby="room-guide-heading">
         <h3 id="room-guide-heading">이용 안내</h3>
-        <p>{room.usageGuide}</p>
+        <p>{room.guide}</p>
       </section>
     </article>
   );

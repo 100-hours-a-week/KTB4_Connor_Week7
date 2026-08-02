@@ -22,10 +22,9 @@ const room = {
   capacity: 6,
   facilities: ["TV", "화이트보드", "보드마카"],
   description: "좌석 구성에 따라 4~6명이 이용할 수 있어요.",
-  operatingHours: "09:00~18:00",
-  usageGuide: "깨끗하게 사용해 주세요.",
-  minimumDurationMinutes: 30,
-  maximumDurationMinutes: 120,
+  openTime: "09:00",
+  closeTime: "23:00",
+  guide: "깨끗하게 사용해 주세요.",
   imageUrl: "/broken-room.png",
   active: true,
 };

@@ -14,7 +14,7 @@ import { parseLocalDate } from "../../features/booking/lib/booking-format.js";
 
 function getDateTimeGuardRoute(routeRoomId, draft) {
   if (!draft.roomId) return "/rooms";
-  if (routeRoomId !== draft.roomId) {
+  if (String(routeRoomId) !== String(draft.roomId)) {
     return routeRoomId
       ? `/rooms/${encodeURIComponent(routeRoomId)}`
       : "/rooms";
@@ -131,7 +131,12 @@ function BookingDateTimePage({
       status: "loading",
       error: "",
     }));
-    loadDay({ roomId, date: draft.date, signal: controller.signal })
+    loadDay({
+      roomId,
+      date: draft.date,
+      excludeReservationId: editingReservationId || undefined,
+      signal: controller.signal,
+    })
       .then((data) => {
         if (controller.signal.aborted) return;
         setDayState({
@@ -155,6 +160,7 @@ function BookingDateTimePage({
   }, [
     dayRequestVersion,
     draft.date,
+    editingReservationId,
     guardRoute,
     loadDay,
     recoverAvailabilityError,

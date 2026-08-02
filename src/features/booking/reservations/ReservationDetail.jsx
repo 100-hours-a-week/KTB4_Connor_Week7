@@ -14,9 +14,6 @@ function DetailItem({ label, value }) {
 }
 
 function ReservationDetail({ reservation }) {
-  const hasAdminReason =
-    reservation.status === "CANCELED_BY_ADMIN" && reservation.adminCancelReason;
-
   return (
     <article className="reservation-detail">
       <p className={`reservation-status-badge is-${reservation.status.toLowerCase()}`}>
@@ -47,12 +44,6 @@ function ReservationDetail({ reservation }) {
           value={formatReservationTimestamp(reservation.updatedAt)}
         />
       </dl>
-      {hasAdminReason ? (
-        <section className="reservation-admin-reason">
-          <h3>관리자 취소 사유</h3>
-          <p>{reservation.adminCancelReason}</p>
-        </section>
-      ) : null}
     </article>
   );
 }

@@ -90,9 +90,7 @@ function ReservationDetailPage({
       );
     }
     const reservation = state.reservation;
-    const manageable =
-      reservation.status === "CONFIRMED" &&
-      new Date(reservation.startAt) > new Date();
+    const manageable = reservation.canChange || reservation.canCancel;
 
     return (
       <>
@@ -109,20 +107,24 @@ function ReservationDetailPage({
         ) : null}
         {manageable && !actionsForbidden ? (
           <div className="reservation-detail-actions">
-            <StartReservationEditButton reservation={reservation} />
-            <CancelReservationButton
-              reservation={reservation}
-              cancel={cancel}
-              onCanceled={() =>
-                setRequestVersion((version) => version + 1)
-              }
-              onUnauthorized={recoverUnauthorized}
-              onForbidden={(message) => {
-                setActionsForbidden(true);
-                setActionError(message);
-              }}
-              onError={setActionError}
-            />
+            {reservation.canChange ? (
+              <StartReservationEditButton reservation={reservation} />
+            ) : null}
+            {reservation.canCancel ? (
+              <CancelReservationButton
+                reservation={reservation}
+                cancel={cancel}
+                onCanceled={() =>
+                  setRequestVersion((version) => version + 1)
+                }
+                onUnauthorized={recoverUnauthorized}
+                onForbidden={(message) => {
+                  setActionsForbidden(true);
+                  setActionError(message);
+                }}
+                onError={setActionError}
+              />
+            ) : null}
           </div>
         ) : null}
       </>
