@@ -18,7 +18,6 @@ function createStorage(values = {}) {
 
 globalThis.APP_CONFIG = {
   API_BASE_URL: "http://api.test",
-  BOOKING_DATA_SOURCE: "api",
 };
 globalThis.sessionStorage = createStorage({ accessToken: "access-token" });
 

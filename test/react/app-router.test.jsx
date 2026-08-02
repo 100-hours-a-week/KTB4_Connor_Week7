@@ -172,11 +172,28 @@ describe("AppRouter", () => {
 
   it("예약 완료 route 직접 진입에서 조회 결과를 표시한다", async () => {
     saveAuthenticatedSnapshot();
-    renderRoute("/booking/confirmed/missing-reservation");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          code: "RESERVATION_NOT_FOUND",
+          message: "예약 정보를 찾을 수 없어요.",
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
 
-    expect(
-      await screen.findByText("예약 정보를 찾을 수 없어요."),
-    ).toBeInTheDocument();
+    try {
+      renderRoute("/booking/confirmed/missing-reservation");
+
+      expect(
+        await screen.findByText("예약 정보를 찾을 수 없어요."),
+      ).toBeInTheDocument();
+    } finally {
+      fetchMock.mockRestore();
+    }
   });
 
   it.each([
