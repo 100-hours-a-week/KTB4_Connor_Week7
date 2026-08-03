@@ -74,7 +74,7 @@ function BookingConfirmedPage({
       <main className="booking-page booking-confirmed-page">
         <img
           className="booking-success-icon"
-          src="/assets/icons/booking-success-3d.png"
+          src="/assets/icons/booking-success-3d.png?v=2"
           alt=""
           width="72"
           height="72"

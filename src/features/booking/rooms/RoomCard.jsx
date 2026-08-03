@@ -52,7 +52,7 @@ function RoomCard({ room, editing = false }) {
         <span className="rooms-card-location">
           <img
             className="rooms-card-location-icon"
-            src="/assets/icons/location-pin.svg"
+            src="/assets/icons/location-pin.svg?v=2"
             alt=""
           />
           {room.location.replace(/\s*·\s*/g, ", ")}

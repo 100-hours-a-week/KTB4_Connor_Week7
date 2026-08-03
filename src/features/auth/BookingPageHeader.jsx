@@ -9,7 +9,7 @@ function BrandLink({ to, label }) {
     <Link className="booking-brand-link" to={to} aria-label={label}>
       <img
         className="booking-brand-logo"
-        src="/assets/icons/room-logo.png"
+        src="/assets/icons/room-logo.png?v=2"
         alt=""
       />
     </Link>
