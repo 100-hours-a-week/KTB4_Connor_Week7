@@ -44,7 +44,7 @@ function AttendeeInput({
                 }
               >
                 <img
-                  src="/assets/icons/attendee-remove.svg"
+                  src="/assets/icons/attendee-remove.svg?v=2"
                   alt=""
                   aria-hidden="true"
                 />
