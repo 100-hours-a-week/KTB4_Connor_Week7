@@ -226,6 +226,25 @@ describe("AppRouter", () => {
     ).toBeInTheDocument();
   });
 
+  it("숫자 회의실 ID의 예약 초안도 날짜·시간 화면을 표시한다", async () => {
+    saveAuthenticatedSnapshot();
+    sessionStorage.setItem(
+      BOOKING_DRAFT_KEY,
+      JSON.stringify({
+        roomId: 1,
+        roomName: "RYAN2",
+        roomCapacity: 6,
+      }),
+    );
+    renderRoute("/booking/1/date-time");
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "날짜와 시간을 선택해 주세요",
+      }),
+    ).toBeInTheDocument();
+  });
+
   it("알 수 없는 route를 인증 상태에 맞는 시작 route로 보낸다", async () => {
     renderRoute("/unknown");
 
