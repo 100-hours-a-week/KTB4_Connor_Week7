@@ -14,7 +14,7 @@ import { parseLocalDate } from "../../features/booking/lib/booking-format.js";
 
 function getDateTimeGuardRoute(routeRoomId, draft) {
   if (!draft.roomId) return "/rooms";
-  if (routeRoomId !== draft.roomId) {
+  if (routeRoomId !== String(draft.roomId)) {
     return routeRoomId
       ? `/rooms/${encodeURIComponent(routeRoomId)}`
       : "/rooms";
