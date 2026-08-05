@@ -178,6 +178,16 @@ describe("회의실 상세와 예약 시작", () => {
     });
   });
 
+  it("이용시간 정책 필드가 없으면 NaN을 표시하지 않는다", async () => {
+    const roomWithoutDuration = { ...room };
+    delete roomWithoutDuration.minimumDurationMinutes;
+    delete roomWithoutDuration.maximumDurationMinutes;
+    renderRoomDetail(vi.fn().mockResolvedValue(roomWithoutDuration));
+
+    expect(await screen.findByRole("heading", { name: "T2" })).toBeInTheDocument();
+    expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
+  });
+
   it("예약 변경 중 회의실을 바꾸면 변경 ID를 유지한다", async () => {
     const user = userEvent.setup();
     const store = createBookingDraftStore(sessionStorage);

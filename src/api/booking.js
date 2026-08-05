@@ -17,9 +17,20 @@ function queryString(values) {
   return new URLSearchParams(values).toString();
 }
 
+function toRoomViewModel(room) {
+  const { guide, openTime, closeTime, ...roomView } = room;
+  return {
+    ...roomView,
+    operatingHours: `${openTime}~${closeTime}`,
+    usageGuide: guide,
+  };
+}
+
 function fetchRooms({ signal } = {}) {
   if (USE_BOOKING_FIXTURES) return fetchFixtureRooms();
-  return request("/api/rooms", { headers: createAuthHeaders(), signal });
+  return request("/api/rooms", { headers: createAuthHeaders(), signal }).then((rooms) =>
+    rooms.map(toRoomViewModel),
+  );
 }
 
 function fetchRoom(roomId, { signal } = {}) {
@@ -27,7 +38,7 @@ function fetchRoom(roomId, { signal } = {}) {
   return request(`/api/rooms/${encodeURIComponent(roomId)}`, {
     headers: createAuthHeaders(),
     signal,
-  });
+  }).then(toRoomViewModel);
 }
 
 function fetchRoomMonthAvailability({ roomId, year, month, signal } = {}) {
