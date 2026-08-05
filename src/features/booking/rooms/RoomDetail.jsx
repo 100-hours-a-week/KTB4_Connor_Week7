@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { formatDuration } from "../lib/booking-format.js";
 
 function RoomDetail({ room }) {
   const [imageFailed, setImageFailed] = useState(false);
@@ -46,10 +45,6 @@ function RoomDetail({ room }) {
       <section aria-labelledby="room-hours-heading">
         <h3 id="room-hours-heading">운영 시간</h3>
         <p>{room.operatingHours}</p>
-        <p>
-          최소 {formatDuration(room.minimumDurationMinutes)}, 최대{" "}
-          {formatDuration(room.maximumDurationMinutes)}
-        </p>
       </section>
       <section aria-labelledby="room-guide-heading">
         <h3 id="room-guide-heading">이용 안내</h3>
