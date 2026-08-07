@@ -1,8 +1,8 @@
 function buildReservationPayload(draft, idempotencyKey) {
   return {
     roomId: draft.roomId,
-    startAt: `${draft.date}T${draft.startTime}:00+09:00`,
-    endAt: `${draft.date}T${draft.endTime}:00+09:00`,
+    startAt: `${draft.date}T${draft.startTime}:00`,
+    endAt: `${draft.date}T${draft.endTime}:00`,
     topic: draft.topic.trim(),
     attendees: [...draft.attendeeChips],
     additionalInfo: draft.additionalInfo.trim(),

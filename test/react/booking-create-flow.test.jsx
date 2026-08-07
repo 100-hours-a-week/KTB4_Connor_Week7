@@ -69,8 +69,8 @@ it("예약을 한 번 생성하고 성공 후 draft를 지운다", async () => {
   expect(create).toHaveBeenCalledOnce();
   expect(create).toHaveBeenCalledWith({
     roomId: "t2",
-    startAt: "2026-07-28T09:00:00+09:00",
-    endAt: "2026-07-28T10:00:00+09:00",
+    startAt: "2026-07-28T09:00:00",
+    endAt: "2026-07-28T10:00:00",
     topic: "프로젝트 회의",
     attendees: ["김현", "이도윤"],
     additionalInfo: "화이트보드 사용",
